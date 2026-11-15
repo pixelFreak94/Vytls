@@ -14,7 +14,9 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 8 | 2026-11-15 | Default targets 95 fasting and 120 two hours after meals, editable | Common guideline targets for pregnancy; her doctor's numbers override |
 | 9 | 2026-11-15 | Ingredient list on each after-meal test, none on fasting | Owner's request, to see which foods precede high readings; no meal precedes the fasting test |
 | 10 | 2026-11-15 | Movement goal is 5 within 60 minutes after each meal, editable | Owner's instruction; window to be confirmed with her doctor |
-| 11 | 2026-11-15 | Three alert triggers: goal not reached, slower than her usual, and a button she can press herself | Owner requires an alert whenever movements are fewer than usual; the button covers times outside a session |
+| 11 | 2026-11-15 | Four alert triggers: goal not reached, slower than her usual, a button she can press herself, and a question when a session is ended early below the goal | Owner requires an alert whenever movements are fewer than usual; the button covers times outside a session; the question closes the gap of quitting a count early |
 | 12 | 2026-11-15 | No in-app reminders; use iPhone alarms | A web app cannot reliably notify while closed |
 | 13 | 2026-11-15 | Work in Claude Code in the cloud; Opus leads, Sonnet and Haiku take delegated work | Owner cannot run Claude Code locally; cheaper models for routine work saves tokens |
 | 14 | 2026-11-15 | Six project files only, with one overwritten next-session brief | Owner wants no backlog of redundant history; git keeps the history |
+| 15 | 2026-11-15 | Tracking runs in 30-day months that roll over automatically | Owner's instruction: after day 30 it just moves to the next month |
+| 16 | 2026-11-15 | Logging is blocked in Safari until the app is added to the Home Screen | The two keep separate data on iPhone; entries made in Safari would be lost |

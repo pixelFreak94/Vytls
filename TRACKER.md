@@ -2,13 +2,13 @@
 
 Current state only. When a phase is finished, collapse its tasks into the single phase line. Phases are defined in `DEV_PLAN.md` §12.
 
-**Pick up here:** Phase 0 — push the project files, then switch on GitHub Pages.
+**Pick up here:** Phase 1 — data layer and app shell. Owner switches on GitHub Pages once `index.html` exists.
 
 ## Phases
 
 | Phase | What | Status |
 |---|---|---|
-| 0 | Repo, project files, GitHub Pages | In progress |
+| 0 | Repo and project files (GitHub Pages moves to the end of Phase 1) | Done |
 | 1 | App shell, navigation, data layer, Settings basics | Not started |
 | 2 | Today screen and sugar logging | Not started |
 | 3 | Ingredient list | Not started |
@@ -21,16 +21,18 @@ Current state only. When a phase is finished, collapse its tasks into the single
 
 ## Current phase tasks
 
-- [x] Repo connected to Claude Code
-- [x] Six project files drafted
-- [ ] Owner approves the files
-- [ ] First commit pushed to `main`
+Phase 1, not started:
+
+- [ ] `js/store.js` (lead)
+- [ ] App shell, navigation, install-first screen (Sonnet)
+- [ ] Settings basics
 - [ ] GitHub Pages switched on (owner: repo Settings → Pages → deploy from `main`)
 
 ## Waiting on the owner
 
 - Doctor's answers to the four questions in `DEV_PLAN.md` §15
 - Doctor's phone number for the alert's call button
+- Decision on when the app's "day" ends, for dinners whose 2-hour test falls after midnight
 
 ## Known issues
 
