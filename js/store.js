@@ -47,6 +47,8 @@ const MIGRATIONS = {
 };
 
 function migrate(d) {
+  // Data from a newer version (e.g. after a rollback) is kept as it is: unknown fields survive.
+  if (typeof d.version !== 'number') d.version = DATA_VERSION;
   while (d.version < DATA_VERSION && MIGRATIONS[d.version]) d = MIGRATIONS[d.version](d);
   return fillMissing(d, defaults());
 }
@@ -60,7 +62,12 @@ export function load() {
   try { raw = localStorage.getItem(KEY); } catch { raw = null; }
   if (raw) {
     try {
-      data = migrate(JSON.parse(raw));
+      const parsed = JSON.parse(raw);
+      // Before an update reshapes the data, keep an untouched copy (never deleted by the app).
+      if ((parsed.version ?? 0) < DATA_VERSION) {
+        try { localStorage.setItem(`${KEY}.before-v${DATA_VERSION}`, raw); } catch { /* keep going */ }
+      }
+      data = migrate(parsed);
     } catch {
       try { localStorage.setItem(CORRUPT_KEY, raw); } catch { /* keep going */ }
       data = defaults();

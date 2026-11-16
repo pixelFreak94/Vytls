@@ -238,6 +238,35 @@
   --d-drain:       1100ms;
 }
 
+:root {
+  /* ---- today / lifeline / sheet (Phase 2; manual §16.7, §16.9, §28.5, §28.8) ---- */
+  --spine-w:        2px;
+  --spine-w-lit:    3px;
+  --spine-dim:      rgba(122, 152, 179, 0.28);
+  --spine-lit:      var(--a-blue);
+  --node-gutter:    calc(var(--spine-x) * 2);
+  --node-dot:       14px;
+  --node-due-w:     2px;
+  --node-pad-y:     var(--sp-3);
+  --close-dot:      18px;
+  --st-settled-tint: rgba(197, 217, 200, 0.45);
+  --ball-node:      24px;
+  --ball-node-fill: linear-gradient(180deg, var(--c-ball-hi-hi) 0%, var(--a-terra) 47%, var(--c-ink-seam) 47%, var(--c-ink-seam) 53%, var(--c-ball-lo-hi) 53%, var(--c-ball-lo) 100%);
+  --focus-line:     0.3;                 /* the docked node rests 30% down the scroller (manual §16.9) */
+  --hop-ms:         720ms;
+  --hop-arc:        14px;
+  --hop-squash-x:   1.22; --hop-squash-y:   0.78;
+  --hop-stretch-x:  0.88; --hop-stretch-y:  1.16;
+  --chip-pad-y:     var(--sp-1);
+  --chip-pad-x:     var(--sp-3);
+  --today-foot:     var(--sp-8);
+  --sheet-veil:     var(--scrim-light);
+  --sheet-pad:      var(--sp-6);
+  --sheet-gap:      var(--sp-5);
+  --sheet-in-y:     24px;
+  --reading-lh:     1.1;
+}
+
 /* ---- atmosphere & entry (added) ---- */
 :root {
   /* blobs (manual §12.2): size, x, y, period, drift */

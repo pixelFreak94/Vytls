@@ -5,9 +5,10 @@ import * as store from './store.js';
 import { initAtmosphere, setRoom as setAtmosphereRoom } from './atmosphere.js';
 import { runEntry } from './entry.js';
 import { renderSettings } from './settings.js';
-import { initAudio } from './audio.js';
+import { initAudio, thup } from './audio.js';
+import { renderToday as renderLifeline } from './today.js';
 
-export const VERSION = '0.1.0';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.2.0';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };
@@ -57,7 +58,7 @@ function renderToday() {
       { label: 'open settings', onTap: () => go('settings') }));
     return;
   }
-  body.append(emptyState('Nothing to log yet.'));   // the lifeline arrives in Phase 2
+  renderLifeline(body);
 }
 
 function renderRoom(room) {
@@ -123,6 +124,7 @@ export function go(room, opts = {}) {
     html.classList.add('is-crossing');
     timers.push(setTimeout(() => html.classList.remove('is-crossing'), tokenMs('--d-chrome-return')));
     morphChip(CODES[room]);
+    thup();
   }
   crossing = { from, to, timers };
   timers.push(setTimeout(finishCrossing, Math.max(cross, revealEnd)));
@@ -203,6 +205,40 @@ function morphChip(code) {
   chipTimer = setTimeout(() => chip.classList.remove('is-morphed'), tokenMs('--chip-hold'));
 }
 
+// ---- auto-update (sw.js explains the steps) ----
+// A new version waits until it is safe to swap: no movement count running, nothing being
+// typed, no sheet open. It swaps while the app is hidden, or at launch.
+function safeToSwap() {
+  if (store.runningSession()) return false;
+  const a = document.activeElement;
+  if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false;
+  if (document.querySelector('[role="dialog"]')) return false;
+  return true;
+}
+
+function initUpdates() {
+  if (!('serviceWorker' in navigator)) return;
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return;   // first install: nothing to reload
+    reloading = true;
+    location.reload();
+  });
+  navigator.serviceWorker.register('sw.js').then((reg) => {
+    const trySwap = () => { if (reg.waiting && safeToSwap()) reg.waiting.postMessage('take-over'); };
+    trySwap();   // launch: a version that arrived last time goes in now
+    reg.addEventListener('updatefound', () => {
+      const w = reg.installing;
+      w?.addEventListener('statechange', () => { if (w.state === 'installed' && document.hidden) trySwap(); });
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) trySwap();
+      else reg.update().catch(() => {});   // back on screen: look for a new version
+    });
+  }).catch(() => { /* offline copy unavailable; the app still runs */ });
+}
+
 // ---- boot ----
 function boot() {
   const data = store.load();
@@ -210,6 +246,7 @@ function boot() {
   html.dataset.standalone = String(env.standalone);
   initAtmosphere($('#world'));
   initAudio(data.settings.sound);
+  initUpdates();
 
   if (!env.standalone) {
     // Opened in a Safari tab: nothing can be logged here (DECISIONS 16).
