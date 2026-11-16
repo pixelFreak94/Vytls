@@ -84,10 +84,12 @@ icons/                app icons
     lengthDays: 30,
     targets: { fasting: 95, afterMeal: 120 },      // mg/dL, flag when above
     kicks: { goal: 5, windowMinutes: 60 },
+    slowAlert: { factor: 2, extraMinutes: 15, lastSessions: 7, minSessions: 5 },  // A2 (§6)
     dayStartHour: 4,                               // the app's day runs 4 am to 4 am
     doctorPhone: "",                              // for the alert's call button; logging is blocked until set
     ambient: true,                                 // AMBIENT switch (manual §13.6)
-    sound: false                                   // synthesised sound, off by default
+    sound: false,                                  // synthesised sound, off by default
+    lastBackupAt: null                             // for the "Back up your data" line (§8)
   },
   days: {
     "YYYY-MM-DD": {

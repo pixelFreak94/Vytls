@@ -1,0 +1,44 @@
+/* motion.css — every animation and the reduced-motion block (manual §13).
+ * Only transform and opacity animate. Ambient loops are gated by data-ambient. */
+
+/* ---- room change: the glass crossfade (manual §13.4) ---- */
+.room { opacity: 0; visibility: hidden; }
+.room.is-active { opacity: 1; visibility: visible; }
+
+.room.is-leaving {
+  visibility: visible;
+  animation: room-out calc(var(--d-cross) * 0.92) var(--ease-reveal) both;
+  pointer-events: none;
+}
+.room.is-entering {
+  visibility: visible;
+  animation: room-in var(--d-cross) var(--ease-reveal) both;
+}
+@keyframes room-out { from { opacity: 1; scale: 1; } to { opacity: 0; scale: var(--cross-out-scale); } }
+@keyframes room-in  { from { opacity: 0; scale: var(--cross-in-scale); } to { opacity: 1; scale: 1; } }
+
+/* ---- item settle (manual §13.4). app.js sets --i on each .reveal-item and adds .is-revealing to the room. ---- */
+@keyframes settle {
+  0%   { opacity: 0; transform: perspective(480px) translateZ(-40px); }
+  55%  { opacity: 1; }
+  78%  { transform: perspective(480px) translateZ(10px); }
+  92%  { transform: perspective(480px) translateZ(-3px); }
+  100% { opacity: 1; transform: perspective(480px) translateZ(0); }
+}
+.room.is-revealing .reveal-item {
+  animation: settle var(--d-reveal) var(--ease-reveal) both;
+  animation-delay: calc(var(--reveal-base, var(--d-reveal-base)) + var(--i, 0) * var(--d-reveal-step));
+}
+
+/* ---- instruments fade out on a room change and return one by one ---- */
+.instrument { transition: opacity var(--d-quick) var(--ease-default); }
+html.is-crossing .instrument { opacity: 0; transition-duration: var(--d-quick); }
+
+/* ---- reduced motion: large moves become instant or opacity-only (manual §13.6) ---- */
+@media (prefers-reduced-motion: reduce) {
+  .room.is-leaving { animation: room-fade-out var(--d-quick) linear both; }
+  .room.is-entering { animation: room-fade-in var(--d-quick) linear both; }
+  .room.is-revealing .reveal-item { animation: none; }
+  @keyframes room-fade-out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes room-fade-in { from { opacity: 0; } to { opacity: 1; } }
+}

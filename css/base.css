@@ -1,0 +1,134 @@
+/* base.css — reset, fonts, type voices, the room and its bands, grain, edge fades.
+ * Manual §7.5–§7.6, §8, §10, §12.3, §12.6. Values come from tokens.css. */
+
+@font-face { font-family: 'Sora'; src: url('../fonts/sora-vf-latin.woff2') format('woff2'); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: 'Manrope'; src: url('../fonts/manrope-vf-latin.woff2') format('woff2'); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('../fonts/jetbrains-mono-vf-latin.woff2') format('woff2'); font-weight: 100 800; font-display: swap; }
+
+:root { --app-h: 100vh; }
+@supports (height: 100dvh) { :root { --app-h: 100dvh; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+* { -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: var(--app-h);
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--c-cream);
+  color: var(--t-primary);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-feature-settings: "ss01", "ss02", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3, p, ol, ul { margin: 0; padding: 0; }
+ol, ul { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+[hidden] { display: none !important; }
+::-webkit-scrollbar { width: 0; height: 0; }
+
+.chrome, .chrome * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+:focus { outline: none; }
+:focus-visible {
+  outline: var(--focus-ring-w) solid var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--r-focus);
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ---- type voices (manual §10.2) ---- */
+.label {
+  font-family: var(--font-mono); font-size: var(--fs-label); line-height: 1.6;
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--t-whisper);
+  font-variant-numeric: tabular-nums;
+}
+.label--legible { font-size: var(--fs-legible); color: var(--t-secondary); }
+.room-title {
+  font-family: var(--font-display); font-size: var(--fs-room); line-height: 1;
+  font-weight: var(--fw-head); letter-spacing: var(--tr-head); text-transform: lowercase;
+}
+.heading {
+  font-family: var(--font-display); font-size: var(--fs-heading); line-height: 1.25;
+  font-weight: var(--fw-head); letter-spacing: var(--tr-head);
+}
+.note {
+  font-family: var(--font-display); font-size: var(--fs-note); line-height: var(--lh-note);
+  font-weight: var(--fw-light); letter-spacing: var(--tr-display);
+  max-width: var(--measure-note); text-wrap: balance;
+}
+.item-title { font-family: var(--font-display); font-size: var(--fs-item); line-height: 1.3; font-weight: var(--fw-head); }
+.body { font-size: var(--fs-body); line-height: var(--lh-body); color: var(--t-secondary); max-width: var(--measure); text-wrap: pretty; }
+.value { font-size: var(--fs-value); line-height: 1.4; color: var(--t-primary); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---- the rooms and the four bands (manual §8.3) ---- */
+.rooms {
+  position: fixed; top: 0; left: 0; width: 100%; height: var(--app-h);
+  z-index: var(--z-content);
+}
+.room {
+  position: absolute; top: 0; left: 0; width: 100%; height: var(--app-h);
+  background: var(--g-surface);
+}
+.scroller {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding:
+    calc(var(--safe-t) + var(--shell-top)) var(--shell-side)
+    calc(var(--safe-b) + var(--shell-bottom));
+  transform: translateZ(0);
+  contain: paint;
+}
+.room-body, .room-title {
+  max-width: var(--col-max);
+  margin-inline: auto;
+}
+.room-title { display: block; margin-bottom: var(--sp-8); }
+
+/* an empty state: a room with air and one calm line (manual §17.6) */
+.empty {
+  min-height: calc(var(--app-h) - var(--safe-t) - var(--shell-top) - var(--safe-b) - var(--shell-bottom) - var(--sp-8) - var(--fs-room));
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-6); text-align: center;
+}
+.empty .body { text-align: center; text-wrap: balance; }
+
+/* ---- grain (manual §12.3) ---- */
+.grain { position: relative; }
+.grain::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background-image:
+    radial-gradient(rgba(60,40,20,0.025) 1px, transparent 1px),
+    radial-gradient(rgba(60,40,20,0.018) 1px, transparent 1px);
+  background-size: 3px 3px, 7px 7px; background-position: 0 0, 1px 2px;
+}
+
+/* ---- edge fades (manual §12.6) ---- */
+.fade-both {
+  --fade-mask: linear-gradient(to bottom,
+    transparent 0, rgba(0,0,0,.35) calc(var(--fade)*.47), #000 var(--fade),
+    #000 calc(100% - var(--fade)), rgba(0,0,0,.35) calc(100% - var(--fade)*.47), transparent 100%);
+  -webkit-mask-image: var(--fade-mask);
+  mask-image: var(--fade-mask);
+}
+.fade-more {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade-more)), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade-more)), transparent 100%);
+}
