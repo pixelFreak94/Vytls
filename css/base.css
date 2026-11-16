@@ -4,6 +4,7 @@
 @font-face { font-family: 'Sora'; src: url('../fonts/sora-vf-latin.woff2') format('woff2'); font-weight: 100 800; font-display: swap; }
 @font-face { font-family: 'Manrope'; src: url('../fonts/manrope-vf-latin.woff2') format('woff2'); font-weight: 200 800; font-display: swap; }
 @font-face { font-family: 'JetBrains Mono'; src: url('../fonts/jetbrains-mono-vf-latin.woff2') format('woff2'); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: 'Bebas Neue'; src: url('../fonts/bebas-neue-latin-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
 
 :root { --app-h: 100vh; }
 @supports (height: 100dvh) { :root { --app-h: 100dvh; } }

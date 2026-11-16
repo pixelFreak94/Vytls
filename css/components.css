@@ -361,11 +361,11 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 /* tier 1: the part of the day. Tier 2: the step (.item-title). Tier 3: its status (.label). */
 .group-title {
   margin: 0; padding-left: var(--sp-3);
-  font-family: var(--font-display); font-size: var(--fs-group); font-weight: var(--fw-group);
+  font-family: var(--font-head); font-size: var(--fs-group); font-weight: var(--fw-group); text-transform: uppercase;
   line-height: 1.15; letter-spacing: var(--tr-group); color: var(--t-primary);
 }
-/* headings are the only capitalised text (owner's call) */
-.group-title::first-letter, .room-title::first-letter { text-transform: uppercase; }
+/* headings are the only capitalised text: Bebas, all caps (owner's call) */
+.room-title { font-family: var(--font-head); font-weight: var(--fw-group); text-transform: uppercase; letter-spacing: var(--tr-group); }
 .node .item-title { font-weight: var(--fw-body); color: var(--t-step); }
 
 .node-dot {
@@ -401,7 +401,9 @@ button.node-hit:active { scale: var(--card-press-scale); transition-duration: va
 button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 .node[data-state="done"] .node-hit { background: var(--st-settled-tint); }
 .node[data-flag="above"] .node-hit { background: transparent; }
-.node-text { display: grid; gap: var(--sp-1); min-width: 0; }
+.node-text { display: grid; gap: 0; min-width: 0; }
+.node-text .item-title, .node-text .label { line-height: var(--node-lh); }
+.lifeline > li.node { padding-block: var(--node-sep); }
 .node-text .label { color: var(--t-secondary); }
 .node[data-state="due"] .node-text .label { color: var(--t-primary); }
 

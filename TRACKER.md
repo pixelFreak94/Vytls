@@ -2,7 +2,7 @@
 
 Current state only. When a phase is finished, collapse its tasks into the single phase line. Phases are defined in `DEV_PLAN.md` §12.
 
-**Pick up here:** 0.2.1 is live (Phase 2 done, plus sound, auto-update, missed-day entry). Owner checks it on the iPhone; then Phase 3 (ingredient list).
+**Pick up here:** 0.2.2 is live (Phase 2 done, plus sound, auto-update, missed-day entry, Bebas headings). Owner checks it on the iPhone; then Phase 3 (ingredient list).
 
 ## Phases
 
@@ -21,9 +21,9 @@ Current state only. When a phase is finished, collapse its tasks into the single
 
 ## Current phase tasks
 
-Phase 2, live as 0.2.1. Tested in a phone-sized browser only.
+Phase 2, live as 0.2.2. Tested in a phone-sized browser only.
 
-- [ ] Owner: check 0.2.1 on the iPhone: type hierarchy, sound (silent switch on), missed-day entry, auto-update
+- [ ] Owner: check 0.2.2 on the iPhone: type hierarchy and grouping, sound (silent switch on), missed-day entry, auto-update
 - [ ] Owner: approve the wording of the Today gate
 - [ ] Owner: choose an auto-backup approach (on hold; conflicts with the Privacy rules, see DECISIONS 29)
 
@@ -36,5 +36,4 @@ Phase 2, live as 0.2.1. Tested in a phone-sized browser only.
 
 - Some component keyframes sit in `css/components.css`; move them to `css/motion.css` in a tidy-up pass.
 - `404.html` and the quiet note are not built yet.
-- Mono labels keep their wide letter-spacing (`--tr-label`), set for capitals; may need tightening now that labels are lowercase.
 - Movements cannot be filled in for a past day until Phase 4.
