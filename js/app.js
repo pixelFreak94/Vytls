@@ -7,6 +7,7 @@ import { runEntry } from './entry.js';
 import { renderSettings } from './settings.js';
 import { initAudio, thup } from './audio.js';
 import { renderToday as renderLifeline } from './today.js';
+import { resumeIfRunning } from './kicks.js';
 
 export const VERSION = '0.2.2';   // keep in step with sw.js (DEV_PLAN §3)
 
@@ -269,6 +270,7 @@ function boot() {
       html.dataset.entered = 'true';
       $('#nav').hidden = false;
       go('today', { boot: true });
+      resumeIfRunning();   // a count left running reopens, or closes if its window passed
       typeReadout();
       startClock();
     },

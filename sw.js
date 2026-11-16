@@ -16,9 +16,9 @@ const FILES = [
   './',
   'index.html',
   'manifest.webmanifest',
-  'css/tokens.css', 'css/base.css', 'css/components.css', 'css/motion.css',
+  'css/tokens.css', 'css/base.css', 'css/components.css', 'css/motion.css', 'css/counter.css',
   'js/app.js', 'js/store.js', 'js/atmosphere.js', 'js/entry.js', 'js/audio.js',
-  'js/settings.js', 'js/today.js',
+  'js/settings.js', 'js/today.js', 'js/kicks.js',
   'fonts/sora-vf-latin.woff2', 'fonts/manrope-vf-latin.woff2', 'fonts/jetbrains-mono-vf-latin.woff2', 'fonts/bebas-neue-latin-400.woff2',
   'icons/apple-touch-icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',
 ];

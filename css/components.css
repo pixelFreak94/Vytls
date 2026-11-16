@@ -416,6 +416,13 @@ button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-r
 .chip--settled { background: var(--st-settled); }
 .chip--settled .chip-mark { color: var(--st-settled-mark); }
 .chip--above { background: var(--st-above); }
+.chip--passed { background: var(--st-alert); color: var(--st-alert-ink); }
+.node[data-flag="passed"] .node-hit { background: transparent; }
+.node[data-flag="passed"] .node-dot { background: var(--st-alert); border-color: var(--st-alert); }
+.node[data-flag="passed"] .node-dot::before { content: "!"; color: var(--st-alert-ink); }
+.node[data-flag="incomplete"] .node-hit { background: transparent; }
+.node[data-flag="incomplete"] .node-dot { background: var(--c-card-white); border-color: var(--t-whisper); }
+.node[data-flag="incomplete"] .node-dot::before { content: none; }
 .chip--dash { color: var(--t-whisper); padding-inline: 0; }
 
 .node-close { display: flex; align-items: center; min-height: var(--tl-gap); }
@@ -469,3 +476,25 @@ button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-r
 @media (prefers-reduced-motion: reduce) {
   button.node-hit { transition: none; }
 }
+
+/* ---- ingredients (Phase 3) ---- */
+.foods { display: grid; gap: var(--food-gap); }
+.food-row { align-items: center; gap: var(--sp-3); }
+.food-row .field-input { flex: 1 1 auto; min-width: 0; min-height: var(--hit-min); }
+.food-add, .food-remove, .food-chip { min-height: var(--hit-min); }
+.food-suggest { display: flex; flex-wrap: wrap; gap: var(--food-gap); }
+.food-suggest[hidden] { display: none; }
+.food-chip {
+  padding: 0 var(--sp-4); border: 0; border-radius: var(--r-pill); background: var(--food-chip-bg);
+  font: inherit; font-size: var(--fs-body); color: var(--t-primary); cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.food-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.food-item { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); border-top: var(--food-line-w) solid var(--g-edge); }
+.food-item:first-child { border-top: 0; }
+.food-name { min-width: 0; overflow-wrap: anywhere; font-size: var(--fs-body); color: var(--t-primary); }
+.food-remove {
+  flex: none; min-width: var(--hit-min); border: 0; background: transparent; color: var(--t-secondary);
+  font: inherit; font-size: var(--fs-item); cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.food-chip:focus-visible, .food-remove:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
+.node[data-kind="meal"] .node-text .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -3,6 +3,7 @@
 // so a re-render never closes one that is open. Thresholds are read from settings on every render.
 
 import * as store from './store.js';
+import { openCounter, resumeIfRunning } from './kicks.js';
 
 const HOUR = 3600000;
 const TEST_AFTER = 2 * HOUR;               // sugar test: meal finished + 2 hours (DEV_PLAN §2)
@@ -60,7 +61,8 @@ function buildNodes(day, now, past) {
   return nodes;
 }
 
-const countLogged = (nodes) => nodes.filter((n) => (n.kind === 'meal' ? false : n.done)).length;
+// a count ended early below the goal is incomplete and not counted (DEV_PLAN §5)
+const countLogged = (nodes) => nodes.filter((n) => n.kind !== 'meal' && n.done && n.rec?.outcome !== 'ended-early').length;
 
 // ---- pieces ------------------------------------------------------------
 
@@ -75,14 +77,29 @@ function valueChip(n) {
     }
     return chip('chip--settled', el('span', { class: 'chip-mark', 'aria-hidden': 'true', text: '✓' }), String(v));
   }
-  if (n.kind === 'kicks') return chip('chip--settled', el('span', { class: 'chip-mark', 'aria-hidden': 'true', text: '✓' }), `${n.rec.taps?.length ?? 0} taps`);
+  if (n.kind === 'kicks') {
+    const taps = n.rec.taps?.length ?? 0;
+    if (n.rec.outcome === 'window-expired') return chip('chip--passed', `${taps} of ${store.get().settings.kicks.goal}`);
+    if (n.rec.outcome === 'ended-early') return chip('chip--dash', `${taps} · incomplete`);
+    return chip('chip--settled', el('span', { class: 'chip-mark', 'aria-hidden': 'true', text: '✓' }), String(taps));
+  }
   return chip('chip--settled', el('span', { class: 'chip-mark', 'aria-hidden': 'true', text: '✓' }));
 }
 
 function labelFor(n) {
   if (n.kind === 'fasting') return n.done ? hhmm(n.rec.at) : 'not logged';
-  if (n.kind === 'meal') return n.done ? `finished ${hhmm(n.rec.finishedAt)}` : 'not logged';
-  if (n.kind === 'kicks') return n.done ? `${n.rec.taps?.length ?? 0} taps` : 'not logged';
+  if (n.kind === 'meal') {
+    const foods = n.rec.foods?.length ? ` · ${n.rec.foods.join(', ')}` : '';
+    return (n.done ? `finished ${hhmm(n.rec.finishedAt)}` : 'not logged') + foods;
+  }
+  if (n.kind === 'kicks') {
+    const k = n.rec;
+    if (k?.startedAt && !k.endedAt) return `counting · ${k.taps.length} of ${store.get().settings.kicks.goal}`;
+    if (!n.done) return 'not logged';
+    if (k.outcome === 'window-expired') return 'window passed';
+    if (k.outcome === 'ended-early') return 'ended early';
+    return `${k.taps.length} in ${Math.max(1, Math.round((k.endedAt - k.startedAt) / 60000))} min`;
+  }
   if (n.done) return hhmm(n.rec.at);
   if (n.testAt) return `${n.due ? 'due now · ' : ''}test at ${hhmm(n.testAt)}`;
   return 'not logged';
@@ -134,7 +151,8 @@ function nodeRow(n, state) {
     valueChip(n),
   ];
   const locked = isPast() && n.done;      // past entries are kept as logged
-  const tappable = n.kind !== 'kicks' && !locked;   // the counter is Phase 4
+  // movements: counted live, so only today, and only until the count has ended
+  const tappable = n.kind === 'kicks' ? !isPast() && !n.done : !locked;
   const hit = tappable
     ? el('button', { class: 'node-hit', type: 'button', 'data-node': n.id }, ...inner)
     : el('div', { class: 'node-hit', 'data-node': n.id }, ...inner);
@@ -144,6 +162,8 @@ function nodeRow(n, state) {
     'data-kind': n.kind,
     'data-state': n.done ? 'done' : n.due ? 'due' : 'open',
     ...(locked ? { 'data-locked': '' } : {}),
+    ...(n.kind === 'kicks' && n.rec?.outcome === 'window-expired' ? { 'data-flag': 'passed' } : {}),
+    ...(n.kind === 'kicks' && n.rec?.outcome === 'ended-early' ? { 'data-flag': 'incomplete' } : {}),
     ...(flag ? { 'data-flag': flag } : {}),
   }, dot, hit);
   if (tappable) hit.addEventListener('click', () => openFor(n));
@@ -252,7 +272,8 @@ function closeSheet(returnTo) {
 
 function openFor(n) {
   if (!store.canLog()) return;
-  if (n.kind === 'meal') openMealSheet(n);
+  if (n.kind === 'kicks') { if (!openCounter(shownKey(), n.meal)) resumeIfRunning(); }
+  else if (n.kind === 'meal') openMealSheet(n);
   else openReadingSheet(n);
 }
 
@@ -395,6 +416,56 @@ function openReadingSheet(n) {
   input.focus();
 }
 
+/** The ingredient list for one meal: add field, suggestions from past foods, the added foods with remove. */
+function foodsField(key, meal) {
+  const current = () => store.getDay(key).meals[meal].foods ?? [];
+  const input = el('input', {
+    class: 'field-input', id: 'sheet-food', type: 'text', enterkeyhint: 'done',
+    placeholder: 'rice, 1 cup', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false',
+  });
+  const add = el('button', { class: 'btn btn-ghost food-add', type: 'button', text: 'add' });
+  const sugg = el('div', { class: 'food-suggest', role: 'group', 'aria-label': 'suggestions' });
+  const list = el('ul', { class: 'food-list' });
+  const wrap = el('div', { class: 'field foods' },
+    el('label', { class: 'field-label', for: 'sheet-food', text: 'ingredients' }),
+    el('div', { class: 'field-row food-row' }, input, add), sugg, list);
+
+  const addFood = (raw) => {
+    const f = raw.trim();
+    input.value = '';
+    if (f && !current().some((x) => x.toLowerCase() === f.toLowerCase())) {
+      store.updateDay(key, (d) => { d.meals[meal].foods.push(f); });
+      store.noteFood(f);
+    }
+    paint();
+  };
+  const paint = () => {
+    const have = current();
+    list.replaceChildren(...have.map((f, i) => {
+      const rm = el('button', { class: 'food-remove', type: 'button', 'aria-label': `remove ${f}`, text: '×' });
+      rm.addEventListener('click', () => {
+        store.updateDay(key, (d) => { d.meals[meal].foods.splice(i, 1); });
+        paint();
+      });
+      return el('li', { class: 'food-item' }, el('span', { class: 'food-name', text: f }), rm);
+    }));
+    const q = input.value.trim().toLowerCase();
+    const picks = store.get().foodHistory
+      .filter((f) => !have.includes(f) && (!q || f.toLowerCase().includes(q))).slice(0, 5);
+    sugg.hidden = picks.length === 0;
+    sugg.replaceChildren(...picks.map((f) => {
+      const b = el('button', { class: 'food-chip', type: 'button', text: f });
+      b.addEventListener('click', () => { addFood(f); input.focus(); });
+      return b;
+    }));
+  };
+  input.addEventListener('input', paint);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addFood(input.value); } });
+  add.addEventListener('click', () => { addFood(input.value); input.focus(); });
+  paint();
+  return wrap;
+}
+
 function openMealSheet(n) {
   const key = shownKey();
   const editing = n.done;
@@ -402,6 +473,7 @@ function openMealSheet(n) {
 
   const time = timeField(n.rec.finishedAt);
   form.append(time.wrap);
+  form.append(foodsField(key, n.meal));
 
   const save = el('button', { class: 'btn btn-filled', type: 'submit', text: editing ? 'save' : 'meal finished' });
   const clear = editing ? el('button', { class: 'btn btn-ghost', type: 'button', text: 'clear' }) : null;

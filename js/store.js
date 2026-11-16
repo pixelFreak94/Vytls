@@ -173,6 +173,17 @@ export function runningSession() {
   return null;
 }
 
+// ---- foods ------------------------------------------------------------
+
+/** Remember a food: front of foodHistory (most used first), newest spelling kept, capped at 200. */
+export function noteFood(name) {
+  const f = String(name).trim();
+  if (!f) return false;
+  return update((d) => {
+    d.foodHistory = [f, ...d.foodHistory.filter((x) => x.toLowerCase() !== f.toLowerCase())].slice(0, 200);
+  });
+}
+
 // ---- settings ---------------------------------------------------------
 
 /** Set one setting by path, e.g. setSetting('targets.fasting', 95). */

@@ -272,6 +272,9 @@
   --sheet-gap:      var(--sp-5);
   --sheet-in-y:     24px;
   --reading-lh:     1.1;
+  --food-gap:       var(--sp-3);          /* ingredients: space between chips and rows */
+  --food-chip-bg:   var(--st-settled-tint);
+  --food-line-w:    1px;
 }
 
 /* ---- atmosphere & entry (added) ---- */
@@ -363,4 +366,25 @@
   --settings-row-gap: var(--sp-4);
   --settings-label-gap: var(--sp-3);
   --fade-room: calc(var(--safe-t) + var(--shell-top));   /* the room title starts where the top fade ends */
+}
+
+:root {
+  /* ---- counter (Phase 4) ---- */
+  --counter-pad:        var(--sp-5);
+  --counter-gap:        var(--sp-4);
+  --counter-node:       18px;
+  --counter-node-gap:   var(--sp-6);
+  --counter-spine-h:    2px;
+  --counter-pill-h:     var(--hit-min);
+  --counter-pill-pad:   var(--sp-6);
+  --counter-tap-min:    55vh;
+  --counter-tap-fill:   linear-gradient(160deg, rgba(255, 253, 249, 0.92), rgba(247, 241, 231, 0.85));
+  --counter-tap-edge:   rgba(255, 255, 255, 0.9);
+  --counter-tap-shadow: 0 10px 30px rgba(60, 50, 40, 0.14);
+  --counter-tap-scale:  0.97;
+  --counter-bloom:      radial-gradient(circle, var(--a-terra-hi) 0%, transparent 70%);
+  --counter-bloom-size: 220px;
+  --counter-veil:       var(--c-cream);
+  --counter-node-off:   rgba(60, 50, 40, 0.28);
+  --counter-confirm-gap: var(--sp-3);
 }
