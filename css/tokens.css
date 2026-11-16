@@ -237,3 +237,94 @@
   --d-pour-hold:   2600ms;
   --d-drain:       1100ms;
 }
+
+/* ---- atmosphere & entry (added) ---- */
+:root {
+  /* blobs (manual §12.2): size, x, y, period, drift */
+  --blob-peach-size: 70vmax; --blob-peach-x: 70%; --blob-peach-y: 10%; --blob-peach-period: 42s; --blob-peach-dx: 50px; --blob-peach-dy: -32px;
+  --blob-lavender-size: 65vmax; --blob-lavender-x: 5%; --blob-lavender-y: 25%; --blob-lavender-period: 55s; --blob-lavender-dx: -36px; --blob-lavender-dy: 48px;
+  --blob-mint-size: 60vmax; --blob-mint-x: 35%; --blob-mint-y: 75%; --blob-mint-period: 48s; --blob-mint-dx: 32px; --blob-mint-dy: -44px;
+  --blob-paleblue-size: 55vmax; --blob-paleblue-x: 80%; --blob-paleblue-y: 70%; --blob-paleblue-period: 38s; --blob-paleblue-dx: -40px; --blob-paleblue-dy: 36px;
+  --blob-coral-size: 38vmax; --blob-coral-x: 50%; --blob-coral-y: 40%; --blob-coral-period: 60s; --blob-coral-dx: 24px; --blob-coral-dy: 28px;
+  --blob-stagger: 4s;
+  --blob-core: 33%; --blob-mid-stop: 30%; --blob-end-stop: 65%;
+  /* blob opacity per room (manual §12.2 second table) */
+  --bo-home-peach: 0.80; --bo-home-lavender: 0.78; --bo-home-mint: 0.78; --bo-home-paleblue: 0.78; --bo-home-coral: 0.60;
+  --bo-contact-peach: 0.14; --bo-contact-lavender: 0.34; --bo-contact-mint: 0.74; --bo-contact-paleblue: 1.00; --bo-contact-coral: 0.10;
+  --bo-folio-peach: 0.12; --bo-folio-lavender: 1.00; --bo-folio-mint: 0.50; --bo-folio-paleblue: 0.24; --bo-folio-coral: 0.10;
+  --bo-about-peach: 1.00; --bo-about-lavender: 0.30; --bo-about-mint: 0.20; --bo-about-paleblue: 0.10; --bo-about-coral: 1.00;
+  /* world */
+  --fog-opacity: 0.9;
+  --breath-lo: 0.82;
+  --glow-size: 120vmax; --glow-peak: 0.75; --glow-ms: 1500ms; --glow-start: 0.6; --glow-end: 1.15;
+  --amb-up-ms: 1200ms; --amb-up-delay: 950ms;
+  --nav-settle-ms: 640ms; --nav-settle-delay: 760ms; --nav-settle-y: 14px; --nav-settle-scale: 0.96;
+  /* corner web (manual §28.7) */
+  --web-size: 92vmin; --web-max: 0.50; --web-wash-max: 0.28; --web-artery-max: 0.40; --web-glow-max: 0.30;
+  --web-breath: 11.7s; --web-breath-lo: 0.2; --web-beat-offset: -1.1s; --web-beat-lo: 0.18;
+  --web-line: 1.6; --web-line-thin: 1;
+  /* touch bloom (manual §13.3) */
+  --bloom-core: rgba(199, 123, 92, 0.27);
+  --bloom-from: 0.3; --bloom-to: 2.6;
+  /* entry */
+  --entry-ball-gap: 22px;
+  --entry-glint-ms: 1700ms;
+  --entry-pop-a: 1.16; --entry-pop-a-y: 0.86; --entry-pop-b: 0.94; --entry-pop-b-y: 1.07;
+  --entry-ripple-size: 170vmax;
+  --ripple-gap: 150ms;
+  --ripple-ring: rgba(199, 123, 92, 0.34);
+  --ripple-ring-hi: rgba(255, 253, 250, 0.70);
+  --ripple-drop: rgba(244, 201, 168, 0.55);
+  --ripple-from: 0.03; --ripple-drop-to: 0.7;
+  --ball-sheen: rgba(255, 255, 255, 0.40);
+  --ball-glint: rgba(255, 253, 250, 0.85);
+  --ball-away-scale: 0.85;
+  --entry-field: var(--c-cream);
+}
+
+/* ---- components (added) ---- */
+:root {
+  --readout-h: 16px;
+  --readout-gap: 8px;
+  --live-dot-lo: 0.4;
+  --nav-frac: 0.64;
+  --nav-hit-extra: calc((var(--hit-min) - var(--nav-h)) / 2);
+  --sheen-w: 40%;
+  --sheen-alpha: 0.5;
+  --sheen-band: linear-gradient(100deg, transparent 0%, rgba(255, 249, 242, 1) 50%, transparent 100%);
+  --pour-bubbles:
+    radial-gradient(circle at 10% 78%, rgba(255, 249, 242, 0.75) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 24% 38%, rgba(255, 249, 242, 0.6) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 36% 70%, rgba(255, 249, 242, 0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 48% 28%, rgba(255, 249, 242, 0.65) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 60% 66%, rgba(255, 249, 242, 0.6) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 72% 34%, rgba(255, 249, 242, 0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 84% 72%, rgba(255, 249, 242, 0.65) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 92% 30%, rgba(255, 249, 242, 0.6) 0 2px, transparent 2.5px);
+  --btn-pad-x: 20px;
+  --btn-pad-y: var(--sp-3);
+  --btn-icon-gap: 8px;
+  --btn-hit-extend: 4px;
+  --btn-filled-hover: var(--c-card-white);
+  --d-glide: 480ms;
+  --toggle-track: rgba(60, 50, 40, 0.10);
+  --toggle-track-inset: inset 0 1px 2px rgba(40, 30, 20, 0.12);
+  --toggle-stretch: scale(1.5, 0.7);
+  --toggle-stretch-x: 7px;
+  --d-hairline: 240ms;
+  --field-note-gap: var(--sp-2);
+  --unit-gap: var(--sp-3);
+  --cell-pad-y: var(--sp-3);
+  --cell-pad-x: 12px;
+  --cell-value-gap: 2px;
+  --install-top: calc(var(--shell-top) + var(--sp-8));
+  --install-gap-eyebrow: var(--sp-6);
+  --install-gap-why: var(--sp-4);
+  --install-gap-steps: var(--sp-8);
+  --install-step-gap: var(--sp-5);
+  --install-index-w: 28px;
+  --settings-group-gap: var(--sp-8);
+  --settings-row-gap: var(--sp-4);
+  --settings-label-gap: var(--sp-3);
+  --fade-room: calc(var(--safe-t) + var(--shell-top));   /* the room title starts where the top fade ends */
+}
