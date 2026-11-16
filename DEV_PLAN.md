@@ -178,7 +178,7 @@ All design, UI and UX follow `REMAKE_App_Design_Manual.md`, Temple register; §2
 | Phase | Delivers | Lead / delegate |
 |---|---|---|
 | 0 | Repo, the six project files, GitHub Pages switched on | Lead |
-| 1 | App shell, navigation, `store.js`, Settings basics, install-first screen | Lead designs the data layer; Sonnet builds the shell |
+| 1 | Design foundation (tokens, fonts, room colour, loading ball, nav capsule), app shell, navigation, `store.js`, Settings basics incl. doctor's number gate, install-first screen | Lead designs the data layer; Sonnet builds the shell and foundation from manual §28, §7–§16, §24 |
 | 2 | Today screen: fasting card, meal cards, sugar entry, target flags | Sonnet from §2 |
 | 3 | Ingredient list with suggestions | Sonnet |
 | 4 | Movement counter and session timing | Sonnet builds the UI from §5; lead reviews timing |
