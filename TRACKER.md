@@ -2,14 +2,14 @@
 
 Current state only. When a phase is finished, collapse its tasks into the single phase line. Phases are defined in `DEV_PLAN.md` §12.
 
-**Pick up here:** Phase 1 is built and awaits the owner: merge the pull request, switch on GitHub Pages, check it on the iPhone from the Home Screen. Then Phase 2 (Today lifeline and sugar logging).
+**Pick up here:** Phase 1 is live at https://pixelfreak94.github.io/Vytls/ and awaits the owner's sign-off on the iPhone, launched from the Home Screen. Then Phase 2 (Today lifeline and sugar logging).
 
 ## Phases
 
 | Phase | What | Status |
 |---|---|---|
-| 0 | Repo and project files (GitHub Pages moves to the end of Phase 1) | Done |
-| 1 | Design foundation, app shell, navigation, data layer, Settings basics | Built; awaiting phone sign-off |
+| 0 | Repo and project files | Done |
+| 1 | Design foundation, app shell, navigation, data layer, Settings basics | Built and live; awaiting phone sign-off |
 | 2 | Today screen and sugar logging | Not started |
 | 3 | Ingredient list | Not started |
 | 4 | Movement counter | Not started |
@@ -21,19 +21,15 @@ Current state only. When a phase is finished, collapse its tasks into the single
 
 ## Current phase tasks
 
-Phase 1, built and tested in a phone-sized browser only:
+Phase 1, built, merged to `main`, GitHub Pages on. Tested in a phone-sized browser only.
 
-- [x] `js/store.js`, tokens, base, motion, fonts with licence, icons, manifest
-- [x] Loading ball, room colour and hour tint, corner web, nav capsule
-- [x] App shell, navigation, install-first screen
-- [x] Settings basics, doctor's number gate, optional sound
-- [ ] Owner: merge the pull request into `main`
-- [ ] Owner: switch on GitHub Pages (repo Settings → Pages → deploy from `main`, root)
-- [ ] Owner: sign off on the iPhone, launched from the Home Screen
+- [ ] Owner: sign off on the iPhone, launched from the Home Screen (checks in the pull request 2 hand-off)
+- [ ] Owner: approve the proposed wording on the install page and the Today gate
 
 ## Waiting on the owner
 
 - Doctor's answers to the four questions in `DEV_PLAN.md` §15
+- Whether the repo stays public (free) or goes private (GitHub Pro, or a move to another free host before she starts logging)
 
 ## Known issues
 
