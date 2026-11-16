@@ -233,12 +233,7 @@ export function looksLikeVytls(o) {
 }
 
 function replaceAll(incoming) {
-  store.update((d) => {
-    for (const k of Object.keys(d)) delete d[k];
-    Object.assign(d, structuredClone(incoming));
-    d.foodHistory ??= [];
-    d.alerts ??= [];
-  });
+  return store.replaceAll(incoming);   // keeps a copy of the old data first (store.js)
 }
 
 function lastBackupText() {

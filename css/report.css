@@ -1,22 +1,4 @@
 /* report.css — the Report room: filters, preview, export, backup, reminders (DEV_PLAN §8, §10; manual §28.10). */
-:root {
-  /* ---- report (Phase 7) ---- */
-  --rp-gap: var(--sp-6);
-  --rp-print-ink: #000;
-  --rp-print-paper: #fff;
-  --rp-print-rule: #000;
-  --rp-print-rule-soft: #999;
-  --rp-print-fs: 9pt;
-  --rp-print-fs-head: 8pt;
-  --rp-print-fs-title: 18pt;
-  --rp-print-pad-y: 1.2mm;
-  --rp-print-pad-x: 1.5mm;
-  --rp-print-margin: 12mm;
-  --rp-preview-fs: 11px;
-  --rp-preview-pad-y: var(--sp-2);
-  --rp-preview-pad-x: var(--sp-3);
-  --rp-field-min: 140px;
-}
 
 .rp { display: grid; gap: var(--rp-gap); }
 .rp-section { display: grid; gap: var(--sp-4); }
@@ -25,7 +7,7 @@
   text-transform: uppercase; font-size: var(--fs-heading); line-height: var(--lh-tight);
   color: var(--t-primary);
 }
-.rp-note { font-size: var(--fs-body); line-height: var(--lh-body); color: var(--t-secondary); max-width: var(--measure); text-wrap: pretty; }
+.rp-note { font-size: var(--fs-body); line-height: var(--lh-body); color: var(--t-primary); max-width: var(--measure); text-wrap: pretty; }
 .rp-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; }
 .rp-btn { min-height: var(--hit-min); }
 .rp-select, .rp-date {
@@ -46,7 +28,7 @@
   border: 1px solid var(--g-hair); border-radius: var(--r-card); background: var(--g-card);
 }
 .rp-confirm[hidden] { display: none; }
-.rp-status { font-family: var(--font-mono); font-size: var(--fs-value); color: var(--t-secondary); min-height: 1.4em; }
+.rp-status { font-family: var(--font-mono); font-size: var(--fs-value); color: var(--t-primary); min-height: 1.4em; }
 .rp-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
 /* the sheet: same markup on screen (preview) and in print */
@@ -59,10 +41,10 @@
 .rp-sheet table { border-collapse: collapse; font-family: var(--font-mono); font-variant-numeric: tabular-nums; min-width: 100%; }
 .rp-sheet th, .rp-sheet td { border: 1px solid var(--g-hair); padding: var(--rp-preview-pad-y) var(--rp-preview-pad-x); text-align: left; vertical-align: top; white-space: nowrap; }
 .rp-sheet td.rp-foods { white-space: normal; min-width: 10em; font-family: var(--font-body); }
-.rp-sheet th { font-weight: var(--fw-head); color: var(--t-secondary); }
-.rp-sheet .rp-meta { font-family: var(--font-mono); color: var(--t-secondary); }
-.rp-sheet .rp-foot { margin-top: var(--sp-5); font-family: var(--font-mono); color: var(--t-secondary); }
-.rp-empty { color: var(--t-secondary); }
+.rp-sheet th { font-weight: var(--fw-head); color: var(--t-primary); }
+.rp-sheet .rp-meta { font-family: var(--font-mono); color: var(--t-primary); }
+.rp-sheet .rp-foot { margin-top: var(--sp-5); font-family: var(--font-mono); color: var(--t-primary); }
+.rp-empty { color: var(--t-primary); }
 
 /* the print copy lives on body, hidden on screen */
 #print-view { display: none; }

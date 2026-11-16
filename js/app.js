@@ -8,10 +8,11 @@ import { renderSettings } from './settings.js';
 import { initAudio, thup } from './audio.js';
 import { renderToday as renderLifeline, setViewDay } from './today.js';
 import { renderHistory } from './history.js';
+import { renderReport } from './report.js';
 import { resumeIfRunning, closeExpired } from './kicks.js';
 import { raiseButton } from './alerts.js';
 
-export const VERSION = '0.3.0';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.4.0';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };
@@ -67,6 +68,7 @@ function renderToday() {
 function renderRoom(room) {
   if (room === 'today') renderToday();
   else if (room === 'settings') renderSettings($('[data-body="settings"]'));
+  else if (room === 'report') renderReport($('[data-body="report"]'));
   else if (room === 'history') renderHistory($('[data-body="history"]'), { openDay: (key) => { setViewDay(key); go('today'); } });
   else $(`[data-body="${room}"]`).replaceChildren(emptyState('Nothing here yet.'));
 }

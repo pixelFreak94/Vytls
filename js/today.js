@@ -237,7 +237,14 @@ export function renderToday(body) {
 
 
   const list = el('ol', { class: 'lifeline' }, ...rows.map((r) => r.li));
-  body.replaceChildren(el('div', { class: 'today' }, dayStepper(logged), list));
+  // a gentle nudge when the last backup is over 7 days old (DEV_PLAN §8); the one plz (manual §28.11)
+  const last = store.get().settings.lastBackupAt;
+  const hasData = Object.keys(store.get().days).length > 0;
+  const nudge = hasData && (!last || now - last > 7 * 24 * HOUR)
+    ? el('button', { class: 'backup-nudge reveal-item', type: 'button', text: 'back up your data, plz' })
+    : null;
+  nudge?.addEventListener('click', () => document.querySelector('#nav [data-go="report"]')?.click());
+  body.replaceChildren(el('div', { class: 'today' }, dayStepper(logged), ...(nudge ? [nudge] : []), list));
 
   // the "due now" state changes with the clock, so wake up when the next test time passes
   const next = nodes.filter((n) => n.testAt && !n.done && n.testAt > now).map((n) => n.testAt).sort((a, b) => a - b)[0];

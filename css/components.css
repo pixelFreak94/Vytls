@@ -354,6 +354,7 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 .day-date { font-family: var(--font-display); font-weight: var(--fw-light); font-size: var(--fs-date-rest); line-height: var(--lh-tight); color: var(--t-whisper); }
 .day-date-n { font-weight: var(--fw-date); font-size: var(--fs-date); color: var(--t-primary); }
 .day-name .day-sub { color: var(--t-primary); margin: 0; }
+.backup-nudge { display: block; margin: 0 auto var(--sp-3); min-height: var(--hit-min); padding: 0 var(--sp-5); border: 1px solid var(--g-hair); border-radius: var(--r-pill); background: transparent; color: var(--t-primary); font: var(--fw-body) var(--fs-body)/1 var(--font-body); cursor: pointer; }
 .node[data-locked] .node-hit { cursor: default; }
 
 .lifeline { list-style: none; margin: 0; padding: 0; position: relative; }

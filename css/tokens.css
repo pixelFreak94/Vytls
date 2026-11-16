@@ -419,3 +419,22 @@
   --fs-hg-head:     9px;
   --hg-sec-gap:     var(--sp-7);
 }
+
+:root {
+  /* ---- report (Phase 7) ---- */
+  --rp-gap: var(--sp-6);
+  --rp-print-ink: #000;
+  --rp-print-paper: #fff;
+  --rp-print-rule: #000;
+  --rp-print-rule-soft: #999;
+  --rp-print-fs: 9pt;
+  --rp-print-fs-head: 8pt;
+  --rp-print-fs-title: 18pt;
+  --rp-print-pad-y: 1.2mm;
+  --rp-print-pad-x: 1.5mm;
+  --rp-print-margin: 12mm;
+  --rp-preview-fs: 11px;
+  --rp-preview-pad-y: var(--sp-2);
+  --rp-preview-pad-x: var(--sp-3);
+  --rp-field-min: 140px;
+}
