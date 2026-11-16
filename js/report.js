@@ -102,6 +102,13 @@ const alertsIn = (keys) => {
 const avg = (xs) => (xs.length ? Math.round((xs.reduce((s, v) => s + v, 0) / xs.length) * 10) / 10 : null);
 const stamp = (ts) => { const d = new Date(ts); return `${store.dayKey(ts, 0)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 
+/** 14-Nov-26 (owner, 0.4.1). The CSV keeps YYYY-MM-DD so spreadsheets read it as a date. */
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function dmy(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return `${String(d).padStart(2, '0')}-${MON[m - 1]}-${String(y).slice(2)}`;
+}
+
 function buildSheet(on, today = new Date()) {
   const [from, to] = range();
   const keys = keysIn([from, to]);
@@ -110,7 +117,7 @@ function buildSheet(on, today = new Date()) {
   const sheet = el('div', { class: 'rp-sheet' });
 
   sheet.append(el('h2', { text: 'vytls report' }),
-    el('p', { class: 'rp-meta', text: `${from} to ${to} · ${keys.length} days` }));
+    el('p', { class: 'rp-meta', text: `${dmy(from)} to ${dmy(to)} · ${keys.length} days` }));
 
   // the grid
   const head1 = el('tr'), head2 = el('tr');
@@ -125,7 +132,7 @@ function buildSheet(on, today = new Date()) {
   if (on.foods) group('foods', MEALS);
   const tbody = el('tbody');
   for (const f of facts) {
-    const tr = el('tr', {}, el('td', { text: f.key }));
+    const tr = el('tr', {}, el('td', { text: dmy(f.key) }));
     if (on.fasting) tr.append(el('td', { text: f.fasting == null ? DASH : `${f.fasting}${above('fasting', f.fasting) ? ' ▲' : ''}` }));
     if (on.after) for (const m of MEALS) { const v = f.meals[m].sugar; tr.append(el('td', { text: v == null ? DASH : `${v}${above('after', v) ? ' ▲' : ''}` })); }
     if (on.moves) for (const m of MEALS) tr.append(el('td', { text: f.meals[m].move ?? DASH }));
@@ -143,14 +150,14 @@ function buildSheet(on, today = new Date()) {
     if (!al.length) sheet.append(el('p', { text: 'none in this period.' }));
     else {
       const ul = el('ul');
-      for (const a of al) ul.append(el('li', { text: `${stamp(a.at)} · ${a.rule} · ${RULE_LABEL[a.rule] ?? a.rule}${a.meal ? ` · ${a.meal}` : ''}` }));
+      for (const a of al) ul.append(el('li', { text: `${dmy(store.dayKey(a.at, 0))} ${stamp(a.at).slice(11)} · ${a.rule} · ${RULE_LABEL[a.rule] ?? a.rule}${a.meal ? ` · ${a.meal}` : ''}` }));
       sheet.append(ul);
     }
   }
 
   if (on.summary) {
     const box = el('div', { class: 'rp-summary' }, el('h3', { text: 'summary' }));
-    const lines = [`period: ${from} to ${to} (${keys.length} days)`];
+    const lines = [`period: ${dmy(from)} to ${dmy(to)} (${keys.length} days)`];
     const sugarLine = (label, vals, kind) => {
       const a = avg(vals);
       const n = vals.filter((v) => above(kind, v)).length;
@@ -175,7 +182,7 @@ function buildSheet(on, today = new Date()) {
     sheet.append(box);
   }
 
-  sheet.append(el('p', { class: 'rp-foot', text: `vytls · generated ${store.dayKey(today.getTime(), 0)}` }));
+  sheet.append(el('p', { class: 'rp-foot', text: `vytls · generated ${dmy(store.dayKey(today.getTime(), 0))}` }));
   return sheet;
 }
 
@@ -238,7 +245,7 @@ function replaceAll(incoming) {
 
 function lastBackupText() {
   const t = store.get().settings.lastBackupAt;
-  return t ? `last backup ${store.dayKey(t, 0)}` : 'no backup yet';
+  return t ? `last backup ${dmy(store.dayKey(t, 0))}` : 'no backup yet';
 }
 
 // ---- the room -------------------------------------------------------------------
@@ -256,7 +263,7 @@ export function renderReport(body) {
   const select = el('select', { class: 'rp-select', 'aria-label': 'period' });
   for (let m = 1; m <= months; m++) {
     const [a, b] = monthRange(m);
-    select.append(el('option', { value: String(m), text: `month ${m} · ${a} to ${b}` }));
+    select.append(el('option', { value: String(m), text: `${dmy(a)} to ${dmy(b)}` }));
   }
   select.append(el('option', { value: 'custom', text: 'custom range' }));
   select.value = state.period === 'custom' || Number(state.period) <= months ? state.period : String(months);

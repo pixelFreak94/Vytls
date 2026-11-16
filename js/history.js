@@ -18,7 +18,8 @@ const el = (tag, props = {}, ...kids) => {
 
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const MEAL_HEAD = { breakfast: 'bkfst', lunch: 'lunch', dinner: 'dinner' };
+const MEAL_HEAD = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' };
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const FOODS_SHOWN = 12;
 
 let shown = null;   // the month on screen; null = the current month
@@ -26,6 +27,9 @@ let shown = null;   // the month on screen; null = the current month
 const parts = (key) => key.split('-').map(Number);
 const shortDate = (key) => { const [, m, d] = parts(key); return `${d} ${MONTHS[m - 1]}`; };
 const weekday = (key) => { const [y, m, d] = parts(key); return WEEKDAYS[new Date(y, m - 1, d).getDay()]; };
+
+/** Just the month (owner, 0.4.1): the current one for this month's grid, else the month it began in. */
+function monthName(key) { const [y, m] = parts(key); return `${MONTH_NAMES[m - 1]} ${y}`; }
 
 function currentMonth() {
   const p = store.dayPosition(store.todayKey());
@@ -63,7 +67,7 @@ function dayRow(key, today, openDay, s) {
     cells.push(moveCell(day.meals[meal].kicks, s.kicks.goal));
   }
   const label = el('span', { class: 'hg-day' },
-    el('span', { class: 'hg-daynum', text: String(p ? p.day : '') }),
+    el('span', { class: 'hg-daynum', text: String(parts(key)[2]) }),
     el('span', { class: 'hg-wd', text: weekday(key) }));
   const cls = 'hg-row' + (key === today ? ' hg-today' : '') + (future ? ' hg-future' : '');
   const row = el(future ? 'div' : 'button', {
@@ -111,7 +115,7 @@ export function renderHistory(body, { openDay } = {}) {
 
   const nav = el('div', { class: 'hg-nav' },
     el('button', { class: 'hg-arrow', type: 'button', 'aria-label': 'previous month', text: '‹', disabled: shown <= 1 }),
-    el('p', { class: 'hg-range', text: `month ${shown} · ${shortDate(keys[0])} – ${shortDate(keys[keys.length - 1])}` }),
+    el('p', { class: 'hg-range', text: monthName(shown === cur ? today : keys[0]) }),
     el('button', { class: 'hg-arrow', type: 'button', 'aria-label': 'next month', text: '›', disabled: shown >= cur }));
   const [prev, next] = [nav.firstChild, nav.lastChild];
   const go = (d) => { shown += d; renderHistory(body, { openDay }); };
@@ -120,7 +124,7 @@ export function renderHistory(body, { openDay } = {}) {
 
   const head = el('div', { class: 'hg-head', 'aria-hidden': 'true' },
     el('span', { class: 'hg-day' }),
-    el('span', { class: 'hg-h1', text: 'fast' }),
+    el('span', { class: 'hg-h1', text: 'Fasting' }),
     ...store.MEALS.map((m) => el('span', { class: 'hg-h2', text: MEAL_HEAD[m] })));
   // two-level head: meal name spans sugar + movements, then sub-labels
   const head2 = el('div', { class: 'hg-head hg-head-sub', 'aria-hidden': 'true' },

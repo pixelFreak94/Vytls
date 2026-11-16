@@ -44,4 +44,5 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 38 | 2026-11-16 | Doctor report exports as PDF through the iPhone print sheet (no PDF library), with period and six include filters, all on by default | Owner's request; keeps the no-packages rule |
 | 39 | 2026-11-16 | Restore keeps the replaced data under `vytls.before-restore` and fills in any missing fields | A wrong file must never lose her readings |
 | 40 | 2026-11-16 | Motion amplified about 2.5x (press, room change, reveal, hop, toggle, bloom); the nav pour has 8 rising bubbles; the tap surface pulses | Owner's call |
-| 41 | 2026-11-16 | Today's header is the date ("16th of Nov/26", day number leads); small text sits grouped, in heading ink | Owner's call |
+| 41 | 2026-11-16 | Today's header is the date ("16th of Nov/26", the day number large, light weight, heading ink); small text sits grouped, in heading ink | Owner's call |
+| 42 | 2026-11-16 | History names the calendar month ("November 2026") with calendar dates per row and full meal names; the report shows dates as 14-Nov-26 (the CSV keeps YYYY-MM-DD for spreadsheets) | Owner's call: simpler to read |
