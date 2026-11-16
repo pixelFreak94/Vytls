@@ -32,7 +32,6 @@ Phase 1, not started:
 
 - Doctor's answers to the four questions in `DEV_PLAN.md` §15
 - Doctor's phone number for the alert's call button
-- Decision on when the app's "day" ends, for dinners whose 2-hour test falls after midnight
 
 ## Known issues
 

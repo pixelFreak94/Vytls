@@ -20,3 +20,4 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 14 | 2026-11-15 | Six project files only, with one overwritten next-session brief | Owner wants no backlog of redundant history; git keeps the history |
 | 15 | 2026-11-15 | Tracking runs in 30-day months that roll over automatically | Owner's instruction: after day 30 it just moves to the next month |
 | 16 | 2026-11-15 | Logging is blocked in Safari until the app is added to the Home Screen | The two keep separate data on iPhone; entries made in Safari would be lost |
+| 17 | 2026-11-16 | The app's day runs 4 am to 4 am | A late dinner's 2-hour test can fall after midnight; its card must still be on Today |

@@ -27,6 +27,8 @@ The Today screen has four cards in time order.
    2. **Movements** — "Start counting" opens the counter (§5).
    3. **Sugar** — the card shows "Test at HH:MM" (meal finished + 2 hours); enter the reading when taken.
 
+**Day rollover:** the app's day runs from 4 am to 4 am, not midnight to midnight. A late dinner's card stays on Today until 4 am so its 2-hour test and movement count can still be logged there. Entries made between midnight and 4 am belong to the previous day's row; their real clock time is still what is stored and shown.
+
 **Typo guard:** a sugar reading below 40 or above 400 asks "Is this right?" before it is saved.
 
 Each step shows one of three states: to do, due now, done. A progress line at the top reads "n of 7 logged today". Steps can be done out of order and any entry can be edited or deleted afterwards, with its time adjustable, in case she logs late.
@@ -67,6 +69,7 @@ icons/                app icons
     lengthDays: 30,
     targets: { fasting: 95, afterMeal: 120 },      // mg/dL, flag when above
     kicks: { goal: 5, windowMinutes: 60 },
+    dayStartHour: 4,                               // the app's day runs 4 am to 4 am
     doctorPhone: ""                                // for the alert's call button
   },
   days: {
@@ -134,7 +137,7 @@ Notes:
 
 ## 9. Settings
 
-App version, start date, sugar targets, movement goal and window, A2 numbers, doctor's phone number, backup and restore, and "Erase all data" behind a typed confirmation.
+App version, start date, day start hour, sugar targets, movement goal and window, A2 numbers, doctor's phone number, backup and restore, and "Erase all data" behind a typed confirmation.
 
 ## 10. Reminders
 
