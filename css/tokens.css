@@ -1,0 +1,330 @@
+/* ZONE:    Safe Haven / Temple. An in-world instrument: a vital-signs log kept
+ *          by someone living in the sanctuary.
+ * DIAL 1:  quietest. Soft technology that serves and never demands.
+ * DIAL 2:  1. No visible hardware; the instrument is glass and light.
+ *
+ * tokens.css — every design value, nothing else (manual §24, Vytls §28).
+ * The first block is the manual's token sheet verbatim; the second adds Vytls. */
+:root {
+  /* ---- field & atmosphere ---- */
+  --c-cream:       #F2EBE0;
+  --c-cream-deep:  #ECE3D4;
+  --c-peach:       #F4C9A8;
+  --c-coral:       #E89B7D;
+  --c-lavender:    #C9B8DD;
+  --c-mint:        #C5D9C8;
+  --c-paleblue:    #B4C9D9;
+
+  /* ---- signature pair (locked) ---- */
+  --a-terra:       #C77B5C;
+  --a-terra-hi:    #E0A284;
+  --a-blue:        #7A98B3;
+
+  /* ---- the one red: denial only ---- */
+  --a-denial:      #B8402E;
+
+  /* ---- ink ---- */
+  --t-primary:     #2A2520;
+  --t-secondary:   #6B6560;
+  --t-whisper:     #A8A29B;
+  --t-on-terra:    #FFF9F2;
+  --t-cue:         #637C92;
+
+  /* ---- rooms (fog grades) ---- */
+  --room-warm:     #E8C7B0;
+  --room-aqua:     #E7EEEF;
+  --room-lilac:    #EBE7F1;
+  --room-sand:     #EFE1D1;
+  /* hour tints, blended 18% */
+  --hour-dawn:     #E9ECEA;
+  --hour-day:      #F3EEE3;
+  --hour-golden:   #F5E3C8;
+  --hour-night:    #DDE0E8;
+  --hour-blend:    0.18;
+
+  /* ---- glass ---- */
+  --g-surface:     rgba(255, 255, 255, 0.12);
+  --g-pill:        rgba(255, 253, 250, 0.38);
+  --g-pill-idle:   rgba(255, 253, 250, 0.28);
+  --g-card:        rgba(255, 253, 249, 0.50);
+  --g-cell:        rgba(255, 253, 250, 0.45);
+  --g-tag:         rgba(255, 253, 250, 0.85);
+  --g-selected:    #EFEEEB;
+  --g-sheet-veil:  0.95;
+  --g-edge:        rgba(255, 255, 255, 0.65);
+  --g-edge-card:   rgba(255, 255, 255, 0.50);
+  --g-hair:        rgba(60, 50, 40, 0.10);
+  --g-hair-soft:   rgba(60, 50, 40, 0.06);
+  --g-blur:        blur(18px) saturate(150%);
+  --scrim-light:   rgba(233, 229, 241, 0.50);
+  --scrim-note:    rgba(246, 239, 226, 0.66);
+  --scrim-deep:    rgba(26, 22, 18, 0.94);
+
+  /* ---- shadows ---- */
+  --sh-lip:      inset 0 1px 0 rgba(255,255,255,0.9);
+  --sh-card:     inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 1px rgba(40,30,20,0.04), 0 20px 40px -16px rgba(40,30,20,0.12);
+  --sh-pill:     inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(40,30,20,0.06), 0 12px 28px -12px rgba(40,30,20,0.22);
+  --sh-nav:      inset 0 1px 0 rgba(255,255,255,0.9), 0 22px 44px -14px rgba(40,30,20,0.40);
+  --sh-soft:     0 12px 28px -8px rgba(40,30,20,0.32);
+  --sh-selected: 0 10px 22px -8px rgba(199,123,92,0.55), inset 0 1px 0 rgba(255,255,255,0.5);
+  --sh-band:     inset 0 1px 0 rgba(255,255,255,0.85), inset 0 18px 26px -18px rgba(42,32,22,0.32);
+
+  /* ---- radii ---- */
+  --r-pill: 999px; --r-capsule: 24px; --r-card: 20px; --r-photo: 18px;
+  --r-thumb: 14px; --r-cell: 12px; --r-focus: 4px;
+
+  /* ---- spacing ---- */
+  --sp-1: 4px;  --sp-2: 6px;  --sp-3: 10px; --sp-4: 14px; --sp-5: 16px;
+  --sp-6: 22px; --sp-7: 32px; --sp-8: 48px; --sp-9: 64px; --sp-nav: 118px;
+
+  /* ---- layout ---- */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --col-max: 430px;                 /* PROPOSED */
+  --gutter: 16px;
+  --edge-inset: 32px;
+  --rank-top: 28px;
+  --rank-top-2: 56px;
+  --nav-bottom: 26px;
+  --nav-width: 64%;
+  --nav-h: 34px;
+  --btn: 34px;
+  --hit-min: 44px;                  /* PROPOSED */
+  --card-w: 78%;
+  --card-pad: 14px;
+  --card-gap: 22px;
+  --thumb-aspect: 16 / 12;
+  --measure: 46ch;
+  --measure-note: 26ch;
+  --sheet-inset: 14px;
+  --sheet-band: min(54%, 430px);
+  --sheet-blurb-min: 120px;
+  --fade: 150px;
+  --fade-more: 40px;
+  --spine-x: 26px;
+  --tl-gap: 48px;
+  --tl-text-max: 440px;
+
+  /* ---- z ---- */
+  --z-world: 0; --z-slab: 10; --z-content: 20; --z-nav: 30;
+  --z-scrim: 79; --z-modal: 80; --z-viewer: 120;
+
+  /* ---- type ---- */
+  --font-display: 'Sora', system-ui, sans-serif;
+  --font-body:    'Manrope', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+  --fs-hero: 52px; --fs-hero-lead: 36px; --fs-hero-sub: 26px;
+  --fs-room: 40px; --fs-heading: 28px; --fs-sheet: 24px; --fs-note: 20px;
+  --fs-item: 18px; --fs-card: 17px; --fs-sub: 14px;
+  --fs-body: 14px; --fs-body-s: 13.5px; --fs-value: 13px;
+  --fs-label: 10px; --fs-nav: 10.5px; --fs-tag: 9px; --fs-cue: 11px;
+  --fs-input: 16px;
+  --lh-body: 1.65; --lh-long: 1.7; --lh-note: 1.45; --lh-tight: 1.05;
+  --tr-hero: -0.025em; --tr-head: -0.02em; --tr-card: -0.012em; --tr-display: -0.01em;
+  --tr-label: 0.18em; --tr-nav: 0.14em; --tr-tag: 0.16em; --tr-cue: 0.20em; --tr-trigger: 0.22em;
+  --fw-light: 300; --fw-body: 400; --fw-head: 500;
+
+  /* ---- motion ---- */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-reveal:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit:    cubic-bezier(0.4, 0, 1, 1);
+  --ease-pop:     cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-breath:  cubic-bezier(0.42, 0, 0.58, 1);
+  --d-press-in: 90ms;  --d-press-out: 580ms; --d-quick: 260ms; --d-state: 400ms;
+  --d-sheet: 460ms;    --d-step: 420ms;
+  --d-reveal: 1000ms;  --d-reveal-step: 90ms; --d-reveal-base: 1300ms;
+  --d-cross: 1680ms;   --d-chrome-return: 980ms;
+  --d-hold: 720ms;     --d-ripple: 1500ms;
+  --press-scale: 0.90; --card-press-scale: 0.985;
+  --cross-out-scale: 0.98; --cross-in-scale: 1.025;
+  --breath-room: 11s;  --beat: 3s;
+  --breath-mark-a: 7s; --breath-mark-b: 8s;
+  --rec-blink: 3s;     --invite-pulse: 4s;   --sheen: 4.2s;
+  --note-hold: 7000ms;
+  --alert-guard: 500ms;   /* alert buttons ignore touches for this long after it appears */
+
+  /* ---- gesture ---- */
+  --swipe-min: 60px; --tap-slop: 6px; --dbl-ms: 280ms;
+  --zoom-max: 4; --zoom-dbl: 2.5;
+}
+
+:root {
+  /* ---- Vytls rooms (manual §28.3) ---- */
+  --room-today:    var(--room-warm);
+  --room-history:  var(--room-lilac);
+  --room-report:   var(--room-aqua);
+  --room-settings: var(--room-sand);
+  --room-base-hi:  #F7F0E4;
+  --room-base-mid: #EFE6D5;
+  --room-base-lo:  #E6DAC4;
+
+  /* ---- surfaces ---- */
+  --c-card-white:  #FFFDF9;
+  --c-ink-seam:    #3A332C;
+  --c-ball-lo:     #E7DCC9;
+  --c-ball-lo-hi:  #F7F1E7;
+  --c-ball-hi-hi:  #D08C6E;
+  --g-sheet:       linear-gradient(148deg, rgba(255,255,255,1) 0%, rgba(255,253,250,0.95) 38%, rgba(252,248,242,0.95) 100%);
+  --g-selected-fill: linear-gradient(160deg, var(--a-terra-hi), var(--a-terra));
+  --g-edge-filled: rgba(255, 255, 255, 0.90);
+  --g-edge-pill:   rgba(60, 50, 40, 0.08);
+  --g-icon-btn:    rgba(255, 253, 250, 0.50);
+  --g-edge-selected: rgba(255, 255, 255, 0.55);
+
+  /* ---- time glyph (manual §11.6) ---- */
+  --glyph-sun:     #E0A23C;
+  --glyph-lowsun:  #D9913F;
+  --glyph-moon:    #8B93B0;
+
+  /* ---- states (manual §28.8) ---- */
+  --st-settled:    #C5D9C8;   /* mint fill */
+  --st-settled-mark: #5A7A5A; /* forest check */
+  --st-above:      #D9913F;   /* amber chip with ▲ */
+  --st-alert:      var(--a-denial);
+  --st-alert-ink:  #FFF9F2;
+
+  /* ---- focus, toggle, input (manual §14.6, §16.4, §16.12) ---- */
+  --focus-ring:    rgba(122, 152, 179, 0.6);
+  --focus-ring-w:  1.5px;
+  --focus-offset:  3px;
+  --toggle-w: 27px; --toggle-h: 13px; --toggle-thumb: 9px; --toggle-inset: 2px; --toggle-travel: 14px;
+  --thumb-rest:    linear-gradient(160deg, #FFFDF8, #EAE0CC);
+  --input-hair-focus: rgba(122, 152, 179, 0.6);
+  --disabled-opacity: 0.4;
+
+  /* ---- shell (manual §8.3) ---- */
+  --shell-top:     64px;
+  --shell-side:    16px;
+  --shell-bottom:  118px;
+  --nav-pad-y: 6px; --nav-pad-x: 10px; --nav-gap: 6px;
+  --nav-divider-h: 20px;
+
+  /* ---- entry ball (manual §15.2, §28.4) ---- */
+  --ball-entry:    72px;
+  --ball-line:     46px;
+  --ball-rock:     7deg;
+  --ball-swing:    850ms;
+  --entry-min:     1300ms;    /* minimum graceful beat before the catch */
+  --entry-ripple-at: 430ms;
+  --entry-mount-at:  820ms;
+  --entry-clear-at:  1760ms;
+  --d-catch:       420ms;
+
+  /* ---- Vytls type additions (manual §28.5, §28.6, §28.9) ---- */
+  --fs-reading:    44px;      /* the one large reading field */
+  --fs-count:      64px;      /* counter "3 of 5" */
+  --fs-tap:        24px;      /* counter tap surface label */
+  --fs-alert-head: 28px;
+  --fs-alert-line: 18px;
+  --fs-alert-btn:  18px;
+  --fs-legible:    11px;      /* legibility floor for anything she must read to act (§10.4) */
+  --tr-coords:     0.26em;
+
+  /* ---- Vytls sizes ---- */
+  --alert-call-h:  64px;
+  --alert-raise-h: 52px;
+  --alert-gap:     32px;
+  --tap-radius:    28px;
+  --bloom-size:    48px;
+  --bloom-ms:      700ms;
+  --live-dot:      7px;
+  --chip-morph:    56px;
+  --chip-hold:     1700ms;
+  --caret-w: 6px; --caret-h: 12px; --type-char: 52ms; --caret-blink: 0.7s;
+  --glyph:         13px;
+  --d-pour:        550ms;
+  --d-pour-hold:   2600ms;
+  --d-drain:       1100ms;
+}
+
+/* ---- atmosphere & entry (added) ---- */
+:root {
+  /* blobs (manual §12.2): size, x, y, period, drift */
+  --blob-peach-size: 70vmax; --blob-peach-x: 70%; --blob-peach-y: 10%; --blob-peach-period: 42s; --blob-peach-dx: 50px; --blob-peach-dy: -32px;
+  --blob-lavender-size: 65vmax; --blob-lavender-x: 5%; --blob-lavender-y: 25%; --blob-lavender-period: 55s; --blob-lavender-dx: -36px; --blob-lavender-dy: 48px;
+  --blob-mint-size: 60vmax; --blob-mint-x: 35%; --blob-mint-y: 75%; --blob-mint-period: 48s; --blob-mint-dx: 32px; --blob-mint-dy: -44px;
+  --blob-paleblue-size: 55vmax; --blob-paleblue-x: 80%; --blob-paleblue-y: 70%; --blob-paleblue-period: 38s; --blob-paleblue-dx: -40px; --blob-paleblue-dy: 36px;
+  --blob-coral-size: 38vmax; --blob-coral-x: 50%; --blob-coral-y: 40%; --blob-coral-period: 60s; --blob-coral-dx: 24px; --blob-coral-dy: 28px;
+  --blob-stagger: 4s;
+  --blob-core: 33%; --blob-mid-stop: 30%; --blob-end-stop: 65%;
+  /* blob opacity per room (manual §12.2 second table) */
+  --bo-home-peach: 0.80; --bo-home-lavender: 0.78; --bo-home-mint: 0.78; --bo-home-paleblue: 0.78; --bo-home-coral: 0.60;
+  --bo-contact-peach: 0.14; --bo-contact-lavender: 0.34; --bo-contact-mint: 0.74; --bo-contact-paleblue: 1.00; --bo-contact-coral: 0.10;
+  --bo-folio-peach: 0.12; --bo-folio-lavender: 1.00; --bo-folio-mint: 0.50; --bo-folio-paleblue: 0.24; --bo-folio-coral: 0.10;
+  --bo-about-peach: 1.00; --bo-about-lavender: 0.30; --bo-about-mint: 0.20; --bo-about-paleblue: 0.10; --bo-about-coral: 1.00;
+  /* world */
+  --fog-opacity: 0.9;
+  --breath-lo: 0.82;
+  --glow-size: 120vmax; --glow-peak: 0.75; --glow-ms: 1500ms; --glow-start: 0.6; --glow-end: 1.15;
+  --amb-up-ms: 1200ms; --amb-up-delay: 950ms;
+  --nav-settle-ms: 640ms; --nav-settle-delay: 760ms; --nav-settle-y: 14px; --nav-settle-scale: 0.96;
+  /* corner web (manual §28.7) */
+  --web-size: 92vmin; --web-max: 0.50; --web-wash-max: 0.28; --web-artery-max: 0.40; --web-glow-max: 0.30;
+  --web-breath: 11.7s; --web-breath-lo: 0.2; --web-beat-offset: -1.1s; --web-beat-lo: 0.18;
+  --web-line: 1.6; --web-line-thin: 1;
+  /* touch bloom (manual §13.3) */
+  --bloom-core: rgba(199, 123, 92, 0.27);
+  --bloom-from: 0.3; --bloom-to: 2.6;
+  /* entry */
+  --entry-ball-gap: 22px;
+  --entry-glint-ms: 1700ms;
+  --entry-pop-a: 1.16; --entry-pop-a-y: 0.86; --entry-pop-b: 0.94; --entry-pop-b-y: 1.07;
+  --entry-ripple-size: 170vmax;
+  --ripple-gap: 150ms;
+  --ripple-ring: rgba(199, 123, 92, 0.34);
+  --ripple-ring-hi: rgba(255, 253, 250, 0.70);
+  --ripple-drop: rgba(244, 201, 168, 0.55);
+  --ripple-from: 0.03; --ripple-drop-to: 0.7;
+  --ball-sheen: rgba(255, 255, 255, 0.40);
+  --ball-glint: rgba(255, 253, 250, 0.85);
+  --ball-away-scale: 0.85;
+  --entry-field: var(--c-cream);
+}
+
+/* ---- components (added) ---- */
+:root {
+  --readout-h: 16px;
+  --readout-gap: 8px;
+  --live-dot-lo: 0.4;
+  --nav-frac: 0.64;
+  --nav-hit-extra: calc((var(--hit-min) - var(--nav-h)) / 2);
+  --sheen-w: 40%;
+  --sheen-alpha: 0.5;
+  --sheen-band: linear-gradient(100deg, transparent 0%, rgba(255, 249, 242, 1) 50%, transparent 100%);
+  --pour-bubbles:
+    radial-gradient(circle at 10% 78%, rgba(255, 249, 242, 0.75) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 24% 38%, rgba(255, 249, 242, 0.6) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 36% 70%, rgba(255, 249, 242, 0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 48% 28%, rgba(255, 249, 242, 0.65) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 60% 66%, rgba(255, 249, 242, 0.6) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 72% 34%, rgba(255, 249, 242, 0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 84% 72%, rgba(255, 249, 242, 0.65) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 92% 30%, rgba(255, 249, 242, 0.6) 0 2px, transparent 2.5px);
+  --btn-pad-x: 20px;
+  --btn-pad-y: var(--sp-3);
+  --btn-icon-gap: 8px;
+  --btn-hit-extend: 4px;
+  --btn-filled-hover: var(--c-card-white);
+  --d-glide: 480ms;
+  --toggle-track: rgba(60, 50, 40, 0.10);
+  --toggle-track-inset: inset 0 1px 2px rgba(40, 30, 20, 0.12);
+  --toggle-stretch: scale(1.5, 0.7);
+  --toggle-stretch-x: 7px;
+  --d-hairline: 240ms;
+  --field-note-gap: var(--sp-2);
+  --unit-gap: var(--sp-3);
+  --cell-pad-y: var(--sp-3);
+  --cell-pad-x: 12px;
+  --cell-value-gap: 2px;
+  --install-top: calc(var(--shell-top) + var(--sp-8));
+  --install-gap-eyebrow: var(--sp-6);
+  --install-gap-why: var(--sp-4);
+  --install-gap-steps: var(--sp-8);
+  --install-step-gap: var(--sp-5);
+  --install-index-w: 28px;
+  --settings-group-gap: var(--sp-8);
+  --settings-row-gap: var(--sp-4);
+  --settings-label-gap: var(--sp-3);
+  --fade-room: calc(var(--safe-t) + var(--shell-top));   /* the room title starts where the top fade ends */
+}

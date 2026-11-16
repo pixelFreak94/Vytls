@@ -1,0 +1,155 @@
+/* motion.css — every animation and the reduced-motion block (manual §13).
+ * Only transform and opacity animate. Ambient loops are gated by data-ambient. */
+
+/* ---- room change: the glass crossfade (manual §13.4) ---- */
+.room { opacity: 0; visibility: hidden; }
+.room.is-active { opacity: 1; visibility: visible; }
+
+.room.is-leaving {
+  visibility: visible;
+  animation: room-out calc(var(--d-cross) * 0.92) var(--ease-reveal) both;
+  pointer-events: none;
+}
+.room.is-entering {
+  visibility: visible;
+  animation: room-in var(--d-cross) var(--ease-reveal) both;
+}
+@keyframes room-out { from { opacity: 1; scale: 1; } to { opacity: 0; scale: var(--cross-out-scale); } }
+@keyframes room-in  { from { opacity: 0; scale: var(--cross-in-scale); } to { opacity: 1; scale: 1; } }
+
+/* ---- item settle (manual §13.4). app.js sets --i on each .reveal-item and adds .is-revealing to the room. ---- */
+@keyframes settle {
+  0%   { opacity: 0; transform: perspective(480px) translateZ(-40px); }
+  55%  { opacity: 1; }
+  78%  { transform: perspective(480px) translateZ(10px); }
+  92%  { transform: perspective(480px) translateZ(-3px); }
+  100% { opacity: 1; transform: perspective(480px) translateZ(0); }
+}
+.room.is-revealing .reveal-item {
+  animation: settle var(--d-reveal) var(--ease-reveal) both;
+  animation-delay: calc(var(--reveal-base, var(--d-reveal-base)) + var(--i, 0) * var(--d-reveal-step));
+}
+
+/* ---- instruments fade out on a room change and return one by one ---- */
+.instrument { transition: opacity var(--d-quick) var(--ease-default); }
+html.is-crossing .instrument { opacity: 0; transition-duration: var(--d-quick); }
+
+/* ---- reduced motion: large moves become instant or opacity-only (manual §13.6) ---- */
+@media (prefers-reduced-motion: reduce) {
+  .room.is-leaving { animation: room-fade-out var(--d-quick) linear both; }
+  .room.is-entering { animation: room-fade-in var(--d-quick) linear both; }
+  .room.is-revealing .reveal-item { animation: none; }
+  @keyframes room-fade-out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes room-fade-in { from { opacity: 0; } to { opacity: 1; } }
+}
+
+/* ---- atmosphere: ambient loops (manual §12.2, §13.5, §28.7) ---- */
+#world .blob { animation: blob-drift var(--period) var(--ease-breath) infinite; animation-delay: calc(var(--n) * var(--blob-stagger) * -1); }
+@keyframes blob-drift {
+  0%, 100% { transform: translate(-50%, -50%) translate(0, 0); }
+  50%      { transform: translate(-50%, -50%) translate(var(--dx), var(--dy)); }
+}
+#world .blobs { animation: room-breath var(--breath-room) var(--ease-breath) infinite; }
+@keyframes room-breath { 0%, 100% { opacity: var(--breath-lo); } 50% { opacity: 1; } }
+
+/* respiration: wells up, holds, drains */
+#world .web .wb { animation: web-breathe var(--web-breath) var(--ease-breath) infinite; }
+@keyframes web-breathe {
+  0%   { opacity: var(--web-breath-lo); }
+  38%  { opacity: 1; }
+  62%  { opacity: 1; }
+  100% { opacity: var(--web-breath-lo); }
+}
+/* heartbeat: lub .13s up .20s down, dub .11s up .30s down, rest (of 3s) */
+#world .web .wt { animation: web-beat var(--beat) linear infinite; animation-delay: var(--web-beat-offset); }
+@keyframes web-beat {
+  0%      { opacity: var(--web-beat-lo); }
+  4.33%   { opacity: 1; }
+  11%     { opacity: var(--web-beat-lo); }
+  14.67%  { opacity: 0.8; }
+  24.67%  { opacity: var(--web-beat-lo); }
+  100%    { opacity: var(--web-beat-lo); }
+}
+/* AMBIENT off: frozen at rest, still visible, never hidden (manual §13.6) */
+html[data-ambient="off"] #world .blob,
+html[data-ambient="off"] #world .blobs,
+html[data-ambient="off"] #world .web .wb,
+html[data-ambient="off"] #world .web .wt { animation-play-state: paused; }
+
+/* ---- touch bloom (manual §13.3) ---- */
+.bloom { animation: bloom-out var(--bloom-ms) var(--ease-out) both; }
+@keyframes bloom-out {
+  from { opacity: 1; transform: scale(var(--bloom-from)); }
+  to   { opacity: 0; transform: scale(var(--bloom-to)); }
+}
+
+/* ---- boot cascade: first arrival (manual §13.4) ---- */
+html[data-entered="true"] #world .w-glow { animation: glow-bloom var(--glow-ms) var(--ease-out) both; }
+@keyframes glow-bloom {
+  0%   { opacity: 0; transform: scale(var(--glow-start)); }
+  40%  { opacity: var(--glow-peak); }
+  100% { opacity: 0; transform: scale(var(--glow-end)); }
+}
+html[data-entered="true"] #nav { animation: nav-settle var(--nav-settle-ms) var(--ease-reveal) var(--nav-settle-delay) both; }
+@keyframes nav-settle {
+  from { opacity: 0; translate: 0 var(--nav-settle-y); scale: var(--nav-settle-scale); }
+  to   { opacity: 1; translate: 0 0; scale: 1; }
+}
+html[data-entered="true"] #world .w-amb { animation: amb-up var(--amb-up-ms) var(--ease-out) var(--amb-up-delay) both; }
+@keyframes amb-up { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---- entry: the ball as the loader (manual §15.2, §28.4) ---- */
+.entry .entry-rock { animation: ball-rock var(--ball-swing) var(--ease-breath) infinite alternate; }
+@keyframes ball-rock {
+  from { transform: rotate(calc(var(--ball-rock) * -1)); }
+  to   { transform: rotate(var(--ball-rock)); }
+}
+.entry .glint { opacity: 0; animation: ball-glint var(--entry-glint-ms) var(--ease-default) infinite; }
+@keyframes ball-glint { 0%, 100% { opacity: 0; } 8% { opacity: 1; } 24% { opacity: 0; } }
+
+.entry.is-catch .entry-rock, .entry.is-catch .glint { animation-play-state: paused; }
+.entry.is-catch .entry-pop {
+  animation:
+    ball-pop var(--d-catch) var(--ease-default) both,
+    ball-away calc(var(--entry-mount-at) - var(--d-catch) - var(--d-press-in)) var(--ease-exit) var(--d-catch) both;
+}
+@keyframes ball-pop {
+  0%   { transform: scale(1, 1); }
+  40%  { transform: scale(var(--entry-pop-a), var(--entry-pop-a-y)); }
+  70%  { transform: scale(var(--entry-pop-b), var(--entry-pop-b-y)); }
+  100% { transform: scale(1, 1); }
+}
+@keyframes ball-away { from { opacity: 1; } to { opacity: 0; } }
+.entry.is-catch .entry-label { animation: label-away var(--d-quick) var(--ease-exit) both; }
+@keyframes label-away { from { opacity: 1; } to { opacity: 0; } }
+
+.entry.is-catch .rp { animation: ripple-grow var(--d-ripple) var(--ease-out) both; animation-delay: calc(var(--entry-ripple-at) + var(--ripple-gap) * var(--k, 0)); }
+.entry.is-catch .rp-drop { animation-name: drop-swell; }
+@keyframes ripple-grow {
+  0%   { opacity: 0; transform: scale(var(--ripple-from)); }
+  12%  { opacity: 1; }
+  80%  { opacity: 0; }
+  100% { opacity: 0; transform: scale(1); }
+}
+@keyframes drop-swell {
+  0%   { opacity: 0; transform: scale(var(--ripple-from)); }
+  25%  { opacity: 1; }
+  80%  { opacity: 0; }
+  100% { opacity: 0; transform: scale(var(--ripple-drop-to)); }
+}
+.entry.is-catch .entry-field {
+  animation: field-clear calc(var(--entry-clear-at) - var(--entry-mount-at)) var(--ease-default) var(--entry-mount-at) both;
+}
+@keyframes field-clear { from { opacity: 1; } to { opacity: 0; } }
+
+/* reduced motion: a still ball, then a short fade-out */
+.entry.is-reduced .entry-rock, .entry.is-reduced .glint { animation: none; }
+.entry.is-reduced.is-fading { animation: field-clear var(--d-state) var(--ease-default) both; }
+
+/* ---- reduced motion additions: drop the rock, the catch pop and the nav settle.
+ *      Ambient keeps breathing; AMBIENT governs that (manual §13.6). ---- */
+@media (prefers-reduced-motion: reduce) {
+  .entry .entry-rock, .entry .glint { animation: none; }
+  .entry.is-catch .entry-pop { animation: none; }
+  html[data-entered="true"] #nav { animation: none; }
+}
