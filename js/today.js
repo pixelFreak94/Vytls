@@ -112,6 +112,8 @@ const TITLES = { fasting: 'sugar', meal: 'meal', kicks: 'movements', sugar: 'sug
 // logged on a past day is locked (owner's call). Today's entries stay editable.
 let viewKey = null;
 const shownKey = () => viewKey ?? store.todayKey();
+/** Show a given day on Today (History's day tap uses this). */
+export function setViewDay(key) { viewKey = key && key < store.todayKey() ? key : null; }
 const isPast = () => shownKey() < store.todayKey();
 
 function shortDate(key) {
@@ -119,7 +121,22 @@ function shortDate(key) {
   return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).toLowerCase();
 }
 
-function dayStepper() {
+const ordinal = (n) => {
+  const t = n % 100;
+  if (t >= 11 && t <= 13) return `${n}th`;
+  return `${n}${({ 1: 'st', 2: 'nd', 3: 'rd' })[n % 10] ?? 'th'}`;
+};
+
+/** "12th of Nov/26": the day leads, the rest supports it (owner, 0.4.0). */
+function dateLine(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  const mon = new Date(y, m - 1, d).toLocaleDateString('en-GB', { month: 'short' });
+  return el('span', { class: 'day-date' },
+    el('span', { class: 'day-date-n', text: ordinal(d) }),
+    el('span', { class: 'day-date-rest', text: ` of ${mon}/${String(y).slice(2)}` }));
+}
+
+function dayStepper(logged) {
   const key = shownKey();
   const today = store.todayKey();
   const pos = store.dayPosition(key);
@@ -134,10 +151,11 @@ function dayStepper() {
     b.addEventListener('click', () => step(dir));
     return b;
   };
-  const text = key === today ? 'today' : `${pos ? `day ${pos.day} · ` : ''}${shortDate(key)}`;
+  // the date and its small lines sit together as one group, in heading ink
+  const sub = `${logged} of 7 logged`;
   return el('div', { class: 'day-stepper reveal-item' },
     btn(-1, 'previous day', '‹', key <= first),
-    el('p', { class: 'label label--legible day-name', 'aria-live': 'polite', text }),
+    el('div', { class: 'day-name', 'aria-live': 'polite' }, dateLine(key), el('p', { class: 'label label--legible day-sub', text: sub })),
     btn(1, 'next day', '›', key >= today));
 }
 
@@ -217,9 +235,9 @@ export function renderToday(body) {
   });
   rows[1].li.classList.add('is-first');
 
-  const readout = el('p', { class: 'label label--legible today-readout reveal-item', 'aria-live': 'polite', text: `${logged} of 7 logged` });
+
   const list = el('ol', { class: 'lifeline' }, ...rows.map((r) => r.li));
-  body.replaceChildren(el('div', { class: 'today' }, dayStepper(), readout, list));
+  body.replaceChildren(el('div', { class: 'today' }, dayStepper(logged), list));
 
   // the "due now" state changes with the clock, so wake up when the next test time passes
   const next = nodes.filter((n) => n.testAt && !n.done && n.testAt > now).map((n) => n.testAt).sort((a, b) => a - b)[0];

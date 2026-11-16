@@ -12,7 +12,7 @@
   height: var(--readout-h);
   font-family: var(--font-mono); font-size: var(--fs-label); line-height: 1;
   letter-spacing: var(--tr-label);
-  color: var(--t-secondary);
+  color: var(--t-primary);   /* small text in heading ink (owner, 0.4.0) */
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -130,12 +130,29 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 /* the creamy pour (§13.3): fills from the foot with bubbles in it, holds, then drains */
 .nav-pill.is-pouring::after, .nav-pill.is-draining::after {
   width: 100%; opacity: 1;
-  background: var(--pour-bubbles), var(--g-selected-fill);
+  background: var(--g-selected-fill);
   transform-origin: 50% 100%;
   animation-play-state: running;
 }
 .nav-pill.is-pouring::after  { animation: pour-fill var(--d-pour) var(--ease-out) both; }
 .nav-pill.is-draining::after { animation: pour-drain var(--d-drain) var(--ease-default) both; }
+.pour-fizz {
+  position: absolute; pointer-events: none; overflow: hidden;
+  top: var(--nav-hit-extra); bottom: var(--nav-hit-extra); left: 0; right: 0;
+  border-radius: calc(var(--nav-h) / 2);
+}
+.pour-fizz i {
+  position: absolute; left: var(--x); bottom: 0;
+  width: var(--fizz-size); height: var(--fizz-size); border-radius: 50%;
+  background: var(--fizz-ink); opacity: 0;
+  animation: fizz-rise var(--d-fizz) var(--ease-out) calc(var(--k) * var(--d-fizz-step)) both;
+}
+.pour-fizz i:nth-child(odd) { width: var(--fizz-size-s); height: var(--fizz-size-s); }
+@keyframes fizz-rise {
+  0%   { opacity: 0; transform: translateY(0); }
+  25%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(var(--fizz-rise)); }
+}
 @keyframes pour-fill  { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes pour-drain { from { transform: scaleY(1); } to { transform: scaleY(0); } }
 .nav-pill.is-pouring, .nav-pill.is-draining { color: var(--t-on-terra); }
@@ -333,7 +350,10 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 .today { display: grid; gap: var(--sp-6); padding-bottom: var(--today-foot); }
 .today-readout { margin: 0; }
 .day-stepper { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
-.day-name { margin: 0; text-align: center; flex: 1; }
+.day-name { margin: 0; text-align: center; flex: 1; display: grid; gap: var(--sp-1); color: var(--t-primary); }
+.day-date { font-family: var(--font-display); font-weight: var(--fw-light); font-size: var(--fs-date-rest); line-height: var(--lh-tight); color: var(--t-whisper); }
+.day-date-n { font-weight: var(--fw-date); font-size: var(--fs-date); color: var(--t-primary); }
+.day-name .day-sub { color: var(--t-primary); margin: 0; }
 .node[data-locked] .node-hit { cursor: default; }
 
 .lifeline { list-style: none; margin: 0; padding: 0; position: relative; }
