@@ -112,6 +112,7 @@
   /* ---- type ---- */
   --font-display: 'Sora', system-ui, sans-serif;
   --font-body:    'Manrope', system-ui, sans-serif;
+  --font-head:    'Bebas Neue', 'Sora', system-ui, sans-serif;   /* headings, all caps (owner, 0.2.2) */
   --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   --fs-hero: 52px; --fs-hero-lead: 36px; --fs-hero-sub: 26px;
   --fs-room: 40px; --fs-heading: 28px; --fs-sheet: 24px; --fs-note: 20px;
@@ -121,7 +122,7 @@
   --fs-input: 16px;
   --lh-body: 1.65; --lh-long: 1.7; --lh-note: 1.45; --lh-tight: 1.05;
   --tr-hero: -0.025em; --tr-head: -0.02em; --tr-card: -0.012em; --tr-display: -0.01em;
-  --tr-label: 0.18em; --tr-nav: 0.14em; --tr-tag: 0.16em; --tr-cue: 0.20em; --tr-trigger: 0.22em;
+  --tr-label: 0.05em; --tr-nav: 0.05em;   /* tightened for lowercase (owner, 0.2.2) */ --tr-tag: 0.16em; --tr-cue: 0.20em; --tr-trigger: 0.22em;
   --fw-light: 300; --fw-body: 400; --fw-head: 500;
 
   /* ---- motion ---- */
@@ -248,9 +249,11 @@
   --node-dot:       14px;
   --node-due-w:     2px;
   --node-pad-y:     var(--sp-3);
-  --fs-group:       26px;               /* tier 1 heading: 26 / 18 step title = 1.44 */
-  --fw-group:       600;
-  --tr-group:       -0.02em;
+  --node-sep:       var(--sp-2);          /* air between steps, so each name + status reads as one group */
+  --node-lh:        1.25;
+  --fs-group:       34px;               /* tier 1 heading, Bebas caps; reads about as tall as Sora 26 */
+  --fw-group:       400;
+  --tr-group:       0.02em;
   --t-step:         color-mix(in srgb, var(--t-primary) 93%, var(--c-card-white));   /* step names: 7% lighter than primary ink */
   --close-dot:      18px;
   --st-settled-tint: rgba(197, 217, 200, 0.45);

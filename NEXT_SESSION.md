@@ -4,7 +4,7 @@ Overwritten at every "save progress". Maximum 15 lines.
 
 **Last saved:** 2026-11-16
 
-**State:** 0.2.1 live on `main`. Phase 2 done: Today lifeline (`js/today.js`), sugar and meal sheets, above-target flags, missed-day entry with locking. Also: new soundscape (`js/audio.js`), safe auto-update (`sw.js`), browser use allowed (no install gate).
+**State:** 0.2.2 live on `main`. Phase 2 done: Today lifeline (`js/today.js`), sugar and meal sheets, above-target flags, missed-day entry with locking. Also: new soundscape (`js/audio.js`), safe auto-update (`sw.js`), browser use allowed (no install gate); headings in Bebas caps (DECISIONS 33).
 
 **Do next:**
 1. Ask the owner for the iPhone results on 0.2.1; fix one concern per pass.

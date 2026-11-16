@@ -36,4 +36,4 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 30 | 2026-11-16 | Sound plays with the silent switch on; soundscape (pad, water, rare tones) pitched for the phone speaker | Owner's call; the manual's 55Hz bed was inaudible on iPhone |
 | 31 | 2026-11-16 | Updates install themselves via `sw.js`, swapping only when safe (app hidden or just opened, no count running, nothing typed) | Owner wants auto-update without corrupting data |
 | 32 | 2026-11-16 | Past days can be filled in where empty; entries already logged on a past day are locked. Today stays editable | Owner's call |
-| 33 | 2026-11-16 | Type: day parts are capitalised headings (Sora 26/600); step names regular weight, 7% lighter; status labels below; no all-caps anywhere | Owner's call |
+| 33 | 2026-11-16 | Type: headings (day parts, room titles) in Bebas Neue, all caps, self-hosted; step names Sora regular, 7% lighter; status label tight under its step; all other text lowercase with tight letter-spacing | Owner's call |

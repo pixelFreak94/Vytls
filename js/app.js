@@ -8,7 +8,7 @@ import { renderSettings } from './settings.js';
 import { initAudio, thup } from './audio.js';
 import { renderToday as renderLifeline } from './today.js';
 
-export const VERSION = '0.2.1';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.2.2';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };
