@@ -12,4 +12,4 @@ Overwritten at every "save progress". Maximum 15 lines.
 
 **Open with the owner:** doctor's answers (`DEV_PLAN.md` §15); public or private repo; wording on the install page and Today gate.
 
-**Watch out for:** Sonnet agents hit the usage limit last session; check before delegating. Known issues are in `TRACKER.md`. This session can only push to its own branch: open a pull request for `main`.
+**Watch out for:** Sonnet agents hit the usage limit last session; check before delegating. Known issues are in `TRACKER.md`. Sessions push to their own branch; a save is merged into `main` by Claude (DECISIONS 28).
