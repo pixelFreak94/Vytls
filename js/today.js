@@ -43,7 +43,7 @@ function sugarFlag(kind, value) {
   return value > (kind === 'fasting' ? t.fasting : t.afterMeal) ? 'above' : 'settled';
 }
 
-function buildNodes(day, now) {
+function buildNodes(day, now, past) {
   const nodes = [];
   const f = day.fasting;
   nodes.push({ id: 'fasting', kind: 'fasting', done: f?.value != null, rec: f });
@@ -54,7 +54,7 @@ function buildNodes(day, now) {
     nodes.push({ id: `${meal}-kicks`, kind: 'kicks', meal, done: !!m.kicks?.endedAt, rec: m.kicks });
     nodes.push({
       id: `${meal}-sugar`, kind: 'sugar', meal, done: m.sugar?.value != null, rec: m.sugar,
-      testAt, due: m.sugar?.value == null && testAt != null && now >= testAt,
+      testAt, due: !past && m.sugar?.value == null && testAt != null && now >= testAt,
     });
   }
   return nodes;
@@ -88,18 +88,53 @@ function labelFor(n) {
   return 'not logged';
 }
 
-const TITLES = { fasting: 'fasting', meal: 'meal', kicks: 'movements', sugar: 'sugar' };
+const TITLES = { fasting: 'sugar', meal: 'meal', kicks: 'movements', sugar: 'sugar' };
+
+// ---- which day is shown ----------------------------------------------------
+// Today by default. Past days can be opened to fill in what was missed; anything already
+// logged on a past day is locked (owner's call). Today's entries stay editable.
+let viewKey = null;
+const shownKey = () => viewKey ?? store.todayKey();
+const isPast = () => shownKey() < store.todayKey();
+
+function shortDate(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).toLowerCase();
+}
+
+function dayStepper() {
+  const key = shownKey();
+  const today = store.todayKey();
+  const pos = store.dayPosition(key);
+  const first = store.get().settings.startDate;
+  const step = (dir) => {
+    const next = store.addDays(key, dir);
+    viewKey = next >= today ? null : next;
+    if (bodyRef) renderToday(bodyRef);
+  };
+  const btn = (dir, label, glyph, disabled) => {
+    const b = el('button', { class: 'btn-icon day-step', type: 'button', 'aria-label': label, disabled }, glyph);
+    b.addEventListener('click', () => step(dir));
+    return b;
+  };
+  const text = key === today ? 'today' : `${pos ? `day ${pos.day} · ` : ''}${shortDate(key)}`;
+  return el('div', { class: 'day-stepper reveal-item' },
+    btn(-1, 'previous day', '‹', key <= first),
+    el('p', { class: 'label label--legible day-name', 'aria-live': 'polite', text }),
+    btn(1, 'next day', '›', key >= today));
+}
 
 function nodeRow(n, state) {
   const dot = el('span', { class: 'node-dot', 'aria-hidden': 'true' });
   if (state.docked) dot.append(el('span', { class: 'ball' }));
   const inner = [
     el('span', { class: 'node-text' },
-      el('span', { class: 'label label--legible', text: labelFor(n) }),
-      el('span', { class: 'item-title', text: TITLES[n.kind] })),
+      el('span', { class: 'item-title', text: TITLES[n.kind] }),
+      el('span', { class: 'label label--legible', text: labelFor(n) })),
     valueChip(n),
   ];
-  const tappable = n.kind !== 'kicks';   // the counter is Phase 4
+  const locked = isPast() && n.done;      // past entries are kept as logged
+  const tappable = n.kind !== 'kicks' && !locked;   // the counter is Phase 4
   const hit = tappable
     ? el('button', { class: 'node-hit', type: 'button', 'data-node': n.id }, ...inner)
     : el('div', { class: 'node-hit', 'data-node': n.id }, ...inner);
@@ -108,6 +143,7 @@ function nodeRow(n, state) {
     class: 'node reveal-item',
     'data-kind': n.kind,
     'data-state': n.done ? 'done' : n.due ? 'due' : 'open',
+    ...(locked ? { 'data-locked': '' } : {}),
     ...(flag ? { 'data-flag': flag } : {}),
   }, dot, hit);
   if (tappable) hit.addEventListener('click', () => openFor(n));
@@ -124,8 +160,9 @@ export function renderToday(body) {
   bodyRef = body;
   clearTimeout(dueTimer);
   const now = Date.now();
-  const day = store.getDay(store.todayKey());
-  const nodes = buildNodes(day, now);
+  if (viewKey && viewKey >= store.todayKey()) viewKey = null;   // the day rolled over
+  const day = store.getDay(shownKey());
+  const nodes = buildNodes(day, now, isPast());
   const logged = countLogged(nodes);
   const complete = logged === 7;
   const dock = complete ? null : nodes.find((n) => !n.done);
@@ -133,9 +170,12 @@ export function renderToday(body) {
 
   // rows in order, so the lit part of the spine can be worked out by index
   const rows = [];   // { li, hasDot, nodeId }
+  // tier 1: the four parts of the day are headings; their steps sit under them
+  const head = (text, lead) => ({ li: el('li', { class: `node-head reveal-item${lead ? ' is-lead' : ''}` }, el('h2', { class: 'group-title', text })), nodeId: null, hasDot: false });
+  rows.push(head('fasting', true));
   rows.push({ li: nodeRow(nodes[0], { docked: dock === nodes[0] }), nodeId: nodes[0].id, hasDot: true });
   store.MEALS.forEach((meal, i) => {
-    rows.push({ li: el('li', { class: 'node-head reveal-item' }, el('span', { class: 'label label--legible', text: meal })), nodeId: null, hasDot: false });
+    rows.push(head(meal));
     for (const n of nodes.slice(1 + i * 3, 4 + i * 3)) {
       rows.push({ li: nodeRow(n, { docked: dock === n }), nodeId: n.id, hasDot: true });
     }
@@ -155,11 +195,11 @@ export function renderToday(body) {
       r.li.classList.add('lit-top', 'lit-bot');
     }
   });
-  rows[0].li.classList.add('is-first');
+  rows[1].li.classList.add('is-first');
 
   const readout = el('p', { class: 'label label--legible today-readout reveal-item', 'aria-live': 'polite', text: `${logged} of 7 logged` });
   const list = el('ol', { class: 'lifeline' }, ...rows.map((r) => r.li));
-  body.replaceChildren(el('div', { class: 'today' }, readout, list));
+  body.replaceChildren(el('div', { class: 'today' }, dayStepper(), readout, list));
 
   // the "due now" state changes with the clock, so wake up when the next test time passes
   const next = nodes.filter((n) => n.testAt && !n.done && n.testAt > now).map((n) => n.testAt).sort((a, b) => a - b)[0];
@@ -267,7 +307,7 @@ function timeField(ts) {
 
 function openReadingSheet(n) {
   const isFasting = n.kind === 'fasting';
-  const key = store.todayKey();
+  const key = shownKey();
   const rec = n.rec;
   const editing = n.done;
   const { form } = frame({
@@ -356,7 +396,7 @@ function openReadingSheet(n) {
 }
 
 function openMealSheet(n) {
-  const key = store.todayKey();
+  const key = shownKey();
   const editing = n.done;
   const { form } = frame({ eyebrow: n.meal, title: 'meal', nodeId: n.id });
 

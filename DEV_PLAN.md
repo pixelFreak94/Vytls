@@ -21,7 +21,7 @@ Out of scope: accounts, cloud sync, meter connection, calorie or carb counting, 
 
 Design: manual §28.3–§28.5 (rooms, the loading ball, Today as a lifeline).
 
-**First run:** if the app is opened in Safari rather than from the Home Screen, it shows only an "Add to Home Screen first" screen with the steps, and does not accept entries. Once installed, logging stays blocked until the doctor's phone number is saved in Settings. On iPhone the Safari copy and the Home Screen copy keep separate data, so anything logged in Safari would be left behind.
+**First run:** the app works in a browser tab or from the Home Screen. Logging stays blocked until the doctor's phone number is saved in Settings. On iPhone the Safari copy and the Home Screen copy keep separate data.
 
 The Today screen has four cards in time order.
 
@@ -35,7 +35,7 @@ The Today screen has four cards in time order.
 
 **Typo guard:** a sugar reading below 40 or above 400 asks "Is this right?" before it is saved.
 
-Each step shows one of three states: to do, due now, done. A progress line at the top reads "n of 7 logged" (the 4 sugar readings and 3 movement sessions; meal steps are not counted). The ball rests on the earliest step still open. Steps can be done out of order and any entry can be edited or deleted afterwards, with its time adjustable, in case she logs late.
+Each step shows one of three states: to do, due now, done. A progress line at the top reads "n of 7 logged" (the 4 sugar readings and 3 movement sessions; meal steps are not counted). The ball rests on the earliest step still open. Steps can be done out of order and any of today's entries can be edited or deleted, with its time adjustable. Arrows at the top step back to earlier days of the month: there, empty steps can be filled in, but logged entries are locked.
 
 ## 3. Technical shape
 

@@ -9,7 +9,7 @@
 // 4. The page reloads once onto the new version. Readings live in localStorage, which
 //    this file never touches; store.js upgrades their shape if needed.
 
-const VERSION = '0.2.0';
+const VERSION = '0.2.1';
 const CACHE = `vytls-${VERSION}`;
 
 const FILES = [
