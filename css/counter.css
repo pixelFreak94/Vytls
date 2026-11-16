@@ -8,11 +8,12 @@
   -webkit-user-select: none; user-select: none;
 }
 .counter-top { display: flex; justify-content: space-between; align-items: center; gap: var(--counter-gap); }
-.counter-title { font-family: var(--font-head); text-transform: uppercase; font-size: var(--fs-sheet); letter-spacing: var(--tr-label); color: var(--t-secondary); }
+/* Hierarchy (owner, 0.3.0): one thing leads. 1 the count · 2 the tap surface · 3 everything else, small and quiet. */
+.counter-title { font-family: var(--font-mono); font-size: var(--fs-legible); letter-spacing: var(--tr-label); color: var(--t-secondary); }
 .counter-pill {
   min-height: var(--counter-pill-h); padding: 0 var(--counter-pill-pad);
   border: 1px solid var(--g-hair, var(--g-edge-pill)); border-radius: 999px; background: transparent;
-  color: var(--t-secondary); font: var(--fw-body) var(--fs-body)/1 var(--font-body); letter-spacing: var(--tr-label);
+  color: var(--t-secondary); font: var(--fw-body) var(--fs-body)/1 var(--font-body);
   cursor: pointer; transition: background var(--d-quick) var(--ease-default);
 }
 .counter-pill:active { background: var(--g-edge-pill); }
@@ -26,7 +27,7 @@
   background: var(--counter-node-off); transform: translateY(-50%);
 }
 .counter-node {
-  position: relative; width: var(--counter-node); height: var(--counter-node); border-radius: 50%;
+  position: relative; width: var(--counter-node-s); height: var(--counter-node-s); border-radius: 50%;
   background: var(--c-cream); border: 1px solid var(--counter-node-off);
   transition: background var(--d-state) var(--ease-out), border-color var(--d-state) var(--ease-out);
 }
@@ -34,12 +35,14 @@
 .counter-node.is-done { background: var(--st-settled); border-color: var(--st-settled-mark); }
 .counter-readout { text-align: center; }
 .counter-count { font-family: var(--font-display); font-weight: var(--fw-light); font-size: var(--fs-count); line-height: var(--lh-tight); letter-spacing: var(--tr-hero); }
+.counter-of { font-size: var(--fs-count-of); color: var(--t-whisper); }
+.counter-elapsed { color: var(--t-whisper); }
 .counter-times { margin-top: var(--sp-2); font-family: var(--font-mono); font-size: var(--fs-value); font-variant-numeric: tabular-nums; color: var(--t-secondary); display: flex; justify-content: center; gap: var(--sp-6); }
 .counter-tap {
   position: relative; flex: 1 1 auto; min-height: var(--counter-tap-min); overflow: hidden;
   border: 1px solid var(--counter-tap-edge); border-radius: var(--tap-radius);
   background: var(--counter-tap-fill); box-shadow: var(--counter-tap-shadow);
-  font-family: var(--font-display); font-size: var(--fs-tap); color: var(--t-primary); cursor: pointer;
+  font-family: var(--font-body); font-size: var(--fs-item); color: var(--t-secondary); cursor: pointer;
   transition: transform var(--d-press-out) var(--ease-pop);
   -webkit-tap-highlight-color: transparent;
 }

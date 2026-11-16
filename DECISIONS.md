@@ -37,3 +37,7 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 31 | 2026-11-16 | Updates install themselves via `sw.js`, swapping only when safe (app hidden or just opened, no count running, nothing typed) | Owner wants auto-update without corrupting data |
 | 32 | 2026-11-16 | Past days can be filled in where empty; entries already logged on a past day are locked. Today stays editable | Owner's call |
 | 33 | 2026-11-16 | Type: headings (day parts, room titles) in Bebas Neue, all caps, self-hosted; step names Sora regular, 7% lighter; status label tight under its step; all other text lowercase with tight letter-spacing | Owner's call |
+| 34 | 2026-11-16 | Foods are saved and shown with one capital letter; new entries use the iPhone keyboard's capitals and spelling correction | Owner's call; no offline dictionary, so spelling of older entries is not changed |
+| 35 | 2026-11-16 | Counter hierarchy: the count leads ("of 5" smaller and greyed), the tap surface second, the title and times small and quiet | Owner's call: one focal point |
+| 36 | 2026-11-16 | Past days in History stay locked once logged, overriding DEV_PLAN §7's "all editable" | Follows DECISIONS 32 |
+| 37 | 2026-11-16 | The raise control (A3) also sits on the counter's finished screen | More cautious than the manual's minimum |

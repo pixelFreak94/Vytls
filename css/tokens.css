@@ -370,6 +370,8 @@
 
 :root {
   /* ---- counter (Phase 4) ---- */
+  --fs-count-of: 32px;      /* "of 5": half the count, so the number leads */
+  --counter-node-s: 12px;   /* progress dots, quieter than the count */
   --counter-pad:        var(--sp-5);
   --counter-gap:        var(--sp-4);
   --counter-node:       18px;
@@ -387,4 +389,14 @@
   --counter-veil:       var(--c-cream);
   --counter-node-off:   rgba(60, 50, 40, 0.28);
   --counter-confirm-gap: var(--sp-3);
+}
+
+:root {
+  /* ---- alerts (Phase 5; manual §28.9) ---- */
+  --z-alert:      1000;                 /* above everything, the loading ball included */
+  --alert-pad:    var(--sp-6);
+  --raise-edge:   1.5px;
+  --raise-fill:   var(--c-card-white);   /* solid, so nothing scrolls through the words */
+  --raise-press:  rgba(184, 64, 46, 0.10);
+  --raise-bottom: calc(var(--safe-b) + var(--nav-bottom) + var(--nav-h) + 2 * var(--nav-pad-y) + var(--sp-3));
 }

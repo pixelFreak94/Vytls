@@ -89,7 +89,7 @@ function valueChip(n) {
 function labelFor(n) {
   if (n.kind === 'fasting') return n.done ? hhmm(n.rec.at) : 'not logged';
   if (n.kind === 'meal') {
-    const foods = n.rec.foods?.length ? ` · ${n.rec.foods.join(', ')}` : '';
+    const foods = n.rec.foods?.length ? ` · ${n.rec.foods.map(store.foodName).join(', ')}` : '';
     return (n.done ? `finished ${hhmm(n.rec.finishedAt)}` : 'not logged') + foods;
   }
   if (n.kind === 'kicks') {
@@ -421,7 +421,8 @@ function foodsField(key, meal) {
   const current = () => store.getDay(key).meals[meal].foods ?? [];
   const input = el('input', {
     class: 'field-input', id: 'sheet-food', type: 'text', enterkeyhint: 'done',
-    placeholder: 'rice, 1 cup', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false',
+    // the iPhone keyboard capitalises and corrects spelling as she types
+    placeholder: 'Rice, 1 cup', autocomplete: 'off', autocapitalize: 'sentences', autocorrect: 'on', spellcheck: 'true',
   });
   const add = el('button', { class: 'btn btn-ghost food-add', type: 'button', text: 'add' });
   const sugg = el('div', { class: 'food-suggest', role: 'group', 'aria-label': 'suggestions' });
@@ -431,7 +432,7 @@ function foodsField(key, meal) {
     el('div', { class: 'field-row food-row' }, input, add), sugg, list);
 
   const addFood = (raw) => {
-    const f = raw.trim();
+    const f = store.foodName(raw);
     input.value = '';
     if (f && !current().some((x) => x.toLowerCase() === f.toLowerCase())) {
       store.updateDay(key, (d) => { d.meals[meal].foods.push(f); });
@@ -447,11 +448,12 @@ function foodsField(key, meal) {
         store.updateDay(key, (d) => { d.meals[meal].foods.splice(i, 1); });
         paint();
       });
-      return el('li', { class: 'food-item' }, el('span', { class: 'food-name', text: f }), rm);
+      return el('li', { class: 'food-item' }, el('span', { class: 'food-name', text: store.foodName(f) }), rm);
     }));
     const q = input.value.trim().toLowerCase();
     const picks = store.get().foodHistory
-      .filter((f) => !have.includes(f) && (!q || f.toLowerCase().includes(q))).slice(0, 5);
+      .map(store.foodName)
+      .filter((f, i, all) => all.indexOf(f) === i && !have.some((h) => store.foodName(h) === f) && (!q || f.toLowerCase().includes(q))).slice(0, 5);
     sugg.hidden = picks.length === 0;
     sugg.replaceChildren(...picks.map((f) => {
       const b = el('button', { class: 'food-chip', type: 'button', text: f });

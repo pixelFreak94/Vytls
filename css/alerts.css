@@ -1,0 +1,52 @@
+/* alerts.css — the alert screen and the raise control (manual §28.9). Every value is a token.
+   The one place the instrument stops being quiet: solid red, no glass, no grain, no motion. */
+.alert {
+  position: fixed; inset: 0; z-index: var(--z-alert);
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: calc(var(--safe-t) + var(--sp-9)) var(--alert-pad) calc(var(--safe-b) + var(--alert-pad));
+  background: var(--st-alert); color: var(--st-alert-ink);
+  animation: none; transition: none;
+  touch-action: manipulation; -webkit-user-select: none; user-select: none;
+}
+.alert-words { max-width: var(--col-max); }
+.alert-head { margin: 0; font: var(--fw-head) var(--fs-alert-head)/1.2 var(--font-display); letter-spacing: 0; text-transform: none; }
+.alert-line { margin: var(--sp-4) 0 0; font: var(--fw-body) var(--fs-alert-line)/1.45 var(--font-body); }
+.alert-actions { display: flex; flex-direction: column; align-items: center; gap: var(--alert-gap); }
+.alert-call {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-3);
+  width: 100%; min-height: var(--alert-call-h); border-radius: var(--r-pill);
+  background: var(--st-alert-ink); color: var(--t-primary); text-decoration: none;
+  font: var(--fw-head) var(--fs-alert-btn)/1 var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+}
+.alert-close {
+  min-height: var(--hit-min); padding: 0 var(--sp-8); border-radius: var(--r-pill);
+  border: 1px solid var(--st-alert-ink); background: transparent; color: var(--st-alert-ink);
+  font: var(--fw-body) var(--fs-body)/1 var(--font-body); cursor: pointer;
+}
+.alert-call:focus-visible, .alert-close:focus-visible { outline: var(--focus-ring-w) solid var(--st-alert-ink); outline-offset: var(--focus-offset); }
+
+/* the raise control: a full-width outlined red pill with a mark and plain words, never in a menu */
+.alert-raise {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  width: 100%; min-height: var(--alert-raise-h); border-radius: var(--r-pill);
+  border: var(--raise-edge) solid var(--st-alert); background: var(--raise-fill); color: var(--st-alert);
+  font: var(--fw-head) var(--fs-body)/1 var(--font-body); cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.alert-raise:active { background: var(--raise-press); }
+.alert-raise:focus-visible { outline: var(--focus-ring-w) solid var(--st-alert); outline-offset: var(--focus-offset); }
+
+/* Today: pinned above the nav */
+.raise-dock {
+  position: fixed; left: 0; right: 0; margin-inline: auto; z-index: var(--z-nav);
+  width: calc(100% - 2 * var(--alert-pad)); max-width: var(--col-max);
+  bottom: var(--raise-bottom);
+}
+html:not([data-room="today"]) .raise-dock, html[data-entered="false"] .raise-dock { display: none; }
+.today { padding-bottom: calc(var(--alert-raise-h) + var(--sp-5)); }
+
+/* on the counter */
+.counter-raise { flex: none; }
+.counter-pill--alert { border-color: var(--st-alert); color: var(--st-alert); }
+.counter-ask { color: var(--t-primary); font-size: var(--fs-item); }

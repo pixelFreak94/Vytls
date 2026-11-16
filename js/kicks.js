@@ -4,6 +4,7 @@
 // Alert rules are NOT here; they attach through onSessionEnd (Phase 5, lead).
 
 import * as store from './store.js';
+import { onCountEnded, raiseButton, raiseAlert, ASK_LESS } from './alerts.js';
 
 const el = (tag, props = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -23,6 +24,7 @@ const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const endHooks = [];
 /** Register fn({key, meal, kicks}); called once whenever a session ends, whatever the outcome. */
 export function onSessionEnd(fn) { endHooks.push(fn); }
+onSessionEnd(onCountEnded);   // A1 and A2 (alerts.js)
 
 let view = null;   // { key, meal, root, timer, onVis, onPop, ... } while open
 
@@ -61,6 +63,12 @@ export function openCounter(key, meal) {
   return true;
 }
 
+/** Close a running count whose window has passed, without opening the screen. Used at launch so an owed alert shows before the ball. */
+export function closeExpired() {
+  const r = store.runningSession();
+  return r ? checkWindow(r.key, r.meal) : false;
+}
+
 /** Called at launch: reopen the counter if a session is still running. */
 export function resumeIfRunning() {
   const r = store.runningSession();
@@ -70,7 +78,7 @@ export function resumeIfRunning() {
 
 function mount(key, meal) {
   const goal = () => settings().goal;
-  const title = el('div', { class: 'counter-title', id: 'counter-title', text: `movements · ${meal}` });
+  const title = el('div', { class: 'counter-title', id: 'counter-title', text: `${meal} · movements` });
   const endBtn = el('button', { class: 'counter-pill', type: 'button', text: 'end early' });
   const top = el('div', { class: 'counter-top' }, title, endBtn);
   const spine = el('div', { class: 'counter-spine', 'aria-hidden': 'true' });
@@ -80,9 +88,10 @@ function mount(key, meal) {
   const tap = el('button', { class: 'counter-tap', type: 'button', text: 'felt a movement' });
   const undo = el('button', { class: 'counter-pill', type: 'button', text: 'undo last tap' });
   const foot = el('div', { class: 'counter-foot' });
-  // Phase 5 (lead): the A3 "baby moving less than usual?" button goes here, at the foot (manual §28.6).
+  // A3: the raise control is always on the counter, at the foot (manual §28.6, §28.9)
+  const raise = () => el('div', { class: 'counter-raise' }, raiseButton({ key, meal }));
   const root = el('div', { class: 'counter', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'counter-title' },
-    top, spine, readout, tap, el('div', { class: 'counter-foot' }, undo), foot);
+    top, spine, readout, tap, el('div', { class: 'counter-foot' }, undo), foot, raise());
   document.body.append(root);
 
   const v = view = { key, meal, root, timer: null, confirming: false };
@@ -97,10 +106,12 @@ function mount(key, meal) {
       spine.replaceChildren(...Array.from({ length: g }, () => el('span', { class: 'counter-node' })));
     }
     [...spine.children].forEach((node, i) => node.classList.toggle('is-lit', i < n));
-    count.textContent = `${n} of ${g}`;
+    // the number is the one thing to read; "of 5" supports it
+    count.replaceChildren(el('span', { class: 'counter-n', text: String(n) }), el('span', { class: 'counter-of', text: ` of ${g}` }));
     const now = Date.now();
     elapsed.textContent = `${mmss(now - k.startedAt)} elapsed`;
     left.textContent = `${mmss(k.startedAt + settings().windowMinutes * 60000 - now)} left`;
+    elapsed.className = 'counter-elapsed';
     undo.disabled = n === 0;
   };
 
@@ -115,11 +126,11 @@ function mount(key, meal) {
     const done = el('button', { class: 'counter-done', type: 'button', text: 'done' });
     done.addEventListener('click', close);
     root.replaceChildren(
-      el('div', { class: 'counter-top' }, el('div', { class: 'counter-title', id: 'counter-title', text: `movements · ${meal}` })),
+      el('div', { class: 'counter-top' }, el('div', { class: 'counter-title', id: 'counter-title', text: `${meal} · movements` })),
       el('div', { class: 'counter-result' },
         el('div', { class: 'counter-count', text: `${k.taps.length} of ${g}` }),
         el('p', { class: 'counter-note', text: reached ? `${k.taps.length} of ${g} · ${note}` : note })),
-      el('div', { class: 'counter-foot' }, done));
+      el('div', { class: 'counter-foot' }, done), raise());
     done.focus();
   };
   v.drawEnded = drawEnded;
@@ -160,10 +171,17 @@ function mount(key, meal) {
     endBtn.hidden = true;
     no.addEventListener('click', () => { v.confirming = false; foot.replaceChildren(); endBtn.hidden = false; tap.focus(); });
     yes.addEventListener('click', () => {
-      // Phase 5 (lead): A4 goes here. If taps < goal, ask "is the baby moving less than usual?"
-      // before closing: yes opens the alert screen, no closes the session as incomplete.
-      finish(key, meal, Date.now(), 'ended-early');
-      close();
+      const endedAt = Date.now();
+      const end = (alert) => { finish(key, meal, endedAt, 'ended-early'); close(); if (alert) raiseAlert('A4', { key, meal }); };
+      if (rec(key, meal).taps.length >= goal()) return end(false);
+      // A4 (DEV_PLAN §6): below the goal, ask before closing. Yes opens the alert.
+      const y = el('button', { class: 'counter-pill counter-pill--alert', type: 'button', text: 'yes' });
+      const n = el('button', { class: 'counter-pill', type: 'button', text: 'no' });
+      y.addEventListener('click', () => end(true));
+      n.addEventListener('click', () => end(false));
+      foot.replaceChildren(el('div', { class: 'counter-confirm', role: 'group', 'aria-label': ASK_LESS },
+        el('p', { class: 'counter-ask', text: ASK_LESS }), el('div', { class: 'counter-confirm-row' }, y, n)));
+      y.focus();
     });
     no.focus();
   });

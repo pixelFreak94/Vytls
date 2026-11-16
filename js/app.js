@@ -7,9 +7,10 @@ import { runEntry } from './entry.js';
 import { renderSettings } from './settings.js';
 import { initAudio, thup } from './audio.js';
 import { renderToday as renderLifeline } from './today.js';
-import { resumeIfRunning } from './kicks.js';
+import { resumeIfRunning, closeExpired } from './kicks.js';
+import { raiseButton } from './alerts.js';
 
-export const VERSION = '0.2.2';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.3.0';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };
@@ -252,10 +253,21 @@ function boot() {
   // The app runs in a browser tab too (owner's call). Note: on iPhone, Safari and the
   // Home Screen app keep separate records, so readings do not move between them.
 
-  // Phase 5: if an alert is owed, paint it here, before the ball (manual §28.4).
+  // An alert owed at launch (a count's window passed while the app was closed) shows now,
+  // before the ball (manual §28.4, §28.9).
+  closeExpired();
+
+  // A3: the raise control, pinned above the nav on Today (manual §28.5, §28.9)
+  const dock = document.createElement('div');
+  dock.className = 'raise-dock';
+  dock.append(raiseButton());
+  document.body.append(dock);
+  const showDock = () => { dock.hidden = !store.canLog(); };
+  showDock();
 
   store.subscribe((d) => {
     applySettingsToHtml(d);
+    showDock();
     paintReadout();
     if (current === 'today') renderToday();
   });
