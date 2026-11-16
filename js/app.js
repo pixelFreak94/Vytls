@@ -6,11 +6,13 @@ import { initAtmosphere, setRoom as setAtmosphereRoom } from './atmosphere.js';
 import { runEntry } from './entry.js';
 import { renderSettings } from './settings.js';
 import { initAudio, thup } from './audio.js';
-import { renderToday as renderLifeline } from './today.js';
+import { renderToday as renderLifeline, setViewDay } from './today.js';
+import { renderHistory } from './history.js';
+import { renderReport } from './report.js';
 import { resumeIfRunning, closeExpired } from './kicks.js';
 import { raiseButton } from './alerts.js';
 
-export const VERSION = '0.3.0';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.4.0';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };
@@ -66,6 +68,8 @@ function renderToday() {
 function renderRoom(room) {
   if (room === 'today') renderToday();
   else if (room === 'settings') renderSettings($('[data-body="settings"]'));
+  else if (room === 'report') renderReport($('[data-body="report"]'));
+  else if (room === 'history') renderHistory($('[data-body="history"]'), { openDay: (key) => { setViewDay(key); go('today'); } });
   else $(`[data-body="${room}"]`).replaceChildren(emptyState('Nothing here yet.'));
 }
 
@@ -138,6 +142,19 @@ function pour(btn) {
   clearTimeout(btn._pourT);
   btn.classList.remove('is-draining');
   btn.classList.add('is-pouring');
+  // 8 small bubbles rise through the pour, 50ms apart (manual §13.3)
+  btn.querySelector('.pour-fizz')?.remove();
+  const fizz = document.createElement('span');
+  fizz.className = 'pour-fizz';
+  fizz.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 8; i++) {
+    const b = document.createElement('i');
+    b.style.setProperty('--k', i);
+    b.style.setProperty('--x', `${8 + i * 11 + (i % 2 ? 3 : -2)}%`);
+    fizz.append(b);
+  }
+  btn.append(fizz);
+  setTimeout(() => fizz.remove(), tokenMs('--d-fizz') + 8 * tokenMs('--d-fizz-step') + 100);
   btn._pourT = setTimeout(() => {
     btn.classList.replace('is-pouring', 'is-draining');
     btn._pourT = setTimeout(() => btn.classList.remove('is-draining'), tokenMs('--d-drain'));

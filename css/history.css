@@ -1,0 +1,58 @@
+/* history.css — the History room (Phase 6; manual §28.10, §28.8). */
+
+.hg-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+.hg-range { font-family: var(--font-mono); font-size: var(--fs-value); color: var(--t-primary); margin: 0; text-align: center; }
+.hg-arrow {
+  width: var(--hit-min); height: var(--hit-min); border: 0; background: var(--g-icon-btn);
+  border-radius: var(--r-pill); color: var(--t-primary); font-size: var(--fs-note); line-height: 1; cursor: pointer;
+  box-shadow: var(--sh-lip);
+}
+.hg-arrow:disabled { opacity: var(--disabled-opacity); cursor: default; }
+.hg-arrow:focus-visible, .hg-row:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
+
+.hg-grid {
+  background: var(--g-card); border: 1px solid var(--g-edge-card); border-radius: var(--r-card);
+  box-shadow: var(--sh-card); padding: var(--hg-pad) 0;
+  -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur);
+}
+.hg-head, .hg-row {
+  display: grid; grid-template-columns: var(--hg-day-w) repeat(7, minmax(0, 1fr));
+  align-items: center; padding-right: var(--hg-pad);
+}
+.hg-head { font-family: var(--font-mono); font-size: var(--fs-hg-head); letter-spacing: var(--tr-label); color: var(--t-primary); text-align: center; }
+.hg-head .hg-h2 { grid-column: span 2; }
+.hg-head-sub { padding-bottom: var(--sp-2); border-bottom: 1px solid var(--g-hair-soft); color: var(--t-primary); }
+
+.hg-row {
+  position: relative; width: 100%; min-height: var(--hg-row-h); border: 0; background: none; margin: 0;
+  font: inherit; color: var(--t-primary); text-align: center; cursor: pointer;
+  border-bottom: 1px solid var(--g-hair-soft);
+}
+.hg-row:last-child { border-bottom: 0; }
+.hg-row:active { background: var(--raise-press); }
+.hg-future { opacity: var(--hg-future-op); cursor: default; }
+.hg-future:active { background: none; }
+.hg-today::before {
+  content: ''; position: absolute; left: 0; top: var(--sp-1); bottom: var(--sp-1);
+  width: var(--hg-today-line); background: var(--a-terra); border-radius: var(--r-pill);
+}
+
+.hg-day { display: flex; flex-direction: column; align-items: center; line-height: var(--lh-tight); }
+.hg-daynum { font-family: var(--font-mono); font-size: var(--fs-value); font-variant-numeric: tabular-nums; }
+.hg-wd { font-family: var(--font-mono); font-size: var(--fs-hg-head); color: var(--t-primary); }
+
+.hg-cell { margin: 0 var(--hg-chip-pad); font-family: var(--font-mono); font-size: var(--fs-value); font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; justify-content: center; gap: 1px; min-width: 0; }
+.hg-none { color: var(--t-whisper); }
+.hg-above { background: var(--st-above); color: var(--t-primary); border-radius: var(--hg-chip-r); padding: var(--hg-chip-pad) 2px; }
+.hg-mark { font-size: var(--fs-hg-mark); }
+.hg-reached { color: var(--t-primary); background: var(--st-settled-tint); border-radius: var(--hg-chip-r); padding: var(--hg-chip-pad) 2px; }
+.hg-expired { background: var(--st-alert); color: var(--st-alert-ink); border-radius: var(--hg-chip-r); padding: var(--hg-chip-pad) 2px; font-size: var(--fs-hg-head); }
+
+.hg-section { margin-top: var(--hg-sec-gap); }
+.hg-sec-title { font-family: var(--font-head); font-weight: var(--fw-group); text-transform: uppercase; letter-spacing: var(--tr-group); font-size: var(--fs-sheet); margin: 0 0 var(--sp-2); }
+.hg-sec-note { font-size: var(--fs-body-s); color: var(--t-primary); margin: 0 0 var(--sp-4); }
+.hg-foods { list-style: none; margin: 0; padding: 0; }
+.hg-food { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-4); padding: var(--sp-3) 0; border-bottom: var(--food-line-w) solid var(--g-hair-soft); }
+.hg-food-name { font-size: var(--fs-body); }
+.hg-food-n { font-family: var(--font-mono); font-size: var(--fs-value); color: var(--t-primary); white-space: nowrap; }
+.hg-empty { font-size: var(--fs-body); color: var(--t-secondary); margin: 0; }

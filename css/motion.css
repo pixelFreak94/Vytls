@@ -19,10 +19,10 @@
 
 /* ---- item settle (manual §13.4). app.js sets --i on each .reveal-item and adds .is-revealing to the room. ---- */
 @keyframes settle {
-  0%   { opacity: 0; transform: perspective(480px) translateZ(-40px); }
+  0%   { opacity: 0; transform: perspective(480px) translateZ(var(--reveal-z-from)); }
   55%  { opacity: 1; }
-  78%  { transform: perspective(480px) translateZ(10px); }
-  92%  { transform: perspective(480px) translateZ(-3px); }
+  78%  { transform: perspective(480px) translateZ(var(--reveal-z-over)); }
+  92%  { transform: perspective(480px) translateZ(var(--reveal-z-back)); }
   100% { opacity: 1; transform: perspective(480px) translateZ(0); }
 }
 .room.is-revealing .reveal-item {

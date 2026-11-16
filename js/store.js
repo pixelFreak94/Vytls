@@ -103,6 +103,18 @@ export function update(fn) {
   return ok;
 }
 
+/** Replace everything with a restored backup. The current data is kept first under
+ *  vytls.before-restore (never deleted by the app), and the backup is upgraded and filled in
+ *  like any stored data, so an older file cannot leave a field missing. */
+export function replaceAll(incoming) {
+  try { localStorage.setItem(`${KEY}.before-restore`, JSON.stringify(data)); } catch { /* keep going */ }
+  data = migrate(structuredClone(incoming));
+  if (!data.settings.startDate) data.settings.startDate = dayKey(Date.now());
+  const ok = save();
+  for (const l of listeners) l(data);
+  return ok;
+}
+
 export function subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 
 // ---- days -------------------------------------------------------------
