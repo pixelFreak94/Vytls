@@ -28,3 +28,6 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 22 | 2026-11-16 | App icon uses the favicon's colours: lavender capsule, blue circle, on cream | Owner's call |
 | 23 | 2026-11-16 | Fonts are self-hosted in `fonts/`; no README | No requests to other sites; the project files already cover what a README would |
 | 24 | 2026-11-16 | File layout merges DEV_PLAN with manual §23.1 (DEV_PLAN §3) | Manual's design files plus one file per screen; only `store.js` saves |
+| 25 | 2026-11-16 | Alert supporting line: "If you can't reach them, go to the hospital." | Tells her what to do if the doctor doesn't answer |
+| 26 | 2026-11-16 | Back swipe is disabled on the movement counter | A stray swipe must never interrupt a count; exits are "end early" or finishing |
+| 27 | 2026-11-16 | Progress reads "n of 7"; meal steps are not counted; the ball rests on the earliest open step | Owner's call |

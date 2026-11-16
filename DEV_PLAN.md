@@ -35,7 +35,7 @@ The Today screen has four cards in time order.
 
 **Typo guard:** a sugar reading below 40 or above 400 asks "Is this right?" before it is saved.
 
-Each step shows one of three states: to do, due now, done. A progress line at the top reads "n of 7 logged today". Steps can be done out of order and any entry can be edited or deleted afterwards, with its time adjustable, in case she logs late.
+Each step shows one of three states: to do, due now, done. A progress line at the top reads "n of 7 logged" (the 4 sugar readings and 3 movement sessions; meal steps are not counted). The ball rests on the earliest step still open. Steps can be done out of order and any entry can be edited or deleted afterwards, with its time adjustable, in case she logs late.
 
 ## 3. Technical shape
 
@@ -120,12 +120,13 @@ Design: manual §28.6.
 - Ends when the 5th tap lands (outcome `reached`, time taken is saved) or when the window passes (outcome `window-expired`).
 - "End early" asks for confirmation and saves outcome `ended-early`. An early end with fewer than 5 is not counted as a completed session, is shown as incomplete in History, and triggers A4 (§6).
 - Only one session can run at a time.
+- The iPhone back swipe does nothing on the counter. The only way out is "end early" or finishing the session.
 
 ## 6. Alerts (safety-critical)
 
 Design: manual §28.9. The rules and triggers below stay under the Safety rules in `CLAUDE.md`.
 
-One alert screen, full-screen red, cannot be missed: **"Contact your doctor!"** It has a "Call doctor" button (dials the number from Settings), a short line saying not to wait for the next session, and a "Close" that needs a deliberate tap. Every alert shown is recorded in `alerts`.
+One alert screen, full-screen red, cannot be missed: **"Contact your doctor!"** It has a "Call doctor" button (dials the number from Settings), the supporting line "If you can't reach them, go to the hospital.", and a "Close" that needs a deliberate tap. Every alert shown is recorded in `alerts`.
 
 Triggers:
 
@@ -203,7 +204,7 @@ Each phase ends with the app working and deployed, so she can start using it fro
 | Phone storage cleared, app deleted or phone replaced | Weekly backup prompt; restore from file |
 | Entries made in Safari before installing are left behind | Install-first screen blocks logging in Safari (§2) |
 | Phone keeps showing an old version after a fix | Version number changed on every release and shown in Settings (§3) |
-| A1 not seen because the app stays closed | Red state on Today on next open; A3 button; the alert text itself says not to wait for the app |
+| A1 not seen because the app stays closed | Red state on Today on next open; A3 button |
 | A2 numbers wrong for her | Adjustable; flagged for doctor confirmation; A1 and A3 do not depend on them |
 | Late or forgotten entries | Every entry's time is editable; missing cells show clearly in History |
 | A bad update breaks the app mid-month | Small commits; data shape versioned; test before pushing to `main` |
