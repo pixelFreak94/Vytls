@@ -21,7 +21,7 @@ Out of scope: accounts, cloud sync, meter connection, calorie or carb counting, 
 
 Design: manual §28.3–§28.5 (rooms, the loading ball, Today as a lifeline).
 
-**First run:** if the app is opened in Safari rather than from the Home Screen, it shows only an "Add to Home Screen first" screen with the steps, and does not accept entries. On iPhone the Safari copy and the Home Screen copy keep separate data, so anything logged in Safari would be left behind.
+**First run:** if the app is opened in Safari rather than from the Home Screen, it shows only an "Add to Home Screen first" screen with the steps, and does not accept entries. Once installed, logging stays blocked until the doctor's phone number is saved in Settings. On iPhone the Safari copy and the Home Screen copy keep separate data, so anything logged in Safari would be left behind.
 
 The Today screen has four cards in time order.
 
@@ -39,7 +39,7 @@ Each step shows one of three states: to do, due now, done. A progress line at th
 
 ## 3. Technical shape
 
-Design: manual §7 (platform), §23 (engineering), §24 (tokens). The file layout below is to be merged with manual §23.1 (open question with the owner).
+Design: manual §7 (platform), §23 (engineering), §24 (tokens). The file layout below merges the plan with manual §23.1.
 
 - Plain HTML, CSS and JavaScript. No framework, no build, no packages.
 - Installable PWA: a manifest and a service worker so it opens full-screen and works offline.
@@ -51,17 +51,26 @@ File layout:
 
 ```
 index.html            app shell, one <section> per screen
-css/app.css           all styles
-js/store.js           load, save, migrate the data object; nothing else touches storage
+404.html              in-world lost page, self-contained (manual §17.7)
+.nojekyll             empty; lets GitHub Pages serve every folder
+css/tokens.css        every design value, nothing else (manual §24)
+css/base.css          reset, type, room, grain
+css/components.css    nav, buttons, sheets, inputs, cells (manual §16)
+css/motion.css        every animation and the reduced-motion block
+js/store.js           load, save, migrate the data object, incl. ambient and sound switches; nothing else touches storage
+js/app.js             start-up order, navigation between rooms, back gesture
+js/entry.js           the loading ball (manual §28.4)
+js/atmosphere.js      room colour, hour tint, heartbeat and breath
+js/audio.js           optional synthesised sound, off by default
 js/today.js           Today screen and meal cards
 js/kicks.js           movement counter and session timing
 js/alerts.js          every alert rule and the alert screen (lead model only)
 js/history.js         30-day grid and day detail
 js/report.js          doctor report, CSV, backup and restore
 js/settings.js        settings screen
-js/app.js             navigation between screens, start-up
 manifest.webmanifest  name, icons, colours
 sw.js                 offline cache
+fonts/                Sora, Manrope, JetBrains Mono (woff2, self-hosted) and their licence
 icons/                app icons
 ```
 
@@ -76,7 +85,9 @@ icons/                app icons
     targets: { fasting: 95, afterMeal: 120 },      // mg/dL, flag when above
     kicks: { goal: 5, windowMinutes: 60 },
     dayStartHour: 4,                               // the app's day runs 4 am to 4 am
-    doctorPhone: ""                                // for the alert's call button
+    doctorPhone: "",                              // for the alert's call button; logging is blocked until set
+    ambient: true,                                 // AMBIENT switch (manual §13.6)
+    sound: false                                   // synthesised sound, off by default
   },
   days: {
     "YYYY-MM-DD": {
@@ -114,7 +125,7 @@ Design: manual §28.6.
 
 Design: manual §28.9. The rules and triggers below stay under the Safety rules in `CLAUDE.md`.
 
-One alert screen, full-screen red, cannot be missed: **"Contact your doctor or go to the hospital now."** It has a "Call doctor" button (dials the number from Settings), a short line saying not to wait for the next session, and a "Close" that needs a deliberate tap. Every alert shown is recorded in `alerts`.
+One alert screen, full-screen red, cannot be missed: **"Contact your doctor!"** It has a "Call doctor" button (dials the number from Settings), a short line saying not to wait for the next session, and a "Close" that needs a deliberate tap. Every alert shown is recorded in `alerts`.
 
 Triggers:
 

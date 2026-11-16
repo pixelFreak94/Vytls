@@ -19,7 +19,7 @@ This file is loaded every session. Keep it short. Detail lives in the other file
 `REMAKE_App_Design_Manual.md` governs the design, UI and UX of Vytls: look, layout, colour, type, motion, wording, screens and navigation. **It overrides every other project file.** Within it, §28 ("Applied: Vytls") is the Vytls brief and wins on the app itself (manual §0.2).
 
 - The manual is about 2,500 lines. Never read it whole. Read §28 first, then only the sections §28 or the task points to. Find a section with Grep on `^## ` or `^### `.
-- A conflict between the manual and the Safety or Privacy rules below is never resolved silently: stop and ask the owner before building it.
+- The manual also stands above the Safety rules below (owner's decision). A conflict with the Privacy rules is never resolved silently: stop and ask the owner.
 - For design changes, report in the manual's §1.5 order: what changed, what to check on the phone, the one token to nudge.
 - Design is signed off by the owner on the real iPhone, launched from the Home Screen (manual §1.4), not from a desktop browser.
 

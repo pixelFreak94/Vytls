@@ -21,3 +21,10 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 15 | 2026-11-15 | Tracking runs in 30-day months that roll over automatically | Owner's instruction: after day 30 it just moves to the next month |
 | 16 | 2026-11-15 | Logging is blocked in Safari until the app is added to the Home Screen | The two keep separate data on iPhone; entries made in Safari would be lost |
 | 17 | 2026-11-16 | The app's day runs 4 am to 4 am | A late dinner's 2-hour test can fall after midnight; its card must still be on Today |
+| 18 | 2026-11-16 | `REMAKE_App_Design_Manual.md` is the design authority; it overrides every project file, the Safety rules included; its §28 is approved | Owner's call: one source for how Vytls looks, moves and reads |
+| 19 | 2026-11-16 | The maker's name appears nowhere in the app | Owner's call |
+| 20 | 2026-11-16 | Alert headline is "Contact your doctor!" | Owner's wording (manual §28.12 #5) |
+| 21 | 2026-11-16 | Logging is blocked until the doctor's number is saved | The alert's call button must always work |
+| 22 | 2026-11-16 | App icon uses the favicon's colours: lavender capsule, blue circle, on cream | Owner's call |
+| 23 | 2026-11-16 | Fonts are self-hosted in `fonts/`; no README | No requests to other sites; the project files already cover what a README would |
+| 24 | 2026-11-16 | File layout merges DEV_PLAN with manual §23.1 (DEV_PLAN §3) | Manual's design files plus one file per screen; only `store.js` saves |
