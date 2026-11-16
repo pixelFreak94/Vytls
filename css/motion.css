@@ -153,3 +153,23 @@ html[data-entered="true"] #world .w-amb { animation: amb-up var(--amb-up-ms) var
   .entry.is-catch .entry-pop { animation: none; }
   html[data-entered="true"] #nav { animation: none; }
 }
+
+/* ---- today: the ball hops to the next node, the sheet rises (manual §13, §28.5) ---- */
+@keyframes ball-hop {
+  0%   { transform: translateY(var(--hop-dy, 0px)) scale(1, 1); }
+  18%  { transform: translateY(var(--hop-dy, 0px)) scale(var(--hop-squash-x), var(--hop-squash-y)); }
+  55%  { transform: translate(var(--hop-arc), calc(var(--hop-dy, 0px) * 0.45)) scale(var(--hop-stretch-x), var(--hop-stretch-y)); }
+  82%  { transform: translateY(0) scale(var(--hop-squash-x), var(--hop-squash-y)); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+@keyframes sheet-in {
+  from { opacity: 0; transform: translateY(var(--sheet-in-y)); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes sheet-veil-in { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ball.is-hopping { animation: none; }
+  .sheet { animation: sheet-veil-in var(--d-quick) linear both; }
+  .sheet-veil { animation: sheet-veil-in var(--d-quick) linear both; }
+}

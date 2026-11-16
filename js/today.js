@@ -1,0 +1,382 @@
+// today.js — the Today room: the day as a lifeline (manual §16.9, §28.5, §28.8; DEV_PLAN §2, §4).
+// renderToday(body) is idempotent: it rebuilds the body every time. Sheets live on document.body,
+// so a re-render never closes one that is open. Thresholds are read from settings on every render.
+
+import * as store from './store.js';
+
+const HOUR = 3600000;
+const TEST_AFTER = 2 * HOUR;               // sugar test: meal finished + 2 hours (DEV_PLAN §2)
+const TYPO_LOW = 40, TYPO_HIGH = 400;      // typo guard (DEV_PLAN §2)
+const MAX_TIMER = 2 ** 31 - 1;
+
+const el = (tag, props = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') n.className = v;
+    else if (k === 'text') n.textContent = v;
+    else if (v === true) n.setAttribute(k, '');
+    else if (v !== false && v != null) n.setAttribute(k, v);
+  }
+  n.append(...kids);
+  return n;
+};
+
+const pad = (n) => String(n).padStart(2, '0');
+const hhmm = (ts) => { const d = new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cssNum = (name) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0;
+
+/** A clock time on a day key as a timestamp. Times before dayStartHour belong to the next calendar date (DECISIONS 17). */
+function stampFor(key, time) {
+  const [y, m, d] = key.split('-').map(Number);
+  const [h, mi] = time.split(':').map(Number);
+  const dt = new Date(y, m - 1, d, h, mi, 0, 0);
+  if (h < store.get().settings.dayStartHour) dt.setDate(dt.getDate() + 1);
+  return dt.getTime();
+}
+
+// ---- the day as a list of nodes ----------------------------------------
+
+/** Sugar state against her set target (strictly above = flagged). */
+function sugarFlag(kind, value) {
+  const t = store.get().settings.targets;
+  return value > (kind === 'fasting' ? t.fasting : t.afterMeal) ? 'above' : 'settled';
+}
+
+function buildNodes(day, now) {
+  const nodes = [];
+  const f = day.fasting;
+  nodes.push({ id: 'fasting', kind: 'fasting', done: f?.value != null, rec: f });
+  for (const meal of store.MEALS) {
+    const m = day.meals[meal];
+    const testAt = m.finishedAt ? m.finishedAt + TEST_AFTER : null;
+    nodes.push({ id: `${meal}-meal`, kind: 'meal', meal, done: !!m.finishedAt, rec: m });
+    nodes.push({ id: `${meal}-kicks`, kind: 'kicks', meal, done: !!m.kicks?.endedAt, rec: m.kicks });
+    nodes.push({
+      id: `${meal}-sugar`, kind: 'sugar', meal, done: m.sugar?.value != null, rec: m.sugar,
+      testAt, due: m.sugar?.value == null && testAt != null && now >= testAt,
+    });
+  }
+  return nodes;
+}
+
+const countLogged = (nodes) => nodes.filter((n) => (n.kind === 'meal' ? false : n.done)).length;
+
+// ---- pieces ------------------------------------------------------------
+
+function chip(cls, ...kids) { return el('span', { class: `chip ${cls}` }, ...kids); }
+
+function valueChip(n) {
+  if (!n.done) return chip('chip--dash', '–');
+  if (n.kind === 'sugar' || n.kind === 'fasting') {
+    const v = n.rec.value;
+    if (sugarFlag(n.kind, v) === 'above') {
+      return chip('chip--above', el('span', { class: 'chip-mark', 'aria-hidden': 'true', text: '▲' }), `${v} above`);
+    }
+    return chip('chip--settled', el('span', { class: 'chip-mark', 'aria-hidden': 'true', text: '✓' }), String(v));
+  }
+  if (n.kind === 'kicks') return chip('chip--settled', el('span', { class: 'chip-mark', 'aria-hidden': 'true', text: '✓' }), `${n.rec.taps?.length ?? 0} taps`);
+  return chip('chip--settled', el('span', { class: 'chip-mark', 'aria-hidden': 'true', text: '✓' }));
+}
+
+function labelFor(n) {
+  if (n.kind === 'fasting') return n.done ? hhmm(n.rec.at) : 'not logged';
+  if (n.kind === 'meal') return n.done ? `finished ${hhmm(n.rec.finishedAt)}` : 'not logged';
+  if (n.kind === 'kicks') return n.done ? `${n.rec.taps?.length ?? 0} taps` : 'not logged';
+  if (n.done) return hhmm(n.rec.at);
+  if (n.testAt) return `${n.due ? 'due now · ' : ''}test at ${hhmm(n.testAt)}`;
+  return 'not logged';
+}
+
+const TITLES = { fasting: 'fasting', meal: 'meal', kicks: 'movements', sugar: 'sugar' };
+
+function nodeRow(n, state) {
+  const dot = el('span', { class: 'node-dot', 'aria-hidden': 'true' });
+  if (state.docked) dot.append(el('span', { class: 'ball' }));
+  const inner = [
+    el('span', { class: 'node-text' },
+      el('span', { class: 'label label--legible', text: labelFor(n) }),
+      el('span', { class: 'item-title', text: TITLES[n.kind] })),
+    valueChip(n),
+  ];
+  const tappable = n.kind !== 'kicks';   // the counter is Phase 4
+  const hit = tappable
+    ? el('button', { class: 'node-hit', type: 'button', 'data-node': n.id }, ...inner)
+    : el('div', { class: 'node-hit', 'data-node': n.id }, ...inner);
+  const flag = n.done && (n.kind === 'sugar' || n.kind === 'fasting') ? sugarFlag(n.kind, n.rec.value) : null;
+  const li = el('li', {
+    class: 'node reveal-item',
+    'data-kind': n.kind,
+    'data-state': n.done ? 'done' : n.due ? 'due' : 'open',
+    ...(flag ? { 'data-flag': flag } : {}),
+  }, dot, hit);
+  if (tappable) hit.addEventListener('click', () => openFor(n));
+  return li;
+}
+
+// ---- render ------------------------------------------------------------
+
+let bodyRef = null;
+let dueTimer = null;
+let lastBall = { key: null, y: null };
+
+export function renderToday(body) {
+  bodyRef = body;
+  clearTimeout(dueTimer);
+  const now = Date.now();
+  const day = store.getDay(store.todayKey());
+  const nodes = buildNodes(day, now);
+  const logged = countLogged(nodes);
+  const complete = logged === 7;
+  const dock = complete ? null : nodes.find((n) => !n.done);
+  const hadLifeline = !!body.querySelector('.lifeline');
+
+  // rows in order, so the lit part of the spine can be worked out by index
+  const rows = [];   // { li, hasDot, nodeId }
+  rows.push({ li: nodeRow(nodes[0], { docked: dock === nodes[0] }), nodeId: nodes[0].id, hasDot: true });
+  store.MEALS.forEach((meal, i) => {
+    rows.push({ li: el('li', { class: 'node-head reveal-item' }, el('span', { class: 'label label--legible', text: meal })), nodeId: null, hasDot: false });
+    for (const n of nodes.slice(1 + i * 3, 4 + i * 3)) {
+      rows.push({ li: nodeRow(n, { docked: dock === n }), nodeId: n.id, hasDot: true });
+    }
+  });
+  const closeDot = el('span', { class: 'node-dot is-mark', 'aria-hidden': 'true' });
+  if (complete) closeDot.append(el('span', { class: 'ball' }));
+  const closeLi = el('li', { class: 'node-close reveal-item' }, closeDot);
+  if (complete) closeLi.append(el('p', { class: 'close-line body', text: 'rest.' }));
+  rows.push({ li: closeLi, nodeId: 'rest', hasDot: true });
+
+  const dockIndex = complete ? rows.length - 1 : rows.findIndex((r) => r.nodeId === dock.id);
+  rows.forEach((r, i) => {
+    if (r.hasDot) {
+      if (i <= dockIndex) r.li.classList.add('lit-top');
+      if (i < dockIndex) r.li.classList.add('lit-bot');
+    } else if (i < dockIndex) {
+      r.li.classList.add('lit-top', 'lit-bot');
+    }
+  });
+  rows[0].li.classList.add('is-first');
+
+  const readout = el('p', { class: 'label label--legible today-readout reveal-item', 'aria-live': 'polite', text: `${logged} of 7 logged` });
+  const list = el('ol', { class: 'lifeline' }, ...rows.map((r) => r.li));
+  body.replaceChildren(el('div', { class: 'today' }, readout, list));
+
+  // the "due now" state changes with the clock, so wake up when the next test time passes
+  const next = nodes.filter((n) => n.testAt && !n.done && n.testAt > now).map((n) => n.testAt).sort((a, b) => a - b)[0];
+  if (next) {
+    dueTimer = setTimeout(() => { if (bodyRef?.isConnected) renderToday(bodyRef); }, Math.min(next - now + 500, MAX_TIMER));
+  }
+
+  const key = complete ? 'rest' : dock.id;
+  requestAnimationFrame(() => requestAnimationFrame(() => settle(list, key, hadLifeline)));
+}
+
+// After layout (the room may have been hidden while rendering): hop the ball, then place the docked node on the focus line.
+function settle(list, key, animate) {
+  const scroller = list.closest('.scroller');
+  if (!list.isConnected || !scroller || !scroller.clientHeight) return;
+  const ball = list.querySelector('.ball');
+  if (!ball) return;
+  const lr = list.getBoundingClientRect();
+  const br = ball.getBoundingClientRect();
+  const y = br.top + br.height / 2 - lr.top;
+
+  if (animate && lastBall.key && lastBall.key !== key && lastBall.y != null && !reduced()) {
+    ball.style.setProperty('--hop-dy', `${lastBall.y - y}px`);
+    ball.classList.add('is-hopping');
+    ball.addEventListener('animationend', () => ball.classList.remove('is-hopping'), { once: true });
+  }
+  lastBall = { key, y };
+
+  const sr = scroller.getBoundingClientRect();
+  const top = lr.top - sr.top + scroller.scrollTop + y - cssNum('--focus-line') * scroller.clientHeight;
+  scroller.scrollTo({ top: Math.max(0, top), behavior: animate && !reduced() ? 'smooth' : 'auto' });
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && bodyRef?.isConnected && bodyRef.closest('.room')?.hidden === false) renderToday(bodyRef);
+});
+
+// ---- sheets (manual §16.7, §16.12) -----------------------------------------
+
+let openSheetEl = null;
+
+function closeSheet(returnTo) {
+  if (!openSheetEl) return;
+  openSheetEl.cleanup();
+  openSheetEl.veil.remove();
+  openSheetEl = null;
+  const target = returnTo && document.querySelector(`[data-node="${returnTo}"]`);
+  target?.focus?.({ preventScroll: true });
+}
+
+function openFor(n) {
+  if (!store.canLog()) return;
+  if (n.kind === 'meal') openMealSheet(n);
+  else openReadingSheet(n);
+}
+
+/** The shared frame: veil, dialog, head with a close button. Returns the parts to fill. */
+function frame({ eyebrow, title, nodeId }) {
+  closeSheet();
+  const titleId = 'sheet-title';
+  const close = el('button', { class: 'btn btn-ghost sheet-close', type: 'button', text: 'close' });
+  const head = el('div', { class: 'sheet-head' },
+    el('div', { class: 'sheet-titles' },
+      el('span', { class: 'label label--legible', text: eyebrow }),
+      el('h2', { class: 'item-title', id: titleId, text: title })),
+    close);
+  const form = el('form', { class: 'sheet-form', novalidate: true });
+  const sheet = el('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': titleId }, head, form);
+  const veil = el('div', { class: 'sheet-veil' }, sheet);
+  document.body.append(veil);
+
+  const onKey = (e) => { if (e.key === 'Escape') closeSheet(nodeId); };
+  const vv = window.visualViewport;
+  const fit = () => {
+    if (!vv) return;
+    veil.style.setProperty('--vv-h', `${vv.height}px`);
+    veil.style.setProperty('--vv-top', `${vv.offsetTop}px`);
+  };
+  fit();
+  document.addEventListener('keydown', onKey);
+  vv?.addEventListener('resize', fit);
+  vv?.addEventListener('scroll', fit);
+  const cleanup = () => {
+    document.removeEventListener('keydown', onKey);
+    vv?.removeEventListener('resize', fit);
+    vv?.removeEventListener('scroll', fit);
+  };
+  openSheetEl = { veil, cleanup };
+
+  close.addEventListener('click', () => closeSheet(nodeId));
+  veil.addEventListener('click', (e) => { if (e.target === veil) closeSheet(nodeId); });
+  return { form, sheet };
+}
+
+function timeField(ts) {
+  const input = el('input', { class: 'field-input', id: 'sheet-time', name: 'time', type: 'time', value: hhmm(ts ?? Date.now()), required: true });
+  const note = el('p', { class: 'field-note', role: 'status', hidden: true });
+  const wrap = el('div', { class: 'field' },
+    el('label', { class: 'field-label', for: 'sheet-time', text: 'time' }),
+    el('div', { class: 'field-row' }, input), note);
+  const error = (msg) => { wrap.classList.add('is-error'); note.textContent = msg; note.hidden = false; input.setAttribute('aria-invalid', 'true'); };
+  input.addEventListener('input', () => { wrap.classList.remove('is-error'); note.hidden = true; input.removeAttribute('aria-invalid'); });
+  return { wrap, input, error };
+}
+
+function openReadingSheet(n) {
+  const isFasting = n.kind === 'fasting';
+  const key = store.todayKey();
+  const rec = n.rec;
+  const editing = n.done;
+  const { form } = frame({
+    eyebrow: isFasting ? 'fasting' : `after ${n.meal}${n.testAt ? ` · test at ${hhmm(n.testAt)}` : ''}`,
+    title: 'blood sugar',
+    nodeId: n.id,
+  });
+
+  // the one large field
+  const input = el('input', {
+    class: 'reading-input', id: 'sheet-reading', name: 'reading', type: 'text',
+    inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false',
+    'aria-label': 'blood sugar in mg/dL', autofocus: true,
+  });
+  if (editing) input.value = String(rec.value);
+  const note = el('p', { class: 'field-note', role: 'status', hidden: true });
+  const reading = el('div', { class: 'field reading' },
+    el('div', { class: 'field-row' }, input, el('span', { class: 'field-unit reading-unit', 'aria-hidden': 'true', text: 'mg/dL' })), note);
+  form.append(reading);
+
+  // fasted 8 hours (fasting only)
+  let fasted = rec?.fasted8h ?? false;
+  if (isFasting) {
+    const tg = el('button', { class: 'toggle', type: 'button', role: 'switch', 'aria-checked': String(fasted), 'aria-labelledby': 'fasted-label' });
+    const val = el('span', { class: 'toggle-value', text: fasted ? 'yes' : 'no' });
+    tg.addEventListener('click', () => {
+      fasted = !fasted;
+      tg.classList.add('is-live');
+      tg.setAttribute('aria-checked', String(fasted));
+      val.textContent = fasted ? 'yes' : 'no';
+    });
+    form.append(el('div', { class: 'toggle-row' }, tg, el('span', { class: 'value', id: 'fasted-label', text: 'fasted 8 hours' }), val));
+  }
+
+  const time = timeField(rec?.at);
+  form.append(time.wrap);
+
+  // actions: save (and delete when editing); a typo guard swaps them for a confirm
+  const save = el('button', { class: 'btn btn-filled', type: 'submit', text: 'save' });
+  const actions = el('div', { class: 'sheet-actions' });
+  const del = editing ? el('button', { class: 'btn btn-ghost', type: 'button', text: 'delete' }) : null;
+  const change = el('button', { class: 'btn btn-ghost', type: 'button', text: 'change', hidden: true });
+  const confirmBtn = el('button', { class: 'btn btn-filled', type: 'button', text: 'yes, save', hidden: true });
+  actions.append(...[del, change, confirmBtn, save].filter(Boolean));
+  form.append(actions);
+
+  const showNote = (msg) => { reading.classList.add('is-error'); note.textContent = msg; note.hidden = false; input.setAttribute('aria-invalid', 'true'); };
+  const clearNote = () => {
+    reading.classList.remove('is-error'); note.hidden = true; input.removeAttribute('aria-invalid');
+    confirmBtn.hidden = true; change.hidden = true; save.hidden = false; if (del) del.hidden = false;
+  };
+  input.addEventListener('input', clearNote);
+
+  const commit = () => {
+    const value = Number(input.value.trim());
+    if (!time.input.value) { time.error('Pick a time.'); return; }
+    const at = stampFor(key, time.input.value);
+    store.updateDay(key, (d) => {
+      if (isFasting) d.fasting = { value, at, fasted8h: fasted };
+      else d.meals[n.meal].sugar = { value, at };
+    });
+    closeSheet(n.id);
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = input.value.trim();
+    if (!/^\d{1,3}$/.test(raw) || Number(raw) === 0) { showNote('Whole numbers only, like 92.'); input.focus(); return; }
+    const v = Number(raw);
+    if (v < TYPO_LOW || v > TYPO_HIGH) {
+      showNote(`Is this right? ${v} mg/dL`);
+      save.hidden = true; if (del) del.hidden = true; change.hidden = false; confirmBtn.hidden = false;
+      confirmBtn.focus();
+      return;
+    }
+    commit();
+  });
+  confirmBtn.addEventListener('click', commit);
+  change.addEventListener('click', () => { clearNote(); input.focus(); input.select(); });
+  del?.addEventListener('click', () => {
+    store.updateDay(key, (d) => { if (isFasting) d.fasting = null; else d.meals[n.meal].sugar = null; });
+    closeSheet(n.id);
+  });
+
+  input.focus();
+}
+
+function openMealSheet(n) {
+  const key = store.todayKey();
+  const editing = n.done;
+  const { form } = frame({ eyebrow: n.meal, title: 'meal', nodeId: n.id });
+
+  const time = timeField(n.rec.finishedAt);
+  form.append(time.wrap);
+
+  const save = el('button', { class: 'btn btn-filled', type: 'submit', text: editing ? 'save' : 'meal finished' });
+  const clear = editing ? el('button', { class: 'btn btn-ghost', type: 'button', text: 'clear' }) : null;
+  form.append(el('div', { class: 'sheet-actions' }, ...[clear, save].filter(Boolean)));
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!time.input.value) { time.error('Pick a time.'); return; }
+    const at = stampFor(key, time.input.value);
+    store.updateDay(key, (d) => { d.meals[n.meal].finishedAt = at; });
+    closeSheet(n.id);
+  });
+  clear?.addEventListener('click', () => {
+    store.updateDay(key, (d) => { d.meals[n.meal].finishedAt = null; });
+    closeSheet(n.id);
+  });
+  save.focus();
+}
