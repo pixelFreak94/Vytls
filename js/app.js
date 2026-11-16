@@ -12,7 +12,7 @@ import { renderReport } from './report.js';
 import { resumeIfRunning, closeExpired } from './kicks.js';
 import { raiseButton } from './alerts.js';
 
-export const VERSION = '0.4.0';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.4.1';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };

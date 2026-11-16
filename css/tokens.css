@@ -259,7 +259,7 @@
   --node-lh:        1.25;
   --fs-date:        40px;               /* "12th" leads, like the counter's number */
   --fs-date-rest:   20px;
-  --fw-date:        600;
+  --fw-date:        300;     /* light, in heading ink, like the counter number (owner, 0.4.1) */
   --fs-group:       34px;               /* tier 1 heading, Bebas caps; reads about as tall as Sora 26 */
   --fw-group:       400;
   --tr-group:       0.02em;
