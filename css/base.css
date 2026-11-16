@@ -54,7 +54,7 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
 /* ---- type voices (manual §10.2) ---- */
 .label {
   font-family: var(--font-mono); font-size: var(--fs-label); line-height: 1.6;
-  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--t-whisper);
+  letter-spacing: var(--tr-label); color: var(--t-whisper);
   font-variant-numeric: tabular-nums;
 }
 .label--legible { font-size: var(--fs-legible); color: var(--t-secondary); }

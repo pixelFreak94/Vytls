@@ -11,7 +11,7 @@
   display: flex; align-items: center; gap: var(--readout-gap);
   height: var(--readout-h);
   font-family: var(--font-mono); font-size: var(--fs-label); line-height: 1;
-  letter-spacing: var(--tr-label); text-transform: uppercase;
+  letter-spacing: var(--tr-label);
   color: var(--t-secondary);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -36,7 +36,7 @@
   display: flex; align-items: center;
   height: var(--readout-h);
   font-family: var(--font-mono); font-size: var(--fs-label); line-height: 1;
-  letter-spacing: var(--tr-label); text-transform: uppercase;
+  letter-spacing: var(--tr-label);
   color: var(--t-secondary);
   font-variant-numeric: tabular-nums;
 }
@@ -230,7 +230,7 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 .field { display: grid; gap: 0; }
 .field-label {
   font-family: var(--font-mono); font-size: var(--fs-legible); line-height: 1.6;
-  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--t-secondary);
+  letter-spacing: var(--tr-label); color: var(--t-secondary);
 }
 .field-row {
   position: relative;
@@ -364,6 +364,9 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
   font-family: var(--font-display); font-size: var(--fs-group); font-weight: var(--fw-group);
   line-height: 1.15; letter-spacing: var(--tr-group); color: var(--t-primary);
 }
+/* headings are the only capitalised text (owner's call) */
+.group-title::first-letter, .room-title::first-letter { text-transform: uppercase; }
+.node .item-title { font-weight: var(--fw-body); color: var(--t-step); }
 
 .node-dot {
   position: absolute; left: var(--spine-x); top: var(--seg-y);

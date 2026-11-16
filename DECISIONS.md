@@ -19,7 +19,7 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 13 | 2026-11-15 | Work in Claude Code in the cloud; Opus leads, Sonnet and Haiku take delegated work | Owner cannot run Claude Code locally; cheaper models for routine work saves tokens |
 | 14 | 2026-11-15 | Six project files only, with one overwritten next-session brief | Owner wants no backlog of redundant history; git keeps the history |
 | 15 | 2026-11-15 | Tracking runs in 30-day months that roll over automatically | Owner's instruction: after day 30 it just moves to the next month |
-| 16 | 2026-11-15 | Logging is blocked in Safari until the app is added to the Home Screen | The two keep separate data on iPhone; entries made in Safari would be lost |
+| 16 | 2026-11-16 | The app runs in a browser tab as well as from the Home Screen; no install gate | Owner's call; on iPhone the two still keep separate data |
 | 17 | 2026-11-16 | The app's day runs 4 am to 4 am | A late dinner's 2-hour test can fall after midnight; its card must still be on Today |
 | 18 | 2026-11-16 | `REMAKE_App_Design_Manual.md` is the design authority; it overrides every project file, the Safety rules included; its §28 is approved | Owner's call: one source for how Vytls looks, moves and reads |
 | 19 | 2026-11-16 | The maker's name appears nowhere in the app | Owner's call |
@@ -32,3 +32,8 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 26 | 2026-11-16 | Back swipe is disabled on the movement counter | A stray swipe must never interrupt a count; exits are "end early" or finishing |
 | 27 | 2026-11-16 | Progress reads "n of 7"; meal steps are not counted; the ball rests on the earliest open step | Owner's call |
 | 28 | 2026-11-16 | "save progress" includes merging into `main`; Claude merges the save's pull request without asking | Owner's call: the owner only tests, and does not handle merges |
+| 29 | 2026-11-16 | Auto-backup to GitHub is on hold | Conflicts with the Privacy rules (no health data in the repo, no network after loading); options put to the owner |
+| 30 | 2026-11-16 | Sound plays with the silent switch on; soundscape (pad, water, rare tones) pitched for the phone speaker | Owner's call; the manual's 55Hz bed was inaudible on iPhone |
+| 31 | 2026-11-16 | Updates install themselves via `sw.js`, swapping only when safe (app hidden or just opened, no count running, nothing typed) | Owner wants auto-update without corrupting data |
+| 32 | 2026-11-16 | Past days can be filled in where empty; entries already logged on a past day are locked. Today stays editable | Owner's call |
+| 33 | 2026-11-16 | Type: day parts are capitalised headings (Sora 26/600); step names regular weight, 7% lighter; status labels below; no all-caps anywhere | Owner's call |

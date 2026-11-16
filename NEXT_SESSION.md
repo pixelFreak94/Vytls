@@ -4,12 +4,12 @@ Overwritten at every "save progress". Maximum 15 lines.
 
 **Last saved:** 2026-11-16
 
-**State:** Phase 1 is on `main` and live at https://pixelfreak94.github.io/Vytls/. Built: `store.js`, tokens, fonts, icons, loading ball, room colours, nav, install-first screen, Settings, doctor's number gate, sound. Today, History and Report are placeholders. Not yet checked on a real iPhone.
+**State:** 0.2.1 live on `main`. Phase 2 done: Today lifeline (`js/today.js`), sugar and meal sheets, above-target flags, missed-day entry with locking. Also: new soundscape (`js/audio.js`), safe auto-update (`sw.js`), browser use allowed (no install gate).
 
 **Do next:**
-1. Ask the owner for the iPhone sign-off results; fix what they report, one concern per pass.
-2. Start Phase 2 (`DEV_PLAN.md` §2, manual §28.5, §16.9, §28.8): Today as a lifeline in `js/today.js`, sugar entry sheet, target flags.
+1. Ask the owner for the iPhone results on 0.2.1; fix one concern per pass.
+2. Phase 3: ingredient list on each meal (`DEV_PLAN.md` §2, §12).
 
-**Open with the owner:** doctor's answers (`DEV_PLAN.md` §15); public or private repo; wording on the install page and Today gate.
+**Open with the owner:** auto-backup approach (DECISIONS 29); doctor's answers (`DEV_PLAN.md` §15); public or private repo; Today gate wording.
 
-**Watch out for:** Sonnet agents hit the usage limit last session; check before delegating. Known issues are in `TRACKER.md`. Sessions push to their own branch; a save is merged into `main` by Claude (DECISIONS 28).
+**Watch out for:** every release bumps VERSION in both `sw.js` and `js/app.js`, and new files go in `sw.js` FILES. Sessions push to their own branch; a save is merged into `main` by Claude (DECISIONS 28).

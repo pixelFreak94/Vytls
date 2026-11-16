@@ -251,6 +251,7 @@
   --fs-group:       26px;               /* tier 1 heading: 26 / 18 step title = 1.44 */
   --fw-group:       600;
   --tr-group:       -0.02em;
+  --t-step:         color-mix(in srgb, var(--t-primary) 93%, var(--c-card-white));   /* step names: 7% lighter than primary ink */
   --close-dot:      18px;
   --st-settled-tint: rgba(197, 217, 200, 0.45);
   --ball-node:      24px;
