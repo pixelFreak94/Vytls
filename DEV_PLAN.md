@@ -151,7 +151,7 @@ Design: manual §28.10, state colours §28.8.
 
 - A 30-row grid for the current month, one row per day, seven cells: fasting, then sugar and movements for each meal. Arrows switch to earlier months.
 - Sugar cells show the number; amber when above target. Movement cells show minutes to reach 5; red for `window-expired`; grey for missing or incomplete.
-- Tapping a day opens that day's detail with foods listed, all editable.
+- Tapping a day opens that day's detail with foods listed; empty entries can be filled in, logged ones are locked (DECISIONS 32).
 - A "foods before high readings" list: ingredients ranked by how often they appear in meals followed by an above-target reading, with the count shown beside how often each was eaten overall.
 
 ## 8. Report and backup

@@ -173,6 +173,23 @@ export function runningSession() {
   return null;
 }
 
+// ---- foods ------------------------------------------------------------
+
+/** Remember a food: front of foodHistory (most used first), newest spelling kept, capped at 200. */
+/** A food as shown and saved: one capital letter, the rest lowercase ("chicken BIRYANI" → "Chicken biryani"). */
+export function foodName(name) {
+  const f = String(name ?? '').trim().replace(/\s+/g, ' ');
+  return f ? f[0].toUpperCase() + f.slice(1).toLowerCase() : '';
+}
+
+export function noteFood(name) {
+  const f = foodName(name);
+  if (!f) return false;
+  return update((d) => {
+    d.foodHistory = [f, ...d.foodHistory.filter((x) => x.toLowerCase() !== f.toLowerCase())].slice(0, 200);
+  });
+}
+
 // ---- settings ---------------------------------------------------------
 
 /** Set one setting by path, e.g. setSetting('targets.fasting', 95). */
