@@ -42,3 +42,4 @@ Paste this as the Project's instructions:
 | `TRACKER.md` | What is done and what is next |
 | `DECISIONS.md` | What was decided and why |
 | `NEXT_SESSION.md` | The brief for the next session, replaced at every save |
+| `REMAKE_App_Design_Manual.md` | The design manual: how Vytls looks, moves and reads. Overrides the other files on design |
