@@ -31,3 +31,4 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 25 | 2026-11-16 | Alert supporting line: "If you can't reach them, go to the hospital." | Tells her what to do if the doctor doesn't answer |
 | 26 | 2026-11-16 | Back swipe is disabled on the movement counter | A stray swipe must never interrupt a count; exits are "end early" or finishing |
 | 27 | 2026-11-16 | Progress reads "n of 7"; meal steps are not counted; the ball rests on the earliest open step | Owner's call |
+| 28 | 2026-11-16 | "save progress" includes merging into `main`; Claude merges the save's pull request without asking | Owner's call: the owner only tests, and does not handle merges |

@@ -84,12 +84,13 @@ When the owner says **save progress**, do exactly this, in order:
 3. `DEV_PLAN.md` — edit only if the plan itself changed.
 4. `NEXT_SESSION.md` — **overwrite it completely** with a fresh brief using its fixed template. Maximum 15 lines. Nothing from the old brief is kept unless it is still true and still needed.
 5. Commit everything with the message `save: <one-line summary>` and push to GitHub.
-6. Reply in three lines or fewer: what was saved, whether the push succeeded, the next step.
+6. Get it onto `main`: if the push went to a session branch, open a pull request and merge it straight away, without asking. The owner has approved this for every save.
+7. Reply in three lines or fewer: what was saved, whether it reached `main`, the next step.
 
-If the push fails, say so plainly and give the reason. Never report a save that did not reach GitHub.
+If the push or the merge fails, say so plainly and give the reason. Never report a save that did not reach `main`.
 
 ## Git
 
 - Work on `main` when the session allows it; GitHub Pages serves from `main`.
-- If the session can only push to its own branch, push there, open a pull request, and tell the owner to merge it. Say clearly that the live app will not change until it is merged.
+- If the session can only push to its own branch, push there and open a pull request. For a "save progress", merge it yourself (see above). For any other change, tell the owner and merge only when they say so; say clearly that the live app will not change until it is merged.
 - Commit small and often. Commit messages say what changed for the user, in one line.
