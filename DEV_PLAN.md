@@ -2,6 +2,8 @@
 
 The spec. Sections are numbered so sessions can open one section instead of the whole file. Reasons for choices are in `DECISIONS.md`; progress is in `TRACKER.md`.
 
+**Design authority:** `REMAKE_App_Design_Manual.md` governs design, UI and UX (look, layout, colour, type, motion, wording, screens, navigation) and overrides this plan wherever they differ; its §28 is the Vytls brief. This plan keeps what the app does: data, timing, rules, alerts. Where a section below has a design counterpart, it is named as "Design: manual §…".
+
 ## 1. What it is
 
 A web app added to an iPhone Home Screen. One user. Two logs, tracked in 30-day months: when day 30 ends, the next month starts by itself from day 31, with nothing to set up.
@@ -16,6 +18,8 @@ Outputs: a 30-day history, flags on out-of-target readings, an alert when moveme
 Out of scope: accounts, cloud sync, meter connection, calorie or carb counting, medical advice, push notifications.
 
 ## 2. How the day works
+
+Design: manual §28.3–§28.5 (rooms, the loading ball, Today as a lifeline).
 
 **First run:** if the app is opened in Safari rather than from the Home Screen, it shows only an "Add to Home Screen first" screen with the steps, and does not accept entries. On iPhone the Safari copy and the Home Screen copy keep separate data, so anything logged in Safari would be left behind.
 
@@ -34,6 +38,8 @@ The Today screen has four cards in time order.
 Each step shows one of three states: to do, due now, done. A progress line at the top reads "n of 7 logged today". Steps can be done out of order and any entry can be edited or deleted afterwards, with its time adjustable, in case she logs late.
 
 ## 3. Technical shape
+
+Design: manual §7 (platform), §23 (engineering), §24 (tokens). The file layout below is to be merged with manual §23.1 (open question with the owner).
 
 - Plain HTML, CSS and JavaScript. No framework, no build, no packages.
 - Installable PWA: a manifest and a service worker so it opens full-screen and works offline.
@@ -96,6 +102,8 @@ icons/                app icons
 
 ## 5. Movement counter
 
+Design: manual §28.6.
+
 - Full-screen, one very large "Felt a movement" button, the count ("3 of 5"), time since start, and an undo for a mistaken tap.
 - The session survives closing the app: on reopening, elapsed time is worked out from `startedAt`.
 - Ends when the 5th tap lands (outcome `reached`, time taken is saved) or when the window passes (outcome `window-expired`).
@@ -103,6 +111,8 @@ icons/                app icons
 - Only one session can run at a time.
 
 ## 6. Alerts (safety-critical)
+
+Design: manual §28.9. The rules and triggers below stay under the Safety rules in `CLAUDE.md`.
 
 One alert screen, full-screen red, cannot be missed: **"Contact your doctor or go to the hospital now."** It has a "Call doctor" button (dials the number from Settings), a short line saying not to wait for the next session, and a "Close" that needs a deliberate tap. Every alert shown is recorded in `alerts`.
 
@@ -123,12 +133,16 @@ Notes:
 
 ## 7. History
 
+Design: manual §28.10, state colours §28.8.
+
 - A 30-row grid for the current month, one row per day, seven cells: fasting, then sugar and movements for each meal. Arrows switch to earlier months.
 - Sugar cells show the number; amber when above target. Movement cells show minutes to reach 5; red for `window-expired`; grey for missing or incomplete.
 - Tapping a day opens that day's detail with foods listed, all editable.
 - A "foods before high readings" list: ingredients ranked by how often they appear in meals followed by an above-target reading, with the count shown beside how often each was eaten overall.
 
 ## 8. Report and backup
+
+Design: manual §28.10.
 
 - **Doctor report** — a print-styled page (iPhone Share → Print → save as PDF), one month at a time with the month selectable: date range, the grid, averages per test slot, number of above-target readings, movement sessions with outcomes, alerts shown.
 - **CSV** — one row per day, for opening in a spreadsheet.
@@ -145,11 +159,7 @@ The app cannot remind her while closed. Setup guide for the owner (written in Ph
 
 ## 11. Design
 
-- One-handed use, thumb reach: main actions in the lower half of the screen.
-- Tap targets at least 48 px; the movement button fills most of the screen.
-- Calm, light, high-contrast. Red is reserved for alerts only; amber for above-target readings.
-- Numeric keypad for readings. Respects iPhone text-size settings, the notch and the home indicator.
-- Colour is never the only signal: flags also carry an icon or a word.
+All design, UI and UX follow `REMAKE_App_Design_Manual.md`, Temple register; §28 is the Vytls brief. Kept here because the manual agrees: colour is never the only signal (§28.8); numeric keypad for readings (§28.5); respects iPhone text size, the notch and the home indicator (§8.2, §10.4); main actions in the thumb's reach (§6, §14.1).
 
 ## 12. Build phases
 

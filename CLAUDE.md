@@ -11,7 +11,17 @@ This file is loaded every session. Keep it short. Detail lives in the other file
    - `TRACKER.md` — status of each phase and task
    - `DEV_PLAN.md` — the spec (screens, data model, alert rules)
    - `DECISIONS.md` — why things are the way they are
+   - `REMAKE_App_Design_Manual.md` — the design authority (see below)
 3. Start working. Do not recap the project back to the owner.
+
+## Design authority
+
+`REMAKE_App_Design_Manual.md` governs the design, UI and UX of Vytls: look, layout, colour, type, motion, wording, screens and navigation. **It overrides every other project file.** Within it, §28 ("Applied: Vytls") is the Vytls brief and wins on the app itself (manual §0.2).
+
+- The manual is about 2,500 lines. Never read it whole. Read §28 first, then only the sections §28 or the task points to. Find a section with Grep on `^## ` or `^### `.
+- A conflict between the manual and the Safety or Privacy rules below is never resolved silently: stop and ask the owner before building it.
+- For design changes, report in the manual's §1.5 order: what changed, what to check on the phone, the one token to nudge.
+- Design is signed off by the owner on the real iPhone, launched from the Home Screen (manual §1.4), not from a desktop browser.
 
 ## Token budget rules
 
@@ -20,7 +30,7 @@ Tokens are limited. Every rule below exists to save them.
 - Never re-read a file already in this session's context.
 - Edit with targeted replacements. Rewrite a whole file only when most of it changes.
 - Do not paste file contents or long diffs into chat. Say what changed in one or two lines.
-- Do not create new docs, logs, notes or summary files. The six project files are the only ones. Git history is the history.
+- Do not create new docs, logs, notes or summary files. The six project files plus the design manual are the only ones. Git history is the history.
 - No session diaries. `DECISIONS.md` gets a line only for a real decision. `TRACKER.md` holds current state only.
 - When blocked, ask once, with all open questions batched in one message.
 - Replies to the owner: result first, then at most a few lines. No step-by-step narration.
@@ -39,7 +49,7 @@ The session's lead model (Opus) plans, decides and reviews. It hands well-define
 Delegation rules:
 
 - Delegate only when the brief is cheaper than doing it. Anything under roughly 30 lines of change, the lead just does.
-- A brief names: the files to touch, the section of `DEV_PLAN.md` to follow, what "done" looks like, and what not to touch. The subagent starts with no context, so the brief must stand alone.
+- A brief names: the files to touch, the section of `DEV_PLAN.md` to follow, the manual sections to follow (always §28 plus the specific ones), what "done" looks like, and what not to touch. The subagent starts with no context, so the brief must stand alone.
 - Tell the subagent to return a summary of five lines or fewer: files changed, what was done, anything unresolved. No file dumps.
 - The lead reviews every delegated diff before it is committed.
 - Run independent subtasks in parallel; never two agents on the same file.
@@ -61,6 +71,7 @@ Delegation rules:
 
 - Plain HTML, CSS and JavaScript. No framework, no build step, no npm packages. What is in the repo is what GitHub Pages serves.
 - Small files with one job each (layout in DEV_PLAN §3), so a session opens only what it needs.
+- Every design value is a token in `css/tokens.css` (manual §24); no magic numbers in rules.
 - Built for iPhone Safari first: large tap targets, works one-handed, works offline.
 - Times are stored as timestamps and elapsed time is calculated from them. Never rely on a timer that must keep running while the app is closed.
 
