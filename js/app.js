@@ -8,7 +8,7 @@ import { renderSettings } from './settings.js';
 import { initAudio, thup } from './audio.js';
 import { renderToday as renderLifeline } from './today.js';
 
-export const VERSION = '0.2.0';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.2.1';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };
@@ -248,13 +248,8 @@ function boot() {
   initAudio(data.settings.sound);
   initUpdates();
 
-  if (!env.standalone) {
-    // Opened in a Safari tab: nothing can be logged here (DECISIONS 16).
-    setAtmosphereRoom('settings', { instant: true });
-    $('#entry').remove();
-    $('#view-install').hidden = false;
-    return;
-  }
+  // The app runs in a browser tab too (owner's call). Note: on iPhone, Safari and the
+  // Home Screen app keep separate records, so readings do not move between them.
 
   // Phase 5: if an alert is owed, paint it here, before the ball (manual §28.4).
 

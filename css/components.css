@@ -332,6 +332,9 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 /* Manual §16.9 (timeline), §28.5 (lifeline), §28.8 (colours of state), §16.7 (sheet), §16.12 (input). */
 .today { display: grid; gap: var(--sp-6); padding-bottom: var(--today-foot); }
 .today-readout { margin: 0; }
+.day-stepper { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+.day-name { margin: 0; text-align: center; flex: 1; }
+.node[data-locked] .node-hit { cursor: default; }
 
 .lifeline { list-style: none; margin: 0; padding: 0; position: relative; }
 .lifeline > li { position: relative; --lit-top: transparent; --lit-bot: transparent; --seg-y: 50%; }
@@ -352,8 +355,15 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 .lifeline > li.is-first::before, .lifeline > li.is-first::after { top: var(--seg-y); }
 .lifeline > li.node-close::before, .lifeline > li.node-close::after { bottom: var(--seg-y); }
 
-.node-head { padding: var(--sp-5) 0 var(--sp-1) var(--node-gutter); }
-.node-head .label { text-transform: uppercase; }
+.node-head { padding: var(--sp-7) 0 var(--sp-2) var(--node-gutter); }
+.node-head.is-lead { padding-top: var(--sp-5); }
+.node-head.is-lead::before, .node-head.is-lead::after { display: none; }
+/* tier 1: the part of the day. Tier 2: the step (.item-title). Tier 3: its status (.label). */
+.group-title {
+  margin: 0; padding-left: var(--sp-3);
+  font-family: var(--font-display); font-size: var(--fs-group); font-weight: var(--fw-group);
+  line-height: 1.15; letter-spacing: var(--tr-group); color: var(--t-primary);
+}
 
 .node-dot {
   position: absolute; left: var(--spine-x); top: var(--seg-y);
@@ -388,7 +398,7 @@ button.node-hit:active { scale: var(--card-press-scale); transition-duration: va
 button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 .node[data-state="done"] .node-hit { background: var(--st-settled-tint); }
 .node[data-flag="above"] .node-hit { background: transparent; }
-.node-text { display: grid; min-width: 0; }
+.node-text { display: grid; gap: var(--sp-1); min-width: 0; }
 .node-text .label { color: var(--t-secondary); }
 .node[data-state="due"] .node-text .label { color: var(--t-primary); }
 
