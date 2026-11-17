@@ -126,7 +126,7 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
 /* ---- edge fades (manual §12.6) ---- */
 .fade-both {
   --fade-mask: linear-gradient(to bottom,
-    transparent 0, rgba(0,0,0,.35) calc(var(--fade)*.47), #000 var(--fade),
+    transparent 0, transparent var(--fade-clear), #000 var(--fade),
     #000 calc(100% - var(--fade)), rgba(0,0,0,.35) calc(100% - var(--fade)*.47), transparent 100%);
   -webkit-mask-image: var(--fade-mask);
   mask-image: var(--fade-mask);

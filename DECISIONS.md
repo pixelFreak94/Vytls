@@ -50,3 +50,5 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 44 | 2026-11-17 | Every UI duration runs 15% faster than the manual's (overrides manual §28.2 "no faster variant"). Ambient loops and the alert's 500ms tap guard are unchanged | Owner's call |
 | 45 | 2026-11-17 | Tapping a day in History opens a read-only card over History; its one button hands the day to Today for filling gaps | Owner's call; matches manual §28.10 |
 | 46 | 2026-11-17 | Double-tap zoom is off; pinch zoom stays. Item reveal is flat (scale), sheets fade without sliding, the History panel has no live blur | Owner's call on zoom; the rest removes flicker on iPhone and follows manual §13.4 and §22 |
+| 47 | 2026-11-17 | No doctor's answers are awaited: targets, movement goal and A2 numbers keep their defaults, editable in Settings; no low-reading flag | Owner's call |
+| 48 | 2026-11-17 | Unknown addresses show the in-world lost page, also offline (cached by `sw.js`); sheets and the sign-in fade out before they go | Manual §17.7, §13.4 |

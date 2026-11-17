@@ -286,10 +286,22 @@ document.addEventListener('visibilitychange', () => {
 
 let openSheetEl = null;
 
+/** Fade a sheet's veil out, then remove it (manual §13.4: close waits for the fade).
+ *  It stops taking touches and stops counting as an open dialog at once. */
+export function fadeOut(node) {
+  node.inert = true;
+  node.querySelectorAll('[role="dialog"]').forEach((d) => d.removeAttribute('role'));
+  node.classList.add('is-closing');
+  const gone = () => node.remove();
+  node.addEventListener('animationend', gone, { once: true });
+  const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--d-sheet')) || 0;
+  setTimeout(gone, ms + 100);   // in case the animation never runs
+}
+
 function closeSheet(returnTo) {
   if (!openSheetEl) return;
   openSheetEl.cleanup();
-  openSheetEl.veil.remove();
+  fadeOut(openSheetEl.veil);
   openSheetEl = null;
   const target = returnTo instanceof Element ? returnTo : returnTo && document.querySelector(`[data-node="${returnTo}"]`);
   target?.focus?.({ preventScroll: true });

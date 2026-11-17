@@ -25,7 +25,6 @@
   background: var(--t-secondary);
   animation: caret var(--caret-blink) steps(1, end) infinite;
 }
-@keyframes caret { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
 /* ---- live chip (§16.11), top-right on the same baseline ---- */
 .live-chip {
@@ -45,7 +44,6 @@
   border-radius: 50%; background: var(--a-terra);
   animation: rec-blink var(--rec-blink) var(--ease-breath) infinite;
 }
-@keyframes rec-blink { 0%, 100% { opacity: 1; } 50% { opacity: var(--live-dot-lo); } }
 html[data-ambient="off"] .live-dot { animation-play-state: paused; }
 .live-text {
   display: block; max-width: 0; overflow: hidden; white-space: nowrap;
@@ -120,12 +118,6 @@ html[data-ambient="off"] .live-dot { animation-play-state: paused; }
 html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is-draining)::after {
   animation-play-state: paused;
 }
-@keyframes sheen-drift {
-  0%   { transform: translateX(0);     opacity: 0; }
-  20%  { opacity: var(--sheen-alpha); }
-  80%  { opacity: var(--sheen-alpha); }
-  100% { transform: translateX(150%);  opacity: 0; }
-}
 
 /* the creamy pour (§13.3): fills from the foot with bubbles in it, holds, then drains */
 .nav-pill.is-pouring::after, .nav-pill.is-draining::after {
@@ -148,13 +140,6 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
   animation: fizz-rise var(--d-fizz) var(--ease-out) calc(var(--k) * var(--d-fizz-step)) both;
 }
 .pour-fizz i:nth-child(odd) { width: var(--fizz-size-s); height: var(--fizz-size-s); }
-@keyframes fizz-rise {
-  0%   { opacity: 0; transform: translateY(0); }
-  25%  { opacity: 0.9; }
-  100% { opacity: 0; transform: translateY(var(--fizz-rise)); }
-}
-@keyframes pour-fill  { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-@keyframes pour-drain { from { transform: scaleY(1); } to { transform: scaleY(0); } }
 .nav-pill.is-pouring, .nav-pill.is-draining { color: var(--t-on-terra); }
 
 /* ---- press feedback for every button (§13.3) ---- */
@@ -228,16 +213,6 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 .toggle[aria-checked="true"]::after { background: var(--g-selected-fill); transform: translateX(var(--toggle-travel)); }
 .toggle.is-live[aria-checked="true"]::after  { animation: thumb-on  var(--d-glide) var(--ease-out) both; }
 .toggle.is-live[aria-checked="false"]::after { animation: thumb-off var(--d-glide) var(--ease-out) both; }
-@keyframes thumb-on {
-  0%   { transform: translateX(0) scale(1); }
-  50%  { transform: translateX(var(--toggle-stretch-x)) var(--toggle-stretch); }
-  100% { transform: translateX(var(--toggle-travel)) scale(1); }
-}
-@keyframes thumb-off {
-  0%   { transform: translateX(var(--toggle-travel)) scale(1); }
-  50%  { transform: translateX(var(--toggle-stretch-x)) var(--toggle-stretch); }
-  100% { transform: translateX(0) scale(1); }
-}
 .toggle-value {
   font-family: var(--font-mono); font-size: var(--fs-value); line-height: 1.4;
   color: var(--t-secondary); font-variant-numeric: tabular-nums;
@@ -468,7 +443,10 @@ button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-r
   padding: var(--sheet-inset) var(--sheet-inset) calc(var(--safe-b) + var(--sheet-inset));
   background: var(--sheet-veil);
   overscroll-behavior: contain; touch-action: none;
-  animation: sheet-veil-in var(--d-sheet) var(--ease-reveal) both;
+  animation: sheet-veil-in var(--d-sheet) var(--ease-out) both;
+}
+.sheet-veil.is-closing, .signin.is-closing {
+  animation: sheet-veil-out var(--d-sheet) var(--ease-out) both; pointer-events: none;
 }
 .sheet {
   width: 100%; max-width: var(--col-max); max-height: 100%; overflow-y: auto;
@@ -495,7 +473,7 @@ button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-r
 .day-card-row .label { color: var(--t-secondary); overflow-wrap: anywhere; }
 
 /* sign-in: asked once per phone (DECISIONS 43) */
-.signin { background: var(--c-cream); animation: sheet-veil-in var(--d-sheet) var(--ease-reveal) both; }
+.signin { background: var(--c-cream); animation: sheet-veil-in var(--d-sheet) var(--ease-out) both; }
 .signin-form { margin-top: var(--install-gap-steps); display: grid; gap: var(--sp-6); }
 .signin-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
 .signin-actions .btn { min-height: var(--hit-min); }

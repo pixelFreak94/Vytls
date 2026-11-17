@@ -41,7 +41,15 @@ export function askAccount({ current = '' } = {}) {
         el('p', { class: 'install-why', text: 'On her own phone, enter her email. On a test phone, enter Admin. Asked once. A test phone makes no backups, and a backup only restores onto a phone with the same username.' }),
         form));
 
-    const done = (value) => { view.remove(); resolve(value); };
+    // fades out like a sheet, then goes (manual §13.4)
+    const done = (value) => {
+      view.inert = true;
+      view.classList.add('is-closing');
+      const gone = () => view.remove();
+      view.addEventListener('animationend', gone, { once: true });
+      setTimeout(gone, (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--d-sheet')) || 0) + 100);
+      resolve(value);
+    };
     input.addEventListener('input', () => { field.classList.remove('is-error'); note.hidden = true; input.removeAttribute('aria-invalid'); });
     form.addEventListener('submit', (e) => {
       e.preventDefault();

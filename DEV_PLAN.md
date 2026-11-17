@@ -142,9 +142,9 @@ Triggers:
 
 Notes:
 
-- A2's numbers are starting defaults chosen by us, not medical thresholds. They are to be confirmed with her doctor and are adjustable in Settings.
+- A2's numbers are starting defaults chosen by us, not medical thresholds. They stay adjustable in Settings (DECISIONS 47).
 - A web app cannot sound an alarm while closed. A1 therefore depends on her reopening the app; the session card on Today shows a red "Window passed" state so it is seen immediately.
-- Sugar readings above target are highlighted in amber, with no alert screen. Whether to add a "low reading" flag, and at what number, is an open question for her doctor.
+- Sugar readings above target are highlighted in amber, with no alert screen. There is no "low reading" flag.
 
 ## 7. History
 
@@ -188,7 +188,7 @@ All design, UI and UX follow `REMAKE_App_Design_Manual.md`, Temple register; §2
 | 5 | Alerts A1–A4 and the alert screen | Lead only |
 | 6 | History grid, day detail, foods-before-highs list | Sonnet |
 | 7 | Report, CSV, backup and restore, reminder guide | Sonnet; Haiku for the guide's formatting |
-| 8 | PWA: manifest, icons, offline cache | Haiku for boilerplate; lead checks the cache logic |
+| 8 | PWA: manifest, icons, offline cache, in-world lost page `404.html` (served offline too) | Haiku for boilerplate; lead checks the cache logic |
 | 9 | Test on her iPhone, fix, polish | Lead triages; fixes delegated by size |
 
 Each phase ends with the app working and deployed, so she can start using it from the end of Phase 2 while the rest is added.
@@ -208,13 +208,6 @@ Each phase ends with the app working and deployed, so she can start using it fro
 | Entries made in Safari before installing are left behind | Install-first screen blocks logging in Safari (§2) |
 | Phone keeps showing an old version after a fix | Version number changed on every release and shown in Settings (§3) |
 | A1 not seen because the app stays closed | Red state on Today on next open; A3 button |
-| A2 numbers wrong for her | Adjustable; flagged for doctor confirmation; A1 and A3 do not depend on them |
+| A2 numbers wrong for her | Adjustable in Settings; A1 and A3 do not depend on them |
 | Late or forgotten entries | Every entry's time is editable; missing cells show clearly in History |
 | A bad update breaks the app mid-month | Small commits; data shape versioned; test before pushing to `main` |
-
-## 15. Open questions for her doctor
-
-1. Are 95 (fasting) and 120 (2 hours after meals) the targets to use?
-2. Is "5 movements within 1 hour after a meal" the right goal and window?
-3. Should low sugar readings be flagged, and below what number?
-4. Which phone number should the alert's call button dial?

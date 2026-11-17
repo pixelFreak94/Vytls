@@ -165,8 +165,37 @@ html[data-entered="true"] #world .w-amb { animation: amb-up var(--amb-up-ms) var
   100% { transform: translateY(0) scale(1, 1); }
 }
 @keyframes sheet-veil-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheet-veil-out { from { opacity: 1; } to { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   .ball.is-hopping { animation: none; }
   .sheet-veil { animation: sheet-veil-in var(--d-quick) linear both; }
+  .sheet-veil.is-closing, .signin.is-closing { animation: sheet-veil-out var(--d-quick) linear both; }
+}
+
+/* ---- component keyframes (readout caret, live dot, nav sheen and pour, toggle thumb) ---- */
+@keyframes caret { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes rec-blink { 0%, 100% { opacity: 1; } 50% { opacity: var(--live-dot-lo); } }
+@keyframes sheen-drift {
+  0%   { transform: translateX(0);     opacity: 0; }
+  20%  { opacity: var(--sheen-alpha); }
+  80%  { opacity: var(--sheen-alpha); }
+  100% { transform: translateX(150%);  opacity: 0; }
+}
+@keyframes fizz-rise {
+  0%   { opacity: 0; transform: translateY(0); }
+  25%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(var(--fizz-rise)); }
+}
+@keyframes pour-fill  { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pour-drain { from { transform: scaleY(1); } to { transform: scaleY(0); } }
+@keyframes thumb-on {
+  0%   { transform: translateX(0) scale(1); }
+  50%  { transform: translateX(var(--toggle-stretch-x)) var(--toggle-stretch); }
+  100% { transform: translateX(var(--toggle-travel)) scale(1); }
+}
+@keyframes thumb-off {
+  0%   { transform: translateX(var(--toggle-travel)) scale(1); }
+  50%  { transform: translateX(var(--toggle-stretch-x)) var(--toggle-stretch); }
+  100% { transform: translateX(0) scale(1); }
 }

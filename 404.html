@@ -1,0 +1,122 @@
+<!doctype html>
+<!-- 404.html — the lost page (manual §17.7). Self-contained: no app files, so it always loads.
+     Its values are its own tokens below (the app's tokens.css is not loaded here). No health data,
+     no requests to other sites; the app's own fonts are loaded from this site if they are reachable. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#F2EBE0" />
+  <title>Vytls — not found</title>
+  <style>
+    :root {
+      --cream: #F2EBE0; --ink: #2A2520; --ink-2: #6B6560; --blue: #7A98B3; --terra: #C77B5C;
+      --lavender: #C9B8DD; --paleblue: #B4C9D9; --peach: #F4C9A8;
+      --mark-capsule: #B9A7E8; --mark-circle: #A7BCE8;          /* the app icon's colours (DECISIONS 22) */
+      --pill: #EFEEEB; --pill-edge: rgba(255, 255, 255, 0.9); --pill-shadow: 0 12px 28px -8px rgba(40, 30, 20, 0.32);
+      --mark-shadow: drop-shadow(0 10px 16px rgba(40, 30, 20, 0.14));
+      --font-display: 'Sora', system-ui, sans-serif; --font-body: 'Manrope', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --safe-t: env(safe-area-inset-top, 0px); --safe-b: env(safe-area-inset-bottom, 0px);
+      --edge: 32px; --col: 430px; --hit: 52px;
+      --sp-3: 10px; --sp-4: 14px; --sp-6: 22px; --sp-7: 32px; --sp-8: 48px;
+      --mark-w: 46px; --fs-num: 128px; --fs-head: 24px; --fs-body: 15px; --fs-label: 11px; --dot: 7px;
+      --num-o: 0.5; --wash-o: 0.55;
+      --breath: 7s; --breath-s: 0.05; --blink: 3s; --d-in: 720ms; --d-press: 76ms;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-breath: cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100vh; min-height: 100dvh;
+      background: var(--cream); color: var(--ink);
+      font: 400 var(--fs-body)/1.65 var(--font-body);
+      -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%;
+      display: flex; flex-direction: column;
+      padding: calc(var(--safe-t) + var(--sp-8)) var(--edge) calc(var(--safe-b) + var(--sp-7));
+      overflow-x: hidden; position: relative;
+    }
+    /* three faint washes: lavender, blue, peach */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: var(--wash-o);
+      background:
+        radial-gradient(60vmax 60vmax at 8% 18%, var(--lavender), transparent 62%),
+        radial-gradient(55vmax 55vmax at 92% 62%, var(--paleblue), transparent 62%),
+        radial-gradient(50vmax 50vmax at 40% 108%, var(--peach), transparent 62%);
+    }
+    main { position: relative; flex: 1; width: 100%; max-width: var(--col); margin-inline: auto;
+      display: flex; flex-direction: column; justify-content: center; gap: var(--sp-6);
+      opacity: 0; }
+    html.is-ready main { opacity: 1; animation: arrive var(--d-in) var(--ease-out) both; }
+    @keyframes arrive { from { opacity: 0; } to { opacity: 1; } }
+
+    .mark { width: var(--mark-w); height: auto; filter: var(--mark-shadow); overflow: visible; }
+    .mark .cap, .mark .dot { transform-box: fill-box; transform-origin: center; animation: breathe var(--breath) var(--ease-breath) infinite; }
+    .mark .dot { animation-direction: reverse; }   /* opposite phase: never in step */
+    @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(calc(1 + var(--breath-s))); } }
+
+    .num {
+      margin: 0; font: 300 var(--fs-num)/1 var(--font-display); letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--blue), var(--lavender));
+      -webkit-background-clip: text; background-clip: text; color: transparent; opacity: var(--num-o);
+    }
+    h1 { margin: 0; font: 500 var(--fs-head)/1.25 var(--font-display); letter-spacing: -0.02em; }
+    p.why { margin: 0; color: var(--ink-2); max-width: 34ch; text-wrap: pretty; }
+    .home {
+      align-self: flex-start; display: inline-flex; align-items: center; justify-content: center;
+      min-height: var(--hit); padding: 0 var(--sp-7); margin-top: var(--sp-3);
+      border-radius: 999px; background: var(--pill); border: 1px solid var(--pill-edge); box-shadow: var(--pill-shadow);
+      color: var(--ink); text-decoration: none; font: 400 var(--fs-body)/1 var(--font-body);
+      transition: scale var(--d-press) ease;
+    }
+    .home:active { scale: 0.96; }
+    .home:focus-visible { outline: 1.5px solid var(--blue); outline-offset: 3px; }
+    .foot {
+      position: relative; display: flex; align-items: center; gap: var(--sp-3); justify-content: center;
+      font: 400 var(--fs-label)/1 var(--font-mono); letter-spacing: 0.05em; color: var(--ink-2);
+    }
+    .foot i { width: var(--dot); height: var(--dot); border-radius: 50%; background: var(--terra);
+      animation: blink var(--blink) var(--ease-breath) infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    @media (prefers-reduced-motion: reduce) {
+      html.is-ready main { animation: none; }
+      .mark .cap, .mark .dot, .foot i { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <svg class="mark" viewBox="0 0 100 140" aria-hidden="true" focusable="false">
+      <circle class="dot" cx="68" cy="40" r="36" fill="var(--mark-circle)" />
+      <rect class="cap" x="6" y="4" width="44" height="132" rx="22" fill="var(--mark-capsule)" />
+    </svg>
+    <p class="num" aria-hidden="true">404</p>
+    <h1>You've drifted off the map.</h1>
+    <p class="why">Vytls keeps four rooms, and this isn't one of them. Your readings are safe on this phone.</p>
+    <a class="home" id="home" href="./">← back to today</a>
+  </main>
+  <p class="foot" aria-hidden="true"><i></i>vytls · no signal · path not found</p>
+  <script>
+    // The app lives at the site root, or under /<repo>/ on GitHub Pages: send "home" there.
+    (function () {
+      var seg = location.pathname.split('/').filter(Boolean)[0];
+      var base = /\.github\.io$/.test(location.hostname) && seg ? '/' + seg + '/' : '/';
+      document.getElementById('home').href = base;
+      // Use the app's own fonts when this site serves them; show the page either way within 600ms,
+      // so it never sits blank and never swaps typeface in front of her.
+      var show = function () { document.documentElement.classList.add('is-ready'); };
+      var timer = setTimeout(show, 600);
+      if (!window.FontFace || !document.fonts) { clearTimeout(timer); show(); return; }
+      var faces = [
+        new FontFace('Sora', 'url(' + base + 'fonts/sora-vf-latin.woff2)', { weight: '100 800' }),
+        new FontFace('Manrope', 'url(' + base + 'fonts/manrope-vf-latin.woff2)', { weight: '200 800' }),
+        new FontFace('JetBrains Mono', 'url(' + base + 'fonts/jetbrains-mono-vf-latin.woff2)', { weight: '100 800' })
+      ];
+      Promise.all(faces.map(function (f) { return f.load().then(function (l) { document.fonts.add(l); }); }))
+        .then(function () { clearTimeout(timer); show(); }, function () { clearTimeout(timer); show(); });
+    })();
+  </script>
+</body>
+</html>

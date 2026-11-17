@@ -366,6 +366,7 @@
   --settings-row-gap: var(--sp-4);
   --settings-label-gap: var(--sp-3);
   --fade-room: calc(var(--safe-t) + var(--shell-top));   /* the room title starts where the top fade ends */
+  --fade-clear: calc(var(--safe-t) + var(--rank-top) + var(--readout-h));   /* nothing shows behind the status readout (0.5.0) */
 }
 
 :root {
