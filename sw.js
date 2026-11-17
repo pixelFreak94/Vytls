@@ -9,7 +9,7 @@
 // 4. The page reloads once onto the new version. Readings live in localStorage, which
 //    this file never touches; store.js upgrades their shape if needed.
 
-const VERSION = '0.4.1';
+const VERSION = '0.5.0';
 const CACHE = `vytls-${VERSION}`;
 
 const FILES = [
@@ -18,8 +18,9 @@ const FILES = [
   'manifest.webmanifest',
   'css/tokens.css', 'css/base.css', 'css/components.css', 'css/motion.css', 'css/counter.css', 'css/alerts.css', 'css/history.css', 'css/report.css',
   'js/app.js', 'js/store.js', 'js/atmosphere.js', 'js/entry.js', 'js/audio.js',
-  'js/settings.js', 'js/today.js', 'js/kicks.js', 'js/alerts.js', 'js/history.js', 'js/report.js',
+  'js/settings.js', 'js/today.js', 'js/kicks.js', 'js/alerts.js', 'js/history.js', 'js/report.js', 'js/signin.js',
   'fonts/sora-vf-latin.woff2', 'fonts/manrope-vf-latin.woff2', 'fonts/jetbrains-mono-vf-latin.woff2', 'fonts/bebas-neue-latin-400.woff2',
+  '404.html',
   'icons/apple-touch-icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',
 ];
 
@@ -49,8 +50,17 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    const key = req.mode === 'navigate' ? 'index.html' : req;
-    const hit = await cache.match(key, { ignoreSearch: req.mode === 'navigate' });
+    // Opening the app (its folder or index.html) gets the app. Any other page address gets
+    // the lost page, from the network or, offline, from this cache (manual §17.7).
+    if (req.mode === 'navigate') {
+      const path = new URL(req.url).pathname;
+      const scope = new URL(self.registration.scope).pathname;
+      if (path === scope || path === `${scope}index.html`) {
+        return (await cache.match('index.html')) ?? fetch(req);
+      }
+      try { return await fetch(req); } catch { return (await cache.match('404.html')) ?? Response.error(); }
+    }
+    const hit = await cache.match(req);
     if (hit) return hit;
     const res = await fetch(req);
     if (res.ok && res.type === 'basic') cache.put(req, res.clone());

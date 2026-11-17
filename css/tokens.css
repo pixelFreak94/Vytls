@@ -126,17 +126,18 @@
   --fw-light: 300; --fw-body: 400; --fw-head: 500;
 
   /* ---- motion ---- */
+  /* every UI duration below runs 15% faster than the manual's (owner, 0.5.0). Ambient loops and --alert-guard are untouched. */
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --ease-reveal:  cubic-bezier(0.22, 1, 0.36, 1);
   --ease-exit:    cubic-bezier(0.4, 0, 1, 1);
   --ease-pop:     cubic-bezier(0.34, 2.1, 0.64, 1);    /* more elastic settle (owner, 0.4.0) */
   --ease-breath:  cubic-bezier(0.42, 0, 0.58, 1);
-  --d-press-in: 90ms;  --d-press-out: 580ms; --d-quick: 260ms; --d-state: 400ms;
-  --d-sheet: 460ms;    --d-step: 420ms;
-  --d-reveal: 1000ms;  --d-reveal-step: 90ms; --d-reveal-base: 1300ms;
-  --d-cross: 1680ms;   --d-chrome-return: 980ms;
-  --d-hold: 720ms;     --d-ripple: 1500ms;
+  --d-press-in: 76ms;  --d-press-out: 493ms; --d-quick: 221ms; --d-state: 340ms;
+  --d-sheet: 391ms;    --d-step: 357ms;
+  --d-reveal: 850ms;  --d-reveal-step: 76ms; --d-reveal-base: 1105ms;
+  --d-cross: 1428ms;   --d-chrome-return: 833ms;
+  --d-hold: 612ms;     --d-ripple: 1275ms;
   --press-scale: 0.84; --card-press-scale: 0.96;     /* motion amplified 2.5x (owner, 0.4.0) */
   --cross-out-scale: 0.95; --cross-in-scale: 1.06;
   --breath-room: 11s;  --beat: 3s;
@@ -206,11 +207,11 @@
   --ball-line:     46px;
   --ball-rock:     7deg;
   --ball-swing:    850ms;
-  --entry-min:     1300ms;    /* minimum graceful beat before the catch */
-  --entry-ripple-at: 430ms;
-  --entry-mount-at:  820ms;
-  --entry-clear-at:  1760ms;
-  --d-catch:       420ms;
+  --entry-min:     1105ms;    /* minimum graceful beat before the catch */
+  --entry-ripple-at: 366ms;
+  --entry-mount-at:  697ms;
+  --entry-clear-at:  1496ms;
+  --d-catch:       357ms;
 
   /* ---- Vytls type additions (manual §28.5, §28.6, §28.9) ---- */
   --fs-reading:    44px;      /* the one large reading field */
@@ -228,18 +229,18 @@
   --alert-gap:     32px;
   --tap-radius:    28px;
   --bloom-size:    48px;
-  --bloom-ms:      700ms;
+  --bloom-ms:      595ms;
   --live-dot:      7px;
   --chip-morph:    56px;
-  --chip-hold:     1700ms;
-  --caret-w: 6px; --caret-h: 12px; --type-char: 52ms; --caret-blink: 0.7s;
+  --chip-hold:     1445ms;
+  --caret-w: 6px; --caret-h: 12px; --type-char: 44ms; --caret-blink: 0.7s;
   --glyph:         13px;
-  --d-pour:        550ms;
-  --d-pour-hold:   2600ms;
-  --d-drain:       1100ms;
-  --reveal-z-from: -100px; --reveal-z-over: 25px; --reveal-z-back: -8px;   /* reveal depth, amplified 2.5x */
-  --d-fizz:        900ms;    /* one bubble's rise through the pour */
-  --d-fizz-step:   50ms;
+  --d-pour:        468ms;
+  --d-pour-hold:   2210ms;
+  --d-drain:       935ms;
+  --reveal-s-from: 0.9; --reveal-s-over: 1.02; --reveal-s-back: 0.996;   /* flat reveal (manual §13.4): 3D inside a fading room flickered on iPhone */
+  --d-fizz:        765ms;    /* one bubble's rise through the pour */
+  --d-fizz-step:   42ms;
   --fizz-size:     4px; --fizz-size-s: 3px;
   --fizz-rise:     -36px;
   --fizz-ink:      rgba(255, 249, 242, 0.9);
@@ -269,7 +270,7 @@
   --ball-node:      24px;
   --ball-node-fill: linear-gradient(180deg, var(--c-ball-hi-hi) 0%, var(--a-terra) 47%, var(--c-ink-seam) 47%, var(--c-ink-seam) 53%, var(--c-ball-lo-hi) 53%, var(--c-ball-lo) 100%);
   --focus-line:     0.3;                 /* the docked node rests 30% down the scroller (manual §16.9) */
-  --hop-ms:         720ms;
+  --hop-ms:         612ms;
   --hop-arc:        28px;
   --hop-squash-x:   1.4;  --hop-squash-y:   0.62;
   --hop-stretch-x:  0.76; --hop-stretch-y:  1.32;
@@ -279,7 +280,6 @@
   --sheet-veil:     var(--scrim-light);
   --sheet-pad:      var(--sp-6);
   --sheet-gap:      var(--sp-5);
-  --sheet-in-y:     48px;
   --reading-lh:     1.1;
   --food-gap:       var(--sp-3);          /* ingredients: space between chips and rows */
   --food-chip-bg:   var(--st-settled-tint);
@@ -304,9 +304,9 @@
   /* world */
   --fog-opacity: 0.9;
   --breath-lo: 0.82;
-  --glow-size: 120vmax; --glow-peak: 0.75; --glow-ms: 1500ms; --glow-start: 0.6; --glow-end: 1.15;
-  --amb-up-ms: 1200ms; --amb-up-delay: 950ms;
-  --nav-settle-ms: 640ms; --nav-settle-delay: 760ms; --nav-settle-y: 28px; --nav-settle-scale: 0.9;
+  --glow-size: 120vmax; --glow-peak: 0.75; --glow-ms: 1275ms; --glow-start: 0.6; --glow-end: 1.15;
+  --amb-up-ms: 1020ms; --amb-up-delay: 808ms;
+  --nav-settle-ms: 544ms; --nav-settle-delay: 646ms; --nav-settle-y: 28px; --nav-settle-scale: 0.9;
   /* corner web (manual §28.7) */
   --web-size: 92vmin; --web-max: 0.50; --web-wash-max: 0.28; --web-artery-max: 0.40; --web-glow-max: 0.30;
   --web-breath: 11.7s; --web-breath-lo: 0.2; --web-beat-offset: -1.1s; --web-beat-lo: 0.18;
@@ -319,7 +319,7 @@
   --entry-glint-ms: 1700ms;
   --entry-pop-a: 1.16; --entry-pop-a-y: 0.86; --entry-pop-b: 0.94; --entry-pop-b-y: 1.07;
   --entry-ripple-size: 170vmax;
-  --ripple-gap: 150ms;
+  --ripple-gap: 128ms;
   --ripple-ring: rgba(199, 123, 92, 0.34);
   --ripple-ring-hi: rgba(255, 253, 250, 0.70);
   --ripple-drop: rgba(244, 201, 168, 0.55);
@@ -345,12 +345,12 @@
   --btn-icon-gap: 8px;
   --btn-hit-extend: 4px;
   --btn-filled-hover: var(--c-card-white);
-  --d-glide: 480ms;
+  --d-glide: 408ms;
   --toggle-track: rgba(60, 50, 40, 0.10);
   --toggle-track-inset: inset 0 1px 2px rgba(40, 30, 20, 0.12);
   --toggle-stretch: scale(1.8, 0.55);
   --toggle-stretch-x: 7px;
-  --d-hairline: 240ms;
+  --d-hairline: 204ms;
   --field-note-gap: var(--sp-2);
   --unit-gap: var(--sp-3);
   --cell-pad-y: var(--sp-3);
@@ -366,6 +366,7 @@
   --settings-row-gap: var(--sp-4);
   --settings-label-gap: var(--sp-3);
   --fade-room: calc(var(--safe-t) + var(--shell-top));   /* the room title starts where the top fade ends */
+  --fade-clear: calc(var(--safe-t) + var(--rank-top) + var(--readout-h));   /* nothing shows behind the status readout (0.5.0) */
 }
 
 :root {
@@ -418,6 +419,8 @@
   --fs-hg-mark:     8px;
   --fs-hg-head:     9px;
   --hg-sec-gap:     var(--sp-7);
+  --hg-fill:        rgba(255, 253, 249, 0.74);   /* baked frost: no live blur on a panel that scrolls (manual §12.4) */
+  --day-card-row-h: 36px;
 }
 
 :root {

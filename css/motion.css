@@ -19,13 +19,14 @@
 
 /* ---- item settle (manual §13.4). app.js sets --i on each .reveal-item and adds .is-revealing to the room. ---- */
 @keyframes settle {
-  0%   { opacity: 0; transform: perspective(480px) translateZ(var(--reveal-z-from)); }
+  0%   { opacity: 0; transform: scale(var(--reveal-s-from)); }
   55%  { opacity: 1; }
-  78%  { transform: perspective(480px) translateZ(var(--reveal-z-over)); }
-  92%  { transform: perspective(480px) translateZ(var(--reveal-z-back)); }
-  100% { opacity: 1; transform: perspective(480px) translateZ(0); }
+  78%  { transform: scale(var(--reveal-s-over)); }
+  92%  { transform: scale(var(--reveal-s-back)); }
+  100% { opacity: 1; transform: scale(1); }
 }
-.room.is-revealing .reveal-item {
+/* only items indexed at the room change animate; anything rebuilt later just appears */
+.room.is-revealing .reveal-item[data-reveal] {
   animation: settle var(--d-reveal) var(--ease-reveal) both;
   animation-delay: calc(var(--reveal-base, var(--d-reveal-base)) + var(--i, 0) * var(--d-reveal-step));
 }
@@ -44,12 +45,14 @@ html.is-crossing .instrument { opacity: 0; transition-duration: var(--d-quick); 
 }
 
 /* ---- atmosphere: ambient loops (manual §12.2, §13.5, §28.7) ---- */
-#world .blob { animation: blob-drift var(--period) var(--ease-breath) infinite; animation-delay: calc(var(--n) * var(--blob-stagger) * -1); }
-@keyframes blob-drift {
-  0%, 100% { transform: translate(-50%, -50%) translate(0, 0); }
-  50%      { transform: translate(-50%, -50%) translate(var(--dx), var(--dy)); }
+#world .blob i {
+  animation: blob-drift var(--period) var(--ease-breath) infinite, room-breath var(--breath-room) var(--ease-breath) infinite;
+  animation-delay: calc(var(--n) * var(--blob-stagger) * -1), 0s;
 }
-#world .blobs { animation: room-breath var(--breath-room) var(--ease-breath) infinite; }
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(var(--dx), var(--dy)); }
+}
 @keyframes room-breath { 0%, 100% { opacity: var(--breath-lo); } 50% { opacity: 1; } }
 
 /* respiration: wells up, holds, drains */
@@ -71,8 +74,7 @@ html.is-crossing .instrument { opacity: 0; transition-duration: var(--d-quick); 
   100%    { opacity: var(--web-beat-lo); }
 }
 /* AMBIENT off: frozen at rest, still visible, never hidden (manual §13.6) */
-html[data-ambient="off"] #world .blob,
-html[data-ambient="off"] #world .blobs,
+html[data-ambient="off"] #world .blob i,
 html[data-ambient="off"] #world .web .wb,
 html[data-ambient="off"] #world .web .wt { animation-play-state: paused; }
 
@@ -154,7 +156,7 @@ html[data-entered="true"] #world .w-amb { animation: amb-up var(--amb-up-ms) var
   html[data-entered="true"] #nav { animation: none; }
 }
 
-/* ---- today: the ball hops to the next node, the sheet rises (manual §13, §28.5) ---- */
+/* ---- today: the ball hops to the next node; a sheet is an opacity-only fade (manual §13.4, §22) ---- */
 @keyframes ball-hop {
   0%   { transform: translateY(var(--hop-dy, 0px)) scale(1, 1); }
   18%  { transform: translateY(var(--hop-dy, 0px)) scale(var(--hop-squash-x), var(--hop-squash-y)); }
@@ -162,14 +164,38 @@ html[data-entered="true"] #world .w-amb { animation: amb-up var(--amb-up-ms) var
   82%  { transform: translateY(0) scale(var(--hop-squash-x), var(--hop-squash-y)); }
   100% { transform: translateY(0) scale(1, 1); }
 }
-@keyframes sheet-in {
-  from { opacity: 0; transform: translateY(var(--sheet-in-y)); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 @keyframes sheet-veil-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheet-veil-out { from { opacity: 1; } to { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   .ball.is-hopping { animation: none; }
-  .sheet { animation: sheet-veil-in var(--d-quick) linear both; }
   .sheet-veil { animation: sheet-veil-in var(--d-quick) linear both; }
+  .sheet-veil.is-closing, .signin.is-closing { animation: sheet-veil-out var(--d-quick) linear both; }
+}
+
+/* ---- component keyframes (readout caret, live dot, nav sheen and pour, toggle thumb) ---- */
+@keyframes caret { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes rec-blink { 0%, 100% { opacity: 1; } 50% { opacity: var(--live-dot-lo); } }
+@keyframes sheen-drift {
+  0%   { transform: translateX(0);     opacity: 0; }
+  20%  { opacity: var(--sheen-alpha); }
+  80%  { opacity: var(--sheen-alpha); }
+  100% { transform: translateX(150%);  opacity: 0; }
+}
+@keyframes fizz-rise {
+  0%   { opacity: 0; transform: translateY(0); }
+  25%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(var(--fizz-rise)); }
+}
+@keyframes pour-fill  { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pour-drain { from { transform: scaleY(1); } to { transform: scaleY(0); } }
+@keyframes thumb-on {
+  0%   { transform: translateX(0) scale(1); }
+  50%  { transform: translateX(var(--toggle-stretch-x)) var(--toggle-stretch); }
+  100% { transform: translateX(var(--toggle-travel)) scale(1); }
+}
+@keyframes thumb-off {
+  0%   { transform: translateX(var(--toggle-travel)) scale(1); }
+  50%  { transform: translateX(var(--toggle-stretch-x)) var(--toggle-stretch); }
+  100% { transform: translateX(0) scale(1); }
 }

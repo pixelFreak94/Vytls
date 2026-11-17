@@ -6,13 +6,14 @@ import { initAtmosphere, setRoom as setAtmosphereRoom } from './atmosphere.js';
 import { runEntry } from './entry.js';
 import { renderSettings } from './settings.js';
 import { initAudio, thup } from './audio.js';
-import { renderToday as renderLifeline, setViewDay } from './today.js';
+import { renderToday as renderLifeline, setViewDay, openDaySheet } from './today.js';
 import { renderHistory } from './history.js';
 import { renderReport } from './report.js';
 import { resumeIfRunning, closeExpired } from './kicks.js';
 import { raiseButton } from './alerts.js';
+import { askAccount } from './signin.js';
 
-export const VERSION = '0.4.1';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.5.0';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };
@@ -69,12 +70,15 @@ function renderRoom(room) {
   if (room === 'today') renderToday();
   else if (room === 'settings') renderSettings($('[data-body="settings"]'));
   else if (room === 'report') renderReport($('[data-body="report"]'));
-  else if (room === 'history') renderHistory($('[data-body="history"]'), { openDay: (key) => { setViewDay(key); go('today'); } });
+  else if (room === 'history') renderHistory($('[data-body="history"]'), {
+    // a day opens as a card over History; the card can hand over to Today to fill in gaps (manual §28.10)
+    openDay: (key, opener) => openDaySheet(key, { opener, onOpen: () => { setViewDay(key); go('today'); } }),
+  });
   else $(`[data-body="${room}"]`).replaceChildren(emptyState('Nothing here yet.'));
 }
 
 function indexReveals(section) {
-  section.querySelectorAll('.reveal-item').forEach((el, i) => el.style.setProperty('--i', i));
+  section.querySelectorAll('.reveal-item').forEach((el, i) => { el.style.setProperty('--i', i); el.dataset.reveal = ''; });
 }
 
 // ---- navigation: rooms are peers, reached only from the nav (manual §17.1) ----
@@ -292,8 +296,18 @@ function boot() {
   document.querySelectorAll('#nav [data-go]').forEach((b) =>
     b.addEventListener('click', () => { pour(b); go(b.dataset.go); }));
 
-  runEntry({
-    ready: document.fonts ? document.fonts.ready : Promise.resolve(),
+  // Ask for all four typefaces by name, so the room never mounts in a fallback face and then
+  // swaps (a visible flicker). Capped, so a failed font can never hold the loader.
+  const faces = ['300 1em Sora', '400 1em Manrope', '400 1em "JetBrains Mono"', '400 1em "Bebas Neue"'];
+  const fontsReady = document.fonts
+    ? Promise.race([
+        Promise.all(faces.map((f) => document.fonts.load(f))).then(() => document.fonts.ready),
+        new Promise((r) => setTimeout(r, 3000)),
+      ])
+    : Promise.resolve();
+
+  const start = () => runEntry({
+    ready: fontsReady,
     reduced: env.reducedMotion,
     mount: () => {
       html.dataset.entered = 'true';
@@ -303,6 +317,17 @@ function boot() {
       typeReadout();
       startClock();
     },
+  });
+
+  // The username is asked once per phone, before the ball (DECISIONS 43). An alert owed at
+  // launch still sits above it.
+  if (store.account()) { start(); return; }
+  const entry = $('#entry');
+  entry.hidden = true;
+  askAccount().then((name) => {
+    store.setAccount(name);
+    entry.hidden = false;
+    start();
   });
 }
 

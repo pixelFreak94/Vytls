@@ -21,6 +21,7 @@ function defaults() {
       ambient: true,
       sound: false,
       lastBackupAt: null,
+      account: '',                                    // 'admin' on a test phone, her email on hers; asked once
     },
     days: {},
     foodHistory: [],
@@ -108,7 +109,9 @@ export function update(fn) {
  *  like any stored data, so an older file cannot leave a field missing. */
 export function replaceAll(incoming) {
   try { localStorage.setItem(`${KEY}.before-restore`, JSON.stringify(data)); } catch { /* keep going */ }
+  const account = data.settings.account;   // the phone keeps its own username, whatever the file says
   data = migrate(structuredClone(incoming));
+  data.settings.account = account;
   if (!data.settings.startDate) data.settings.startDate = dayKey(Date.now());
   const ok = save();
   for (const l of listeners) l(data);
@@ -213,6 +216,22 @@ export function setSetting(path, value) {
     o[parts.at(-1)] = value;
   });
 }
+
+// ---- username (DECISIONS 43) ---------------------------------------------
+// Asked once per phone. 'admin' marks a test phone: it makes no backups. Anything else is her
+// email. A backup file only restores onto a phone signed in with the same username.
+
+export const TEST_ACCOUNT = 'admin';
+
+/** A typed username as it is stored ('admin' or a lowercase email), or null if it is neither. */
+export function parseAccount(raw) {
+  const s = String(raw ?? '').trim().toLowerCase();
+  if (s === TEST_ACCOUNT) return s;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) ? s : null;
+}
+export function account() { return data.settings.account || ''; }
+export function isTestDevice() { return account() === TEST_ACCOUNT; }
+export function setAccount(name) { return setSetting('account', name); }
 
 /** Logging is blocked until the doctor's number is saved (DECISIONS 21). */
 export function canLog() { return data.settings.doctorPhone.trim() !== ''; }

@@ -240,7 +240,7 @@ export function renderToday(body) {
   // a gentle nudge when the last backup is over 7 days old (DEV_PLAN §8); the one plz (manual §28.11)
   const last = store.get().settings.lastBackupAt;
   const hasData = Object.keys(store.get().days).length > 0;
-  const nudge = hasData && (!last || now - last > 7 * 24 * HOUR)
+  const nudge = hasData && !store.isTestDevice() && (!last || now - last > 7 * 24 * HOUR)
     ? el('button', { class: 'backup-nudge reveal-item', type: 'button', text: 'back up your data, plz' })
     : null;
   nudge?.addEventListener('click', () => document.querySelector('#nav [data-go="report"]')?.click());
@@ -286,12 +286,24 @@ document.addEventListener('visibilitychange', () => {
 
 let openSheetEl = null;
 
+/** Fade a sheet's veil out, then remove it (manual §13.4: close waits for the fade).
+ *  It stops taking touches and stops counting as an open dialog at once. */
+export function fadeOut(node) {
+  node.inert = true;
+  node.querySelectorAll('[role="dialog"]').forEach((d) => d.removeAttribute('role'));
+  node.classList.add('is-closing');
+  const gone = () => node.remove();
+  node.addEventListener('animationend', gone, { once: true });
+  const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--d-sheet')) || 0;
+  setTimeout(gone, ms + 100);   // in case the animation never runs
+}
+
 function closeSheet(returnTo) {
   if (!openSheetEl) return;
   openSheetEl.cleanup();
-  openSheetEl.veil.remove();
+  fadeOut(openSheetEl.veil);
   openSheetEl = null;
-  const target = returnTo && document.querySelector(`[data-node="${returnTo}"]`);
+  const target = returnTo instanceof Element ? returnTo : returnTo && document.querySelector(`[data-node="${returnTo}"]`);
   target?.focus?.({ preventScroll: true });
 }
 
@@ -337,7 +349,46 @@ function frame({ eyebrow, title, nodeId }) {
 
   close.addEventListener('click', () => closeSheet(nodeId));
   veil.addEventListener('click', (e) => { if (e.target === veil) closeSheet(nodeId); });
-  return { form, sheet };
+  return { form, sheet, veil };
+}
+
+/** One day as a read-only card over History (manual §28.10). Nothing is edited here: onOpen hands
+ *  the day to Today, where the usual rules apply (past entries locked once logged). */
+export function openDaySheet(key, { opener, onOpen } = {}) {
+  const today = store.todayKey();
+  const past = key < today;
+  const nodes = buildNodes(store.getDay(key), Date.now(), past);
+  const [y, m, d] = key.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const pos = store.dayPosition(key);
+  const { form, veil } = frame({
+    eyebrow: [date.toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase(),
+      pos ? `day ${pos.day} of ${pos.lengthDays}` : null, `${countLogged(nodes)} of 7 logged`].filter(Boolean).join(' · '),
+    title: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+    nodeId: opener,
+  });
+  veil.classList.add('sheet-veil--card');
+
+  const row = (n) => el('div', { class: 'day-card-row' },
+    el('span', { class: 'node-text' },
+      el('span', { class: 'item-title', text: TITLES[n.kind] }),
+      el('span', { class: 'label label--legible', text: labelFor(n) })),
+    valueChip(n));
+  const group = (name, items) => el('section', { class: 'day-card-group' },
+    el('h3', { class: 'day-card-head', text: name }), ...items.map(row));
+  form.append(el('div', { class: 'day-card' },
+    group('fasting', [nodes[0]]),
+    ...store.MEALS.map((meal, i) => group(meal, nodes.slice(1 + i * 3, 4 + i * 3)))));
+
+  // movements are counted live, so a past day can only gain readings and meals
+  const fillable = past ? nodes.some((n) => n.kind !== 'kicks' && !n.done) : true;
+  if (onOpen && fillable && store.canLog()) {
+    const open = el('button', { class: 'btn btn-filled', type: 'button', text: past ? 'fill in this day' : 'open today' });
+    open.addEventListener('click', () => { closeSheet(); onOpen(); });
+    form.append(el('div', { class: 'sheet-actions' }, open));
+  }
+  form.addEventListener('submit', (e) => e.preventDefault());
+  veil.querySelector('.sheet-close')?.focus({ preventScroll: true });
 }
 
 function timeField(ts) {

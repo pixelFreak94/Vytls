@@ -100,7 +100,7 @@ export function initAtmosphere(worldEl) {
   NS_ROOMS.forEach((r) => { fogs[r] = add('w-fog', world); });
   const amb = add('w-amb');
   const blobs = add('blobs', amb);
-  BLOBS.forEach((n) => add(`blob blob--${n}`, blobs));
+  BLOBS.forEach((n) => add(`blob blob--${n}`, blobs).append(document.createElement('i')));
   add('w-glow');
   const web = add('web', amb);
   web.innerHTML = WEB_SVG;

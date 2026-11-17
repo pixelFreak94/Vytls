@@ -316,6 +316,7 @@ export function renderReport(body) {
   paint();
 
   // 3. backup and restore
+  const test = store.isTestDevice();
   const backupLine = el('p', { class: 'rp-status', text: lastBackupText() });
   const backupMsg = el('p', { class: 'rp-status', role: 'status' });
   const backupBtn = el('button', { class: 'btn btn-filled rp-btn', type: 'button', text: 'back up' });
@@ -341,6 +342,18 @@ export function renderReport(body) {
     try {
       const o = JSON.parse(await f.text());
       if (!looksLikeVytls(o)) throw new Error('shape');
+      // a backup only restores onto a phone with the same username, so a test phone's
+      // file can never replace her record (DECISIONS 43)
+      const owner = String(o.settings.account ?? '').toLowerCase();
+      if (owner && owner !== store.account()) {
+        pending = null;
+        confirm.hidden = true;
+        backupMsg.textContent = 'that backup was made under another username. nothing changed.';
+        return;
+      }
+      confirmText.textContent = owner
+        ? 'this replaces everything on this phone. restore?'
+        : 'this file has no username on it, so check it is the right one. it replaces everything on this phone. restore?';
       pending = o;
       backupMsg.textContent = '';
       confirm.hidden = false;
@@ -362,9 +375,11 @@ export function renderReport(body) {
   });
   root.append(el('section', { class: 'rp-section' },
     el('h2', { class: 'rp-h', text: 'backup and restore' }),
-    el('p', { class: 'rp-note', text: 'back up now and then, plz. the file is kept by you, not by the app.' }),
-    backupLine,
-    el('div', { class: 'rp-row' }, backupBtn, restoreBtn, fileIn),
+    el('p', { class: 'rp-note', text: test
+      ? 'this is a test phone. it makes no backups.'
+      : `back up now and then, plz. the file is kept by you, not by the app, and is marked ${store.account()}.` }),
+    ...(test ? [] : [backupLine]),
+    el('div', { class: 'rp-row' }, ...(test ? [] : [backupBtn]), restoreBtn, fileIn),
     confirm, backupMsg, el('p', { class: 'rp-status rp-restored' })));
 
   // 4. reminders
