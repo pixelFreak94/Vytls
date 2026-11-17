@@ -52,3 +52,4 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 46 | 2026-11-17 | Double-tap zoom is off; pinch zoom stays. Item reveal is flat (scale), sheets fade without sliding, the History panel has no live blur | Owner's call on zoom; the rest removes flicker on iPhone and follows manual §13.4 and §22 |
 | 47 | 2026-11-17 | No doctor's answers are awaited: targets, movement goal and A2 numbers keep their defaults, editable in Settings; no low-reading flag | Owner's call |
 | 48 | 2026-11-17 | Unknown addresses show the in-world lost page, also offline (cached by `sw.js`); sheets and the sign-in fade out before they go | Manual §17.7, §13.4 |
+| 49 | 2026-11-17 | The quiet note (manual §16.13) is not built | Owner's call: dropped |

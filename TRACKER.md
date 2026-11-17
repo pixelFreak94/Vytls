@@ -31,4 +31,4 @@ Current state only. When a phase is finished, collapse its tasks into the single
 
 ## Known issues
 
-- The quiet note (manual §16.13) is not built; it needs a sentence of intent from the owner, or can be left out.
+- None open.
