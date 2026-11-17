@@ -5,6 +5,7 @@
 import * as store from './store.js';
 import { VERSION } from './app.js';
 import { enable, disable } from './audio.js';
+import { askAccount } from './signin.js';
 
 const el = (tag, props = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -124,6 +125,13 @@ export function renderSettings(bodyEl) {
   syncPhoneLine();
   phoneField.addEventListener('saved', syncPhoneLine);
 
+  // the username is asked once; this is the way to correct a mistyped one
+  const changeName = el('button', { class: 'btn btn-ghost reveal-item', type: 'button', text: 'change username' });
+  changeName.addEventListener('click', async () => {
+    const name = await askAccount({ current: store.account() });
+    if (name) { store.setAccount(name); renderSettings(bodyEl); }
+  });
+
   const root = el('div', { class: 'settings' },
     group('01 — doctor', phoneField, phoneLine),
     group('02 — sugar targets',
@@ -148,6 +156,9 @@ export function renderSettings(bodyEl) {
         path: 'sound', name: 'sound', onLabel: 'sound · on', offLabel: 'sound · off',
         onChange: (on) => (on ? enable() : disable()),
       })),
+    group('07 — this phone',
+      line(store.isTestDevice() ? `signed in as ${store.account()} · test phone, backups off` : `signed in as ${store.account()}`),
+      changeName),
     el('p', { class: 'label settings-foot reveal-item', text: `vytls · ${VERSION}` }),
   );
   bodyEl.replaceChildren(root);

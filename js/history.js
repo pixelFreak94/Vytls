@@ -76,7 +76,7 @@ function dayRow(key, today, openDay, s) {
     'data-day': key,
     'aria-label': future ? null : `${shortDate(key)}${key === today ? ', today' : ''}`,
   }, label, ...cells);
-  if (!future) row.addEventListener('click', () => openDay?.(key));
+  if (!future) row.addEventListener('click', () => openDay?.(key, row));
   return row;
 }
 

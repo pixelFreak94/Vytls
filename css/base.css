@@ -10,7 +10,8 @@
 @supports (height: 100dvh) { :root { --app-h: 100dvh; } }
 
 *, *::before, *::after { box-sizing: border-box; }
-* { -webkit-tap-highlight-color: transparent; }
+/* double-tap zoom off everywhere; pinch zoom stays (manual §7, §20) */
+* { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 html, body {
   height: var(--app-h);
@@ -152,8 +153,12 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
   position: absolute; left: var(--x); top: var(--y); width: var(--size); height: var(--size);
   border-radius: 50%; pointer-events: none; opacity: 0;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, var(--c) 0%, color-mix(in srgb, var(--c) var(--blob-core), transparent) var(--blob-mid-stop), transparent var(--blob-end-stop));
   transition: opacity var(--d-cross) var(--ease-reveal);
+}
+/* the colour sits on one inner layer that both drifts and breathes (manual §22: one layer, not many) */
+#world .blob i {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle, var(--c) 0%, color-mix(in srgb, var(--c) var(--blob-core), transparent) var(--blob-mid-stop), transparent var(--blob-end-stop));
 }
 #world .blob--peach { --c: var(--c-peach); --x: var(--blob-peach-x); --y: var(--blob-peach-y); --size: var(--blob-peach-size); --dx: var(--blob-peach-dx); --dy: var(--blob-peach-dy); --period: var(--blob-peach-period); --n: 0; opacity: var(--o-peach); }
 #world .blob--lavender { --c: var(--c-lavender); --x: var(--blob-lavender-x); --y: var(--blob-lavender-y); --size: var(--blob-lavender-size); --dx: var(--blob-lavender-dx); --dy: var(--blob-lavender-dy); --period: var(--blob-lavender-period); --n: 1; opacity: var(--o-lavender); }

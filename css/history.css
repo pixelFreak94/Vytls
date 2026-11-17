@@ -11,9 +11,8 @@
 .hg-arrow:focus-visible, .hg-row:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 
 .hg-grid {
-  background: var(--g-card); border: 1px solid var(--g-edge-card); border-radius: var(--r-card);
+  background: var(--hg-fill); border: 1px solid var(--g-edge-card); border-radius: var(--r-card);
   box-shadow: var(--sh-card); padding: var(--hg-pad) 0;
-  -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur);
 }
 .hg-head, .hg-row {
   display: grid; grid-template-columns: var(--hg-day-w) repeat(7, minmax(0, 1fr));

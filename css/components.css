@@ -52,9 +52,9 @@ html[data-ambient="off"] .live-dot { animation-play-state: paused; }
   text-indent: var(--sp-2);
   opacity: 0; transform: translateX(calc(var(--sp-1) * -1));
   transition:
-    max-width 460ms var(--ease-out),
-    opacity 460ms var(--ease-default),
-    transform 460ms var(--ease-out);
+    max-width var(--d-sheet) var(--ease-out),
+    opacity var(--d-sheet) var(--ease-default),
+    transform var(--d-sheet) var(--ease-out);
 }
 .live-chip.is-morphed .live-text { max-width: var(--chip-morph); opacity: 1; transform: none; }
 
@@ -475,9 +475,30 @@ button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-r
   padding: var(--sheet-pad); box-sizing: border-box;
   display: grid; gap: var(--sheet-gap);
   background: var(--g-sheet); border: 1px solid var(--g-edge); border-radius: var(--r-card);
-  box-shadow: var(--sh-card); touch-action: pan-y;
-  animation: sheet-in var(--d-sheet) var(--ease-reveal) both;
+  box-shadow: var(--sh-card); touch-action: pan-y;   /* fades with its veil; no transform (manual §22) */
 }
+/* History's day card: the same sheet, centred (manual §28.10) */
+.sheet-veil--card { align-items: center; padding-top: calc(var(--safe-t) + var(--sheet-inset)); }
+.day-card { display: grid; gap: var(--sp-3); }
+.day-card-group { display: grid; }
+.day-card-head {
+  margin: 0 0 var(--sp-1);
+  font-family: var(--font-head); font-size: var(--fs-note); font-weight: var(--fw-group);
+  text-transform: uppercase; letter-spacing: var(--tr-group); line-height: 1.15; color: var(--t-primary);
+}
+.day-card-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--sp-4);
+  min-height: var(--day-card-row-h); padding: 0;
+  border-top: 1px solid var(--g-hair-soft);
+}
+.day-card-row .item-title { font-weight: var(--fw-body); font-size: var(--fs-body); color: var(--t-step); }
+.day-card-row .label { color: var(--t-secondary); overflow-wrap: anywhere; }
+
+/* sign-in: asked once per phone (DECISIONS 43) */
+.signin { background: var(--c-cream); animation: sheet-veil-in var(--d-sheet) var(--ease-reveal) both; }
+.signin-form { margin-top: var(--install-gap-steps); display: grid; gap: var(--sp-6); }
+.signin-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.signin-actions .btn { min-height: var(--hit-min); }
 .sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-4); }
 .sheet-titles { display: grid; min-width: 0; }
 .sheet-close, .sheet-actions .btn { min-height: var(--hit-min); }

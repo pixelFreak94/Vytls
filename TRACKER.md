@@ -2,7 +2,7 @@
 
 Current state only. When a phase is finished, collapse its tasks into the single phase line. Phases are defined in `DEV_PLAN.md` §12.
 
-**Pick up here:** 0.4.1 is live: Phases 2 to 7 done (History, Report with PDF/CSV, backup and restore). Owner checks it on the iPhone; then Phase 8's lost page and Phase 9 polish.
+**Pick up here:** 0.5.0 is built on a session branch (not yet on `main`): username sign-in, History day card, flicker fixes, 15% faster motion, double-tap zoom off. Owner merges, then checks it on the iPhone; then Phase 8's lost page and Phase 9 polish.
 
 ## Phases
 

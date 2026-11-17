@@ -67,6 +67,7 @@ js/kicks.js           movement counter and session timing
 js/alerts.js          every alert rule and the alert screen (lead model only)
 js/history.js         30-day grid and day detail
 js/report.js          doctor report, CSV, backup and restore
+js/signin.js          the one-time username (DECISIONS 43)
 js/settings.js        settings screen
 manifest.webmanifest  name, icons, colours
 sw.js                 offline cache
