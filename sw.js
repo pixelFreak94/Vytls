@@ -9,7 +9,7 @@
 // 4. The page reloads once onto the new version. Readings live in localStorage, which
 //    this file never touches; store.js upgrades their shape if needed.
 
-const VERSION = '0.6.0';
+const VERSION = '0.6.2';
 const CACHE = `vytls-${VERSION}`;
 
 const FILES = [
@@ -18,7 +18,7 @@ const FILES = [
   'manifest.webmanifest',
   'css/tokens.css', 'css/base.css', 'css/components.css', 'css/motion.css', 'css/counter.css', 'css/alerts.css', 'css/history.css', 'css/report.css',
   'js/app.js', 'js/store.js', 'js/atmosphere.js', 'js/entry.js', 'js/audio.js',
-  'js/settings.js', 'js/today.js', 'js/kicks.js', 'js/alerts.js', 'js/history.js', 'js/report.js', 'js/signin.js',
+  'js/settings.js', 'js/today.js', 'js/kicks.js', 'js/alerts.js', 'js/history.js', 'js/trends.js', 'js/report.js', 'js/signin.js',
   'fonts/sora-vf-latin.woff2', 'fonts/manrope-vf-latin.woff2', 'fonts/jetbrains-mono-vf-latin.woff2', 'fonts/bebas-neue-latin-400.woff2',
   '404.html',
   'icons/apple-touch-icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',

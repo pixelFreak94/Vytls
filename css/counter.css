@@ -37,7 +37,16 @@
 .counter-count { font-family: var(--font-display); font-weight: var(--fw-light); font-size: var(--fs-count); line-height: var(--lh-tight); letter-spacing: var(--tr-hero); }
 .counter-of { font-size: var(--fs-count-of); color: var(--t-whisper); }
 .counter-elapsed { color: var(--t-primary); opacity: var(--counter-elapsed-o); }
-.counter-times { margin-top: var(--sp-2); font-family: var(--font-mono); font-size: var(--fs-value); font-variant-numeric: tabular-nums; color: var(--t-primary); display: flex; justify-content: center; gap: var(--sp-4); }
+.counter-times {
+  list-style: none; margin: var(--sp-2) 0 0; padding: 0; min-height: var(--counter-times-h);
+  font-family: var(--font-mono); font-size: var(--fs-value); font-variant-numeric: tabular-nums; color: var(--t-primary);
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-1) var(--sp-3);
+}
+.counter-hint { color: var(--t-secondary); }
+/* each tap's time slides in beside the last (owner, 0.6.2) */
+.counter-time.is-new { animation: counter-time-in var(--d-state) var(--ease-out) both; }
+@keyframes counter-time-in { from { opacity: 0; transform: translateY(var(--sp-2)); } to { opacity: 1; transform: none; } }
+.counter-note--times { font-family: var(--font-mono); font-size: var(--fs-value); font-variant-numeric: tabular-nums; }
 .counter-tap {
   position: relative; flex: 1 1 auto; min-height: var(--counter-tap-min); overflow: hidden;
   border: 1px solid var(--counter-tap-edge); border-radius: var(--tap-radius);
@@ -83,7 +92,9 @@
   .counter-tap, .counter-tap::after { animation: none; }
   .counter-tap, .counter-node, .counter-pill { transition: none; }
   .counter-bloom { animation: none; display: none; }
+  .counter-time.is-new { animation: none; }
 }
 
-/* leave and end early sit together, top right (0.6.0) */
-.counter-actions { display: flex; gap: var(--counter-gap); }
+/* leave and end early sit at the bottom, in reach of the thumb (owner, 0.6.1) */
+.counter-actions { display: flex; justify-content: center; gap: var(--counter-gap); }
+.counter-pill[hidden] { display: none; }

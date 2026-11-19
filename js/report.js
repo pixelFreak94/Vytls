@@ -87,6 +87,7 @@ function dayFacts(key) {
       move: moveText(x?.kicks),
       outcome: x?.kicks?.startedAt ? (x.kicks.endedAt ? x.kicks.outcome : 'ended-early') : null,
       dish: store.foodName(x?.dish),
+      note: [x?.note, x?.sugar?.note].filter(Boolean).join('; '),
       foods: (x?.foods ?? []).map(store.foodName).filter(Boolean),
     };
   }
@@ -94,7 +95,7 @@ function dayFacts(key) {
 }
 
 /** A meal's foods as one line; the dish name leads ("Chicken biryani: Rice; Chicken"). */
-const foodText = (m) => [m.dish, m.foods.join('; ')].filter(Boolean).join(': ');
+const foodText = (m) => [[m.dish, m.foods.join('; ')].filter(Boolean).join(': '), m.note ? `(note: ${m.note})` : ''].filter(Boolean).join(' ');
 
 const alertsIn = (keys) => {
   const set = new Set(keys);

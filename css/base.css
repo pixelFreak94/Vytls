@@ -14,6 +14,7 @@
 * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 html, body {
+  background: var(--c-cream);   /* never white, even for a frame */
   height: var(--app-h);
   margin: 0;
   overflow: hidden;
@@ -193,6 +194,8 @@ button { background: none; border: 0; padding: 0; cursor: pointer; }
 }
 
 .entry {
+  /* painted from the first frame, before entry.js fills it, so nothing shows through at launch */
+  background: var(--entry-field);
   position: fixed; top: 0; left: 0; width: 100%; height: var(--app-h);
   z-index: var(--z-viewer); overflow: hidden;
   touch-action: none; -webkit-touch-callout: none;

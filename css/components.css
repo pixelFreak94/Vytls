@@ -531,3 +531,45 @@ button.day-card-row {
 }
 button.day-card-row:active { background: var(--raise-press); }
 button.day-card-row:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
+
+/* History's day card as a calm table (owner, 0.6.1): part · meal · sugar · moves */
+.dc-row {
+  display: grid; grid-template-columns: var(--dc-part-w) repeat(3, minmax(0, 1fr));
+  align-items: center; column-gap: var(--sp-2); padding: var(--sp-1) 0;
+  border-top: 1px solid var(--g-hair-soft);
+}
+.dc-row .day-card-head { margin: 0; font-size: var(--fs-item); }   /* Bebas, quieter than Today's group headings */
+.dc-cell.hg-expired { font-size: var(--fs-value); }
+.dc-cols { padding: 0 0 var(--sp-2); border-top: 0; font-family: var(--font-mono); font-size: var(--fs-hg-head); letter-spacing: var(--tr-label); color: var(--t-secondary); text-align: center; }
+.dc-cell {
+  display: flex; align-items: center; justify-content: center; min-height: var(--dc-cell-h); margin: 0;
+  border: 0; border-radius: var(--hg-chip-r); background: none; padding: 0 var(--sp-1);
+  font-family: var(--font-mono); font-size: var(--fs-value); font-variant-numeric: tabular-nums;
+  color: var(--t-whisper); white-space: nowrap; -webkit-tap-highlight-color: transparent;
+}
+.dc-cell.is-tappable { cursor: pointer; }
+.dc-cell.is-tappable:active { background: var(--raise-press); }
+.dc-cell:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
+.dc-settled { color: var(--t-primary); }
+.dc-cell.hg-above { background: var(--st-above); color: var(--t-primary); }
+.dc-cell.hg-reached { background: var(--st-settled-tint); color: var(--t-primary); }
+.dc-cell.hg-expired { background: var(--st-alert); color: var(--st-alert-ink); }
+.dc-unfinished { color: var(--t-secondary); }
+.dc-add { background: var(--food-chip-bg); color: var(--t-primary); }
+.dc-foods { margin: 0 0 var(--sp-2) var(--dc-part-w); padding-left: var(--sp-2); font-size: var(--fs-body-s); color: var(--t-secondary); overflow-wrap: anywhere; }
+
+/* ---- 0.6.2: same as yesterday, notes, settling values, the seventh entry ---- */
+.same-as { display: grid; justify-items: start; gap: var(--sp-1); text-align: left; min-height: var(--hit-min); padding-block: var(--sp-2); }
+.same-as-what { font-size: var(--fs-body-s); color: var(--t-secondary); overflow-wrap: anywhere; }
+.dc-note { font-style: italic; }
+.sheet-veil--card .dc-cell { animation: dc-in var(--d-state) var(--ease-out) both; animation-delay: calc(var(--i, 0) * var(--d-reveal-step)); }
+@keyframes dc-in { from { opacity: 0; transform: scale(var(--dc-in-scale)); } to { opacity: 1; transform: none; } }
+.node-close .node-dot { position: relative; }
+.node-close.is-arriving .node-dot::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: var(--bloom-core); animation: day-glow var(--glow-ms) var(--ease-out) both;
+}
+@keyframes day-glow { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(var(--day-glow-scale)); } }
+@media (prefers-reduced-motion: reduce) {
+  .sheet-veil--card .dc-cell, .node-close.is-arriving .node-dot::after { animation: none; }
+}

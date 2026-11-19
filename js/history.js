@@ -3,6 +3,7 @@
 // Thresholds are read from settings on every render. Words state; they never judge (manual §28.11).
 
 import * as store from './store.js';
+import { renderTrends } from './trends.js';
 
 const el = (tag, props = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -148,5 +149,6 @@ export function renderHistory(body, { openDay } = {}) {
     el('section', { class: 'hg-section' },
       el('h2', { class: 'hg-sec-title', text: 'foods before readings above target' }),
       el('p', { class: 'hg-sec-note', text: 'times in a meal before an above-target reading, of times eaten' }),
-      list));
+      list),
+    renderTrends(keys));
 }

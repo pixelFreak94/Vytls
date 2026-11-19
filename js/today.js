@@ -231,6 +231,8 @@ export function renderToday(body) {
   if (complete) closeDot.append(el('span', { class: 'ball' }));
   const closeLi = el('li', { class: 'node-close reveal-item' }, closeDot);
   if (complete) closeLi.append(el('p', { class: 'close-line body', text: 'rest.' }));
+  // the moment the seventh entry lands, a soft glow opens on the day's last node (owner, 0.6.2)
+  if (complete && hadLifeline && lastBall.key && lastBall.key !== 'rest') closeLi.classList.add('is-arriving');
   rows.push({ li: closeLi, nodeId: 'rest', hasDot: true });
 
   const dockIndex = complete ? rows.length - 1 : rows.findIndex((r) => r.nodeId === dock.id);
@@ -378,36 +380,78 @@ export function openDaySheet(key, { returnTo } = {}) {
   const date = new Date(y, m - 1, d);
   const pos = store.dayPosition(key);
   const { form, veil } = frame({
-    eyebrow: [date.toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase(),
-      pos ? `day ${pos.day} of ${pos.lengthDays}` : null, `${countLogged(nodes)} of 7 logged`].filter(Boolean).join(' · '),
+    eyebrow: [date.toLocaleDateString('en-GB', { weekday: 'short' }).toLowerCase(),
+      pos ? `day ${pos.day}` : null, `${countLogged(nodes)} of 7 logged`].filter(Boolean).join(' · '),
     title: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
     nodeId: returnTo,
   });
   veil.classList.add('sheet-veil--card');
 
   const again = () => openDaySheet(key, { returnTo });
-  const row = (n) => {
-    const kids = [el('span', { class: 'node-text' },
-      el('span', { class: 'item-title', text: TITLES[n.kind] }),
-      el('span', { class: 'label label--legible', text: labelFor(n) })),
-    valueChip(n)];
-    if (!store.canLog() || !canTap(n, key)) return el('div', { class: 'day-card-row' }, ...kids);
-    const b = el('button', { class: 'day-card-row is-tappable', type: 'button' }, ...kids);
-    b.addEventListener('click', () => {
-      // the counter is a full screen of its own: the card closes first
-      if (n.kind === 'kicks' && n.rec?.outcome !== 'ended-early') { closeSheet(); openFor(n, key); }
-      else openFor(n, key, again);
-    });
+  const goal = store.get().settings.kicks.goal;
+  const open = (n) => {
+    // the counter is a full screen of its own: the card closes first
+    if (n.kind === 'kicks' && n.rec?.outcome !== 'ended-early') { closeSheet(); openFor(n, key); }
+    else openFor(n, key, again);
+  };
+
+  // A calm table (owner, 0.6.1): one row per part of the day, three cells that mirror the History
+  // grid, the dish and foods on one quiet line beneath. A cell opens its step when it can.
+  const cell = (n, part) => {
+    let text = '–', cls = '';
+    if (n.kind === 'fasting' || n.kind === 'sugar') {
+      if (n.done) { const above = sugarFlag(n.kind, n.rec.value) === 'above'; text = `${above ? '▲ ' : ''}${n.rec.value}`; cls = above ? 'hg-above' : 'dc-settled'; }
+    } else if (n.kind === 'meal') {
+      if (n.done) { text = hhmm(n.rec.finishedAt); cls = 'dc-settled'; }
+    } else if (n.rec?.startedAt) {
+      const k = n.rec;
+      if (!k.endedAt) { text = `${k.taps.length}/${goal}…`; }
+      else if (k.outcome === 'reached') { text = `${Math.max(1, Math.round((k.endedAt - k.startedAt) / 60000))} min`; cls = 'hg-reached'; }
+      else if (k.outcome === 'window-expired') { text = `${k.taps.length}/${goal}`; cls = 'hg-expired'; }
+      else { text = `${k.taps.length}/${goal}`; cls = 'dc-unfinished'; }
+    }
+    const can = store.canLog() && canTap(n, key);
+    if (can && text === '–') { text = '+'; cls = 'dc-add'; }
+    const label = `${part} ${TITLES[n.kind]}: ${labelFor(n)}`;
+    if (!can) return el('span', { class: `dc-cell ${cls}`, 'aria-label': label, text });
+    const b = el('button', { class: `dc-cell is-tappable ${cls}`, type: 'button', 'aria-label': label, text });
+    b.addEventListener('click', () => open(n));
     return b;
   };
-  const group = (name, items) => el('section', { class: 'day-card-group' },
-    el('h3', { class: 'day-card-head', text: name }), ...items.map(row));
-  form.append(el('div', { class: 'day-card' },
-    group('fasting', [nodes[0]]),
-    ...store.MEALS.map((meal, i) => group(meal, nodes.slice(1 + i * 3, 4 + i * 3)))));
+  const blank = () => el('span', { class: 'dc-cell dc-blank', 'aria-hidden': 'true' });
+  const rows = [el('div', { class: 'dc-row dc-cols', 'aria-hidden': 'true' },
+    el('span'), el('span', { text: 'meal' }), el('span', { text: 'sugar' }), el('span', { text: 'moves' }))];
+  rows.push(el('div', { class: 'dc-row' }, el('h3', { class: 'day-card-head', text: 'fasting' }), blank(), cell(nodes[0], 'fasting'), blank()));
+  if (nodes[0].rec?.note) rows.push(el('p', { class: 'dc-foods dc-note', text: nodes[0].rec.note }));
+  store.MEALS.forEach((meal, i) => {
+    const [mealN, kicksN, sugarN] = nodes.slice(1 + i * 3, 4 + i * 3);
+    rows.push(el('div', { class: 'dc-row' }, el('h3', { class: 'day-card-head', text: meal }),
+      cell(mealN, meal), cell(sugarN, meal), cell(kicksN, meal)));
+    const m = mealN.rec;
+    const what = [store.foodName(m.dish), (m.foods ?? []).map(store.foodName).join(', ')].filter(Boolean).join(': ');
+    if (what) rows.push(el('p', { class: 'dc-foods', text: what }));
+    for (const note of [m.note, sugarN.rec?.note]) if (note) rows.push(el('p', { class: 'dc-foods dc-note', text: note }));
+  });
+  // the values settle in one after another (owner, 0.6.2)
+  rows.flatMap((r) => [...r.querySelectorAll('.dc-cell:not(.dc-blank)')]).forEach((c, i) => c.style.setProperty('--i', i));
+  form.append(el('div', { class: 'day-card' }, ...rows));
 
   form.addEventListener('submit', (e) => e.preventDefault());
   veil.querySelector('.sheet-close')?.focus({ preventScroll: true });
+}
+
+/** An optional short note ("walked after lunch"). Kept on the phone like everything else. */
+function noteField(value) {
+  const input = el('input', {
+    class: 'field-input', id: 'sheet-note', name: 'note', type: 'text', enterkeyhint: 'done', maxlength: '140',
+    placeholder: 'optional', autocomplete: 'off', autocapitalize: 'sentences', autocorrect: 'on', spellcheck: 'true',
+  });
+  input.value = value ?? '';
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
+  const wrap = el('div', { class: 'field' },
+    el('label', { class: 'field-label', for: 'sheet-note', text: 'note' }),
+    el('div', { class: 'field-row' }, input));
+  return { wrap, input, value: () => input.value.trim().replace(/\s+/g, ' ') };
 }
 
 function timeField(ts) {
@@ -459,7 +503,8 @@ function openReadingSheet(n, key, back) {
   }
 
   const time = timeField(rec?.at);
-  form.append(time.wrap);
+  const memo = noteField(rec?.note);
+  form.append(time.wrap, memo.wrap);
 
   // actions: save (and delete when editing); a typo guard swaps them for a confirm
   const save = el('button', { class: 'btn btn-filled', type: 'submit', text: 'save' });
@@ -482,8 +527,9 @@ function openReadingSheet(n, key, back) {
     if (!time.input.value) { time.error('Pick a time.'); return; }
     const at = stampFor(key, time.input.value);
     store.updateDay(key, (d) => {
-      if (isFasting) d.fasting = { value, at, fasted8h: fasted };
-      else d.meals[n.meal].sugar = { value, at };
+      const extra = memo.value() ? { note: memo.value() } : {};
+      if (isFasting) d.fasting = { value, at, fasted8h: fasted, ...extra };
+      else d.meals[n.meal].sugar = { value, at, ...extra };
     });
     closeSheet(n.id);
   };
@@ -617,7 +663,9 @@ function dishField(key, meal, onPick) {
   input.addEventListener('change', commit);
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); input.blur(); } });
   paint();
-  return { wrap, commit };
+  /** Set the name without bringing back a saved dish's ingredients (used by "same as yesterday"). */
+  const set = (name) => { input.value = store.foodName(name); store.updateDay(key, (d) => { d.meals[meal].dish = input.value; }); paint(); };
+  return { wrap, commit, set };
 }
 
 function openMealSheet(n, key, back) {
@@ -630,7 +678,24 @@ function openMealSheet(n, key, back) {
   const dish = dishField(key, n.meal, (saved) => {
     for (const f of saved.foods) foods.add(f);
   });
-  form.append(time.wrap, dish.wrap, foods.wrap);
+  const memo = noteField(n.rec.note);
+  memo.input.addEventListener('change', () => store.updateDay(key, (d) => { d.meals[n.meal].note = memo.value(); }));
+
+  // one tap repeats yesterday's dish and ingredients for this meal, while this one is still empty
+  const prev = store.getDay(store.addDays(key, -1)).meals[n.meal];
+  const cur = store.getDay(key).meals[n.meal];
+  const prevWhat = [store.foodName(prev.dish), (prev.foods ?? []).map(store.foodName).join(', ')].filter(Boolean).join(': ');
+  if (prevWhat && !cur.dish && !(cur.foods ?? []).length) {
+    const same = el('button', { class: 'btn btn-ghost same-as', type: 'button' },
+      el('span', { text: 'same as yesterday' }), el('span', { class: 'same-as-what', text: prevWhat }));
+    same.addEventListener('click', () => {
+      if (prev.dish) dish.set(prev.dish);
+      for (const f of prev.foods ?? []) foods.add(f);
+      same.remove();
+    });
+    form.append(same);
+  }
+  form.append(time.wrap, dish.wrap, foods.wrap, memo.wrap);
 
   const save = el('button', { class: 'btn btn-filled', type: 'submit', text: editing ? 'save' : 'meal finished' });
   const clear = editing ? el('button', { class: 'btn btn-ghost', type: 'button', text: 'clear' }) : null;
@@ -641,7 +706,7 @@ function openMealSheet(n, key, back) {
     if (!time.input.value) { time.error('Pick a time.'); return; }
     dish.commit();
     const at = stampFor(key, time.input.value);
-    store.updateDay(key, (d) => { d.meals[n.meal].finishedAt = at; });
+    store.updateDay(key, (d) => { d.meals[n.meal].finishedAt = at; d.meals[n.meal].note = memo.value(); });
     // remember the dish with this meal's ingredients, so typing its name brings them back
     const m = store.getDay(key).meals[n.meal];
     if (m.dish && m.foods.length) store.noteDish(m.dish, m.foods);
