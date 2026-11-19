@@ -377,6 +377,7 @@
   --counter-pulse-reach: 18px;
   --counter-pulse-ink: rgba(199, 123, 92, 0.38);
   --counter-elapsed-o: 0.6;
+  --counter-times-h: 40px;   /* room for two lines of tap times, so the tap surface never jumps */
   --fs-count-of: 32px;      /* "of 5": half the count, so the number leads */
   --counter-node-s: 12px;   /* progress dots, quieter than the count */
   --counter-pad:        var(--sp-5);
@@ -386,7 +387,7 @@
   --counter-spine-h:    2px;
   --counter-pill-h:     var(--hit-min);
   --counter-pill-pad:   var(--sp-6);
-  --counter-tap-min:    55vh;
+  --counter-tap-min:    38vh;   /* grows to fill; low enough that title, times and controls all fit on a small iPhone */
   --counter-tap-fill:   linear-gradient(160deg, rgba(255, 253, 249, 0.92), rgba(247, 241, 231, 0.85));
   --counter-tap-edge:   rgba(255, 255, 255, 0.9);
   --counter-tap-shadow: 0 10px 30px rgba(60, 50, 40, 0.14);
@@ -424,6 +425,8 @@
   --day-card-row-h: 36px;
   --dc-part-w: 76px;                /* day card: the part-of-day column */
   --dc-cell-h: var(--hit-min);      /* day card: a value cell is a full tap target */
+  --dc-in-scale: 0.85;              /* day card: values settle in from this size */
+  --day-glow-scale: 6;              /* the soft glow on the seventh entry */
 }
 
 :root {
@@ -443,4 +446,21 @@
   --rp-preview-pad-y: var(--sp-2);
   --rp-preview-pad-x: var(--sp-3);
   --rp-field-min: 140px;
+
+  /* ---- trends (History) ---- */
+  --tr-card-gap:    var(--sp-4);
+  --tr-line-w:      1.5px;
+  --tr-target-w:    1px;
+  --tr-target-dash: 4 3;
+  --tr-grid-w:      1px;
+  --tr-pt-stroke:   1.5px;
+  --tr-fs-axis:     var(--fs-hg-head);
+  --tr-halo-w:      3px;
+  --tr-sw-size:     8px;
+  --tr-d-line:      var(--d-reveal);
+  --tr-d-pt:        var(--d-state);
+  --tr-d-step:      var(--d-reveal-step);
+  --tr-d-lag:       var(--d-quick);
+  --tr-pt-from:     0.4;
+  --tr-ease:        var(--ease-reveal);
 }

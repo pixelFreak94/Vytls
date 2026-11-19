@@ -1,6 +1,6 @@
 // kicks.js — the movement counter (DEV_PLAN §5; manual §28.6, §28.8).
 // State lives in the day record (kicks: {startedAt, taps, endedAt, outcome}). The screen only
-// displays it: elapsed and remaining time are recomputed from startedAt every second, never counted.
+// displays it. No clock is shown; the hidden window is worked out from startedAt (the first tap), never counted.
 // Alert rules are NOT here; they attach through onSessionEnd (Phase 5, lead).
 
 import * as store from './store.js';
@@ -18,7 +18,7 @@ const el = (tag, props = {}, ...kids) => {
   return n;
 };
 const pad = (n) => String(n).padStart(2, '0');
-const mmss = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)); return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`; };
+const hhmm = (ts) => { const d = new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const endHooks = [];
@@ -108,14 +108,16 @@ function mount(key, meal, pending) {
   const title = el('div', { class: 'counter-title', id: 'counter-title', text: `${meal} · movements` });
   const endBtn = el('button', { class: 'counter-pill', type: 'button', text: 'end early' });
   // leave: a started count keeps its taps and keeps running; she comes back to it from Today.
-  // Before the start nothing is saved.
+  // Before the first tap nothing is saved.
   const leaveBtn = el('button', { class: 'counter-pill', type: 'button', text: 'leave' });
   const top = el('div', { class: 'counter-top' }, title);
   const spine = el('div', { class: 'counter-spine', 'aria-hidden': 'true' });
   const count = el('div', { class: 'counter-count', 'aria-live': 'polite' });
-  const elapsed = el('span'); const left = el('span');
-  const readout = el('div', { class: 'counter-readout' }, count, el('div', { class: 'counter-times' }, elapsed, left));
-  const tap = el('button', { class: 'counter-tap', type: 'button', text: pending ? 'start counting' : 'felt a movement' });
+  // No clock on screen (owner, 0.6.2): each movement shows the time it was felt. The window still
+  // runs from the first tap, out of sight, so A1 and A2 work as before (DECISIONS 54).
+  const times = el('ol', { class: 'counter-times', 'aria-label': 'times of each movement' });
+  const readout = el('div', { class: 'counter-readout' }, count, times);
+  const tap = el('button', { class: 'counter-tap', type: 'button', text: 'felt a movement' });
   const undo = el('button', { class: 'counter-pill', type: 'button', text: 'undo last tap' });
   // the controls sit at the bottom, in reach of the thumb (owner, 0.6.1); a confirm takes their place
   const foot = el('div', { class: 'counter-actions' }, leaveBtn, endBtn);
@@ -131,10 +133,20 @@ function mount(key, meal, pending) {
     const g = goal();
     spine.replaceChildren(...Array.from({ length: g }, () => el('span', { class: 'counter-node' })));
     count.replaceChildren(el('span', { class: 'counter-n', text: '0' }), el('span', { class: 'counter-of', text: ` of ${g}` }));
-    elapsed.textContent = 'not started';
-    elapsed.className = 'counter-elapsed';
-    left.textContent = `${settings().windowMinutes} min window`;
+    drawTimes([]);
     undo.hidden = true; endBtn.hidden = true;
+  };
+  let shownTaps = -1;   // -1: nothing painted yet, so nothing slides in on the first paint
+  const drawTimes = (taps) => {
+    if (!taps.length) {
+      if (shownTaps !== 0) times.replaceChildren(el('li', { class: 'counter-hint', text: 'tap each time you feel one' }));
+      shownTaps = 0;
+      return;
+    }
+    if (taps.length === shownTaps) return;
+    const fresh = shownTaps >= 0 ? shownTaps : taps.length;
+    times.replaceChildren(...taps.map((t, i) => el('li', { class: `counter-time${i >= fresh ? ' is-new' : ''}`, text: hhmm(t) })));
+    shownTaps = taps.length;
   };
 
   const draw = () => {
@@ -150,10 +162,7 @@ function mount(key, meal, pending) {
     [...spine.children].forEach((node, i) => node.classList.toggle('is-lit', i < n));
     // the number is the one thing to read; "of 5" supports it
     count.replaceChildren(el('span', { class: 'counter-n', text: String(n) }), el('span', { class: 'counter-of', text: ` of ${g}` }));
-    const now = Date.now();
-    elapsed.textContent = `${mmss(now - k.startedAt)} elapsed`;
-    left.textContent = `${mmss(k.startedAt + settings().windowMinutes * 60000 - now)} left`;
-    elapsed.className = 'counter-elapsed';
+    drawTimes(k.taps);
     undo.disabled = n === 0;
     undo.hidden = false; endBtn.hidden = v.confirming;
   };
@@ -172,7 +181,8 @@ function mount(key, meal, pending) {
       el('div', { class: 'counter-top' }, el('div', { class: 'counter-title', id: 'counter-title', text: `${meal} · movements` })),
       el('div', { class: 'counter-result' },
         el('div', { class: 'counter-count', text: `${k.taps.length} of ${g}` }),
-        el('p', { class: 'counter-note', text: reached ? `${k.taps.length} of ${g} · ${note}` : note })),
+        el('p', { class: 'counter-note', text: reached ? `${k.taps.length} of ${g} · ${note}` : note }),
+        el('p', { class: 'counter-note counter-note--times', text: k.taps.map(hhmm).join(' · ') })),
       el('div', { class: 'counter-foot' }, done), raise());
     done.focus();
   };
@@ -180,12 +190,9 @@ function mount(key, meal, pending) {
 
   tap.addEventListener('click', (e) => {
     if (v.pending) {
-      // the window starts now; a fresh count replaces an unfinished one only from here
+      // the first movement starts the count (and its hidden window); it replaces an unfinished one only now
       v.pending = false;
       store.updateDay(key, (d) => { d.meals[meal].kicks = { startedAt: Date.now(), taps: [], endedAt: null, outcome: null }; });
-      tap.textContent = 'felt a movement';
-      draw();
-      return;
     }
     const k = rec(key, meal);
     if (k.endedAt) return;

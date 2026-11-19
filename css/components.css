@@ -557,3 +557,19 @@ button.day-card-row:focus-visible { outline: var(--focus-ring-w) solid var(--foc
 .dc-unfinished { color: var(--t-secondary); }
 .dc-add { background: var(--food-chip-bg); color: var(--t-primary); }
 .dc-foods { margin: 0 0 var(--sp-2) var(--dc-part-w); padding-left: var(--sp-2); font-size: var(--fs-body-s); color: var(--t-secondary); overflow-wrap: anywhere; }
+
+/* ---- 0.6.2: same as yesterday, notes, settling values, the seventh entry ---- */
+.same-as { display: grid; justify-items: start; gap: var(--sp-1); text-align: left; min-height: var(--hit-min); padding-block: var(--sp-2); }
+.same-as-what { font-size: var(--fs-body-s); color: var(--t-secondary); overflow-wrap: anywhere; }
+.dc-note { font-style: italic; }
+.sheet-veil--card .dc-cell { animation: dc-in var(--d-state) var(--ease-out) both; animation-delay: calc(var(--i, 0) * var(--d-reveal-step)); }
+@keyframes dc-in { from { opacity: 0; transform: scale(var(--dc-in-scale)); } to { opacity: 1; transform: none; } }
+.node-close .node-dot { position: relative; }
+.node-close.is-arriving .node-dot::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: var(--bloom-core); animation: day-glow var(--glow-ms) var(--ease-out) both;
+}
+@keyframes day-glow { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(var(--day-glow-scale)); } }
+@media (prefers-reduced-motion: reduce) {
+  .sheet-veil--card .dc-cell, .node-close.is-arriving .node-dot::after { animation: none; }
+}
