@@ -86,11 +86,15 @@ function dayFacts(key) {
       sugar: x?.sugar?.value ?? null,
       move: moveText(x?.kicks),
       outcome: x?.kicks?.startedAt ? (x.kicks.endedAt ? x.kicks.outcome : 'ended-early') : null,
+      dish: store.foodName(x?.dish),
       foods: (x?.foods ?? []).map(store.foodName).filter(Boolean),
     };
   }
   return f;
 }
+
+/** A meal's foods as one line; the dish name leads ("Chicken biryani: Rice; Chicken"). */
+const foodText = (m) => [m.dish, m.foods.join('; ')].filter(Boolean).join(': ');
 
 const alertsIn = (keys) => {
   const set = new Set(keys);
@@ -136,7 +140,7 @@ function buildSheet(on, today = new Date()) {
     if (on.fasting) tr.append(el('td', { text: f.fasting == null ? DASH : `${f.fasting}${above('fasting', f.fasting) ? ' ▲' : ''}` }));
     if (on.after) for (const m of MEALS) { const v = f.meals[m].sugar; tr.append(el('td', { text: v == null ? DASH : `${v}${above('after', v) ? ' ▲' : ''}` })); }
     if (on.moves) for (const m of MEALS) tr.append(el('td', { text: f.meals[m].move ?? DASH }));
-    if (on.foods) for (const m of MEALS) tr.append(el('td', { class: 'rp-foods', text: f.meals[m].foods.join('; ') || DASH }));
+    if (on.foods) for (const m of MEALS) tr.append(el('td', { class: 'rp-foods', text: foodText(f.meals[m]) || DASH }));
     tbody.append(tr);
   }
   const anyCol = on.fasting || on.after || on.moves || on.foods;
@@ -208,7 +212,7 @@ export function buildCsv(on = state.on) {
     if (on.fasting) r.push(f.fasting ?? '', above('fasting', f.fasting) ? 'yes' : '');
     if (on.after) MEALS.forEach((m) => r.push(f.meals[m].sugar ?? '', above('after', f.meals[m].sugar) ? 'yes' : ''));
     if (on.moves) MEALS.forEach((m) => r.push(f.meals[m].move ?? ''));
-    if (on.foods) MEALS.forEach((m) => r.push(f.meals[m].foods.join('; ')));
+    if (on.foods) MEALS.forEach((m) => r.push(foodText(f.meals[m])));
     if (on.alerts) r.push(alertsIn([key]).map((a) => `${a.rule} ${stamp(a.at).slice(11)}`).join('; '));
     rows.push(r);
   }

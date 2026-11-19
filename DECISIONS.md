@@ -29,7 +29,7 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 23 | 2026-11-16 | Fonts are self-hosted in `fonts/`; no README | No requests to other sites; the project files already cover what a README would |
 | 24 | 2026-11-16 | File layout merges DEV_PLAN with manual §23.1 (DEV_PLAN §3) | Manual's design files plus one file per screen; only `store.js` saves |
 | 25 | 2026-11-16 | Alert supporting line: "If you can't reach them, go to the hospital." | Tells her what to do if the doctor doesn't answer |
-| 26 | 2026-11-16 | Back swipe is disabled on the movement counter | A stray swipe must never interrupt a count; exits are "end early" or finishing |
+| 26 | 2026-11-19 | Back swipe is disabled on the movement counter; "leave" closes it while the count keeps running (A1 unchanged) | A stray swipe must never interrupt a count; owner wants a way out without ending it |
 | 27 | 2026-11-16 | Progress reads "n of 7"; meal steps are not counted; the ball rests on the earliest open step | Owner's call |
 | 28 | 2026-11-16 | "save progress" includes merging into `main`; Claude merges the save's pull request without asking | Owner's call: the owner only tests, and does not handle merges |
 | 29 | 2026-11-16 | Auto-backup to GitHub is on hold | Conflicts with the Privacy rules (no health data in the repo, no network after loading); options put to the owner |
@@ -48,7 +48,10 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 42 | 2026-11-16 | History names the calendar month ("November 2026") with calendar dates per row and full meal names; the report shows dates as 14-Nov-26 (the CSV keeps YYYY-MM-DD for spreadsheets) | Owner's call: simpler to read |
 | 43 | 2026-11-17 | Each phone asks once for a username: "Admin" for a test phone, her email for hers (changeable in Settings). A test phone makes no backups; a backup file only restores onto a phone with the same username; the phone keeps its own username on restore | Owner's call: test phones must never overwrite her record. Nothing leaves the phone, so the Privacy rules hold |
 | 44 | 2026-11-17 | Every UI duration runs 15% faster than the manual's (overrides manual §28.2 "no faster variant"). Ambient loops and the alert's 500ms tap guard are unchanged | Owner's call |
-| 45 | 2026-11-17 | Tapping a day in History opens a read-only card over History; its one button hands the day to Today for filling gaps | Owner's call; matches manual §28.10 |
+| 45 | 2026-11-19 | Tapping a day in History opens a card over History; its steps are filled in on the card, with Today's locking rules | Owner's call: no trip back to Today |
 | 46 | 2026-11-17 | Double-tap zoom is off; pinch zoom stays. Item reveal is flat (scale), sheets fade without sliding, the History panel has no live blur | Owner's call on zoom; the rest removes flicker on iPhone and follows manual §13.4 and §22 |
 | 47 | 2026-11-17 | No doctor's answers are awaited: targets, movement goal and A2 numbers keep their defaults, editable in Settings; no low-reading flag | Owner's call |
 | 48 | 2026-11-17 | Unknown addresses show the in-world lost page, also offline (cached by `sw.js`); sheets and the sign-in fade out before they go | Manual §17.7, §13.4 |
+| 49 | 2026-11-19 | Each meal has an optional dish name; a saved dish brings back its ingredients. Data shape v2 | Owner's call |
+| 50 | 2026-11-19 | Settings lists dishes and ingredients: renaming fixes every meal; × only removes it from suggestions | Owner's call; logged meals are never changed by a delete |
+| 51 | 2026-11-19 | Only unfinished counts can be redone (count again, or clear); finished counts stay as logged | Finished counts feed A1 and A2; editing them could hide an alert (Safety rules) |

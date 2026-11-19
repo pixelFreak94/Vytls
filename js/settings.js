@@ -114,6 +114,33 @@ const group = (title, ...rows) => {
 };
 const line = (text) => el('p', { class: 'settings-line reveal-item', text });
 
+// ---- saved dishes and foods: rename (fixes it everywhere) or remove from the suggestions ----
+function nameList({ title, names, rename, forget, empty }) {
+  const box = el('div', { class: 'name-list reveal-item' });
+  const paint = () => {
+    const items = names();
+    box.replaceChildren(el('p', { class: 'field-label', text: title }),
+      items.length ? el('ul', { class: 'food-list' }, ...items.map((name) => {
+        const inp = el('input', {
+          class: 'field-input', type: 'text', 'aria-label': `rename ${name}`, autocomplete: 'off',
+          autocapitalize: 'sentences', autocorrect: 'on', spellcheck: 'true', enterkeyhint: 'done',
+        });
+        inp.value = name;
+        inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') inp.blur(); });
+        inp.addEventListener('change', () => {
+          const to = store.foodName(inp.value);
+          if (!to) { inp.value = name; return; }
+          if (to !== name) { rename(name, to); paint(); }
+        });
+        const rm = el('button', { class: 'food-remove', type: 'button', 'aria-label': `remove ${name}`, text: '×' });
+        rm.addEventListener('click', () => { forget(name); paint(); });
+        return el('li', { class: 'food-item name-item' }, inp, rm);
+      })) : el('p', { class: 'settings-line', text: empty }));
+  };
+  paint();
+  return box;
+}
+
 export function renderSettings(bodyEl) {
   // 01 — doctor
   const phoneField = field({
@@ -156,7 +183,19 @@ export function renderSettings(bodyEl) {
         path: 'sound', name: 'sound', onLabel: 'sound · on', offLabel: 'sound · off',
         onChange: (on) => (on ? enable() : disable()),
       })),
-    group('07 — this phone',
+    group('07 — dishes and foods',
+      nameList({
+        title: 'dishes', empty: 'none yet. a dish is saved when a meal with a name is finished.',
+        names: () => store.get().dishes.map((x) => x.name),
+        rename: store.renameDish, forget: store.forgetDish,
+      }),
+      nameList({
+        title: 'ingredients', empty: 'none yet.',
+        names: () => [...new Set(store.get().foodHistory.map(store.foodName))],
+        rename: store.renameFood, forget: store.forgetFood,
+      }),
+      line('Renaming fixes it in every meal. × takes it out of the suggestions; meals already logged keep it.')),
+    group('08 — this phone',
       line(store.isTestDevice() ? `signed in as ${store.account()} · test phone, backups off` : `signed in as ${store.account()}`),
       changeName),
     el('p', { class: 'label settings-foot reveal-item', text: `vytls · ${VERSION}` }),

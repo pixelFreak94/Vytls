@@ -518,3 +518,16 @@ button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-r
 }
 .food-chip:focus-visible, .food-remove:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 .node[data-kind="meal"] .node-text .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- dishes and foods in Settings (0.6.0) ---- */
+.name-list { display: grid; gap: var(--food-gap); }
+.name-item { gap: var(--sp-3); padding: var(--sp-1) 0; }
+.name-item .field-input { flex: 1 1 auto; min-width: 0; min-height: var(--hit-min); }
+
+/* ---- History's day card: steps open in place (0.6.0) ---- */
+button.day-card-row {
+  width: 100%; border: 0; background: none; font: inherit; color: inherit; text-align: left;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: var(--hg-chip-r);
+}
+button.day-card-row:active { background: var(--raise-press); }
+button.day-card-row:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }

@@ -4,7 +4,7 @@
 
 const KEY = 'vytls';
 const CORRUPT_KEY = 'vytls.unreadable';   // a copy of data that would not parse, never deleted by the app
-export const DATA_VERSION = 1;
+export const DATA_VERSION = 2;
 export const MEALS = ['breakfast', 'lunch', 'dinner'];
 
 function defaults() {
@@ -25,6 +25,7 @@ function defaults() {
     },
     days: {},
     foodHistory: [],
+    dishes: [],                                       // [{ name, foods }], most used first: a dish name brings back its ingredients
     alerts: [],
   };
 }
@@ -44,7 +45,14 @@ function fillMissing(target, base) {
 
 // Upgrades from older shapes go here, one step per version. Never change the shape without one.
 const MIGRATIONS = {
-  // 1: (d) => { ...; d.version = 2; return d; },
+  // 2: every meal gets a dish name (empty until she types one)
+  1: (d) => {
+    for (const day of Object.values(d.days ?? {})) {
+      for (const meal of MEALS) { const m = day?.meals?.[meal]; if (m && m.dish === undefined) m.dish = ''; }
+    }
+    d.version = 2;
+    return d;
+  },
 };
 
 function migrate(d) {
@@ -162,7 +170,7 @@ export function monthKeys(month) {
 }
 
 function emptyDay() {
-  const meal = () => ({ foods: [], finishedAt: null, sugar: null, kicks: null });
+  const meal = () => ({ dish: '', foods: [], finishedAt: null, sugar: null, kicks: null });
   return { fasting: null, meals: { breakfast: meal(), lunch: meal(), dinner: meal() } };
 }
 
@@ -190,19 +198,76 @@ export function runningSession() {
 
 // ---- foods ------------------------------------------------------------
 
-/** Remember a food: front of foodHistory (most used first), newest spelling kept, capped at 200. */
 /** A food as shown and saved: one capital letter, the rest lowercase ("chicken BIRYANI" → "Chicken biryani"). */
 export function foodName(name) {
   const f = String(name ?? '').trim().replace(/\s+/g, ' ');
   return f ? f[0].toUpperCase() + f.slice(1).toLowerCase() : '';
 }
 
+/** Remember a food: front of foodHistory (most used first), newest spelling kept, capped at 200. */
 export function noteFood(name) {
   const f = foodName(name);
   if (!f) return false;
   return update((d) => {
     d.foodHistory = [f, ...d.foodHistory.filter((x) => x.toLowerCase() !== f.toLowerCase())].slice(0, 200);
   });
+}
+
+const same = (a, b) => foodName(a).toLowerCase() === foodName(b).toLowerCase();
+
+/** Rename a food everywhere: suggestions, dishes and every meal it is in (a typo fix). Merges into an existing name. */
+export function renameFood(from, to) {
+  const t = foodName(to);
+  if (!t) return false;
+  const fix = (list) => list.reduce((out, x) => {
+    const y = same(x, from) ? t : x;
+    if (!out.some((o) => same(o, y))) out.push(y);
+    return out;
+  }, []);
+  return update((d) => {
+    d.foodHistory = fix(d.foodHistory);
+    for (const dish of d.dishes) dish.foods = fix(dish.foods);
+    for (const day of Object.values(d.days)) for (const meal of MEALS) { const m = day.meals?.[meal]; if (m?.foods) m.foods = fix(m.foods); }
+  });
+}
+
+/** Take a food out of the suggestions and the saved dishes. Meals already logged keep it. */
+export function forgetFood(name) {
+  return update((d) => {
+    d.foodHistory = d.foodHistory.filter((x) => !same(x, name));
+    for (const dish of d.dishes) dish.foods = dish.foods.filter((x) => !same(x, name));
+  });
+}
+
+/** A saved dish by name, or null. */
+export function findDish(name) {
+  return name ? data.dishes.find((x) => same(x.name, name)) ?? null : null;
+}
+
+/** Remember a dish with its ingredients, at the front (most used first), capped at 100. */
+export function noteDish(name, foods) {
+  const n = foodName(name);
+  if (!n) return false;
+  return update((d) => {
+    d.dishes = [{ name: n, foods: [...foods] }, ...d.dishes.filter((x) => !same(x.name, n))].slice(0, 100);
+  });
+}
+
+/** Rename a dish everywhere: the saved list and every meal that carries it. */
+export function renameDish(from, to) {
+  const t = foodName(to);
+  if (!t) return false;
+  return update((d) => {
+    const keep = d.dishes.find((x) => same(x.name, from));
+    d.dishes = d.dishes.filter((x) => !same(x.name, from) && !same(x.name, t));
+    if (keep) d.dishes.unshift({ name: t, foods: keep.foods });
+    for (const day of Object.values(d.days)) for (const meal of MEALS) { const m = day.meals?.[meal]; if (m?.dish && same(m.dish, from)) m.dish = t; }
+  });
+}
+
+/** Take a dish out of the saved list. Meals already logged keep their name. */
+export function forgetDish(name) {
+  return update((d) => { d.dishes = d.dishes.filter((x) => !same(x.name, name)); });
 }
 
 // ---- settings ---------------------------------------------------------
