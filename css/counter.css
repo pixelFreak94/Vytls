@@ -85,5 +85,6 @@
   .counter-bloom { animation: none; display: none; }
 }
 
-/* leave and end early sit together, top right (0.6.0) */
-.counter-actions { display: flex; gap: var(--counter-gap); }
+/* leave and end early sit at the bottom, in reach of the thumb (owner, 0.6.1) */
+.counter-actions { display: flex; justify-content: center; gap: var(--counter-gap); }
+.counter-pill[hidden] { display: none; }

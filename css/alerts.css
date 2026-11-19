@@ -37,14 +37,20 @@
 .alert-raise:active { background: var(--raise-press); }
 .alert-raise:focus-visible { outline: var(--focus-ring-w) solid var(--st-alert); outline-offset: var(--focus-offset); }
 
-/* Today: pinned above the nav */
+/* Today: a small red circle, pinned above the nav at the right of the column (owner, 0.6.1) */
+.alert-raise--round {
+  width: var(--raise-round); min-height: 0; height: var(--raise-round); padding: 0;
+  border-radius: 50%; box-shadow: var(--sh-lip);
+}
 .raise-dock {
   position: fixed; left: 0; right: 0; margin-inline: auto; z-index: var(--z-nav);
   width: calc(100% - 2 * var(--alert-pad)); max-width: var(--col-max);
-  bottom: var(--raise-bottom);
+  bottom: var(--raise-bottom); display: flex; justify-content: flex-end; pointer-events: none;
 }
+.raise-dock .alert-raise { pointer-events: auto; }
+.raise-dock[hidden] { display: none; }
 html:not([data-room="today"]) .raise-dock, html[data-entered="false"] .raise-dock { display: none; }
-.today { padding-bottom: calc(var(--alert-raise-h) + var(--sp-5)); }
+.today { padding-bottom: calc(var(--raise-round) + var(--sp-5)); }
 
 /* on the counter */
 .counter-raise { flex: none; }

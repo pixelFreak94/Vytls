@@ -121,6 +121,7 @@ icons/                app icons
 Design: manual §28.6.
 
 - Full-screen, one very large "Felt a movement" button, the count ("3 of 5"), time since start, and an undo for a mistaken tap.
+- The counter opens ready; the window starts when she taps "start counting" (DECISIONS 52). Nothing is saved before that.
 - The session survives closing the app: on reopening, elapsed time is worked out from `startedAt`.
 - Ends when the 5th tap lands (outcome `reached`, time taken is saved) or when the window passes (outcome `window-expired`).
 - "End early" asks for confirmation and saves outcome `ended-early`. An early end with fewer than 5 is not counted as a completed session, is shown as incomplete in History, and triggers A4 (§6).
@@ -140,7 +141,7 @@ Triggers:
 |---|---|---|
 | A1 | Goal not reached | A session's window passes with fewer than 5 taps. Fires when the window ends if the app is open, otherwise the moment the app is next opened. |
 | A2 | Slower than her usual | A session reaches 5, but took more than twice her median time over her last 7 completed sessions, and more than 15 minutes longer than that median. Needs at least 5 completed sessions before it can fire. |
-| A3 | She notices it herself | A permanent "Baby moving less than usual?" button on Today and on the counter opens the alert screen directly. |
+| A3 | She notices it herself | A permanent "Baby moving less than usual?" control on Today (a small red circle, DECISIONS 53) and on the counter (a full-width pill) opens the alert screen directly. |
 | A4 | Ended early below the goal | Ending a session early with fewer than 5 taps asks "Is the baby moving less than usual?". Yes opens the alert screen; No closes the session as incomplete. |
 
 Notes:

@@ -226,6 +226,7 @@
   /* ---- Vytls sizes ---- */
   --alert-call-h:  64px;
   --alert-raise-h: 52px;
+  --raise-round: var(--hit-min);    /* the raise control on Today: a 44px circle (owner, 0.6.1) */
   --alert-gap:     32px;
   --tap-radius:    28px;
   --bloom-size:    48px;
@@ -421,6 +422,8 @@
   --hg-sec-gap:     var(--sp-7);
   --hg-fill:        rgba(255, 253, 249, 0.74);   /* baked frost: no live blur on a panel that scrolls (manual §12.4) */
   --day-card-row-h: 36px;
+  --dc-part-w: 76px;                /* day card: the part-of-day column */
+  --dc-cell-h: var(--hit-min);      /* day card: a value cell is a full tap target */
 }
 
 :root {

@@ -49,20 +49,22 @@ function checkWindow(key, meal) {
   return finish(key, meal, end, 'window-expired');
 }
 
-/** Start (or resume) a session. Returns false if a different session is running.
- *  An unfinished count (ended early) can be counted again: opts.again replaces it with a fresh one. */
+/** Open the counter for a step. A new count does not start by itself: the screen opens ready, and
+ *  the window starts when she taps "start" (owner, 0.6.1). A running count reopens as it is.
+ *  Returns false if a different session is running. opts.again: an unfinished count (ended early)
+ *  can be counted again; the fresh count replaces it only once it starts. */
 export function openCounter(key, meal, { again = false } = {}) {
   if (view) return view.key === key && view.meal === meal;
   const running = store.runningSession();
   if (running && !(running.key === key && running.meal === meal)) return false;
-  if (!running) {
-    const prev = rec(key, meal);
-    if (prev?.endedAt && !(again && prev.outcome === 'ended-early')) return false;   // ended; nothing to resume
-    store.updateDay(key, (d) => { d.meals[meal].kicks = { startedAt: Date.now(), taps: [], endedAt: null, outcome: null }; });
-  } else if (running.kicks.leftAt) {
-    store.updateDay(key, (d) => { delete d.meals[meal].kicks.leftAt; });   // back on the counter
+  if (running) {
+    if (running.kicks.leftAt) store.updateDay(key, (d) => { delete d.meals[meal].kicks.leftAt; });   // back on the counter
+    mount(key, meal, false);
+    return true;
   }
-  mount(key, meal);
+  const prev = rec(key, meal);
+  if (prev?.endedAt && !(again && prev.outcome === 'ended-early')) return false;   // ended; nothing to resume
+  mount(key, meal, true);
   return true;
 }
 
@@ -101,29 +103,42 @@ export function resumeIfRunning({ launch = false } = {}) {
   return openCounter(r.key, r.meal);
 }
 
-function mount(key, meal) {
+function mount(key, meal, pending) {
   const goal = () => settings().goal;
   const title = el('div', { class: 'counter-title', id: 'counter-title', text: `${meal} · movements` });
   const endBtn = el('button', { class: 'counter-pill', type: 'button', text: 'end early' });
-  // leave: the count keeps its taps and keeps running; she comes back to it from Today
+  // leave: a started count keeps its taps and keeps running; she comes back to it from Today.
+  // Before the start nothing is saved.
   const leaveBtn = el('button', { class: 'counter-pill', type: 'button', text: 'leave' });
-  const top = el('div', { class: 'counter-top' }, title, el('div', { class: 'counter-actions' }, leaveBtn, endBtn));
+  const top = el('div', { class: 'counter-top' }, title);
   const spine = el('div', { class: 'counter-spine', 'aria-hidden': 'true' });
   const count = el('div', { class: 'counter-count', 'aria-live': 'polite' });
   const elapsed = el('span'); const left = el('span');
   const readout = el('div', { class: 'counter-readout' }, count, el('div', { class: 'counter-times' }, elapsed, left));
-  const tap = el('button', { class: 'counter-tap', type: 'button', text: 'felt a movement' });
+  const tap = el('button', { class: 'counter-tap', type: 'button', text: pending ? 'start counting' : 'felt a movement' });
   const undo = el('button', { class: 'counter-pill', type: 'button', text: 'undo last tap' });
-  const foot = el('div', { class: 'counter-foot' });
+  // the controls sit at the bottom, in reach of the thumb (owner, 0.6.1); a confirm takes their place
+  const foot = el('div', { class: 'counter-actions' }, leaveBtn, endBtn);
   // A3: the raise control is always on the counter, at the foot (manual §28.6, §28.9)
   const raise = () => el('div', { class: 'counter-raise' }, raiseButton({ key, meal }));
   const root = el('div', { class: 'counter', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'counter-title' },
     top, spine, readout, tap, el('div', { class: 'counter-foot' }, undo), foot, raise());
   document.body.append(root);
 
-  const v = view = { key, meal, root, timer: null, confirming: false };
+  const v = view = { key, meal, root, timer: null, confirming: false, pending };
+
+  const drawReady = () => {
+    const g = goal();
+    spine.replaceChildren(...Array.from({ length: g }, () => el('span', { class: 'counter-node' })));
+    count.replaceChildren(el('span', { class: 'counter-n', text: '0' }), el('span', { class: 'counter-of', text: ` of ${g}` }));
+    elapsed.textContent = 'not started';
+    elapsed.className = 'counter-elapsed';
+    left.textContent = `${settings().windowMinutes} min window`;
+    undo.hidden = true; endBtn.hidden = true;
+  };
 
   const draw = () => {
+    if (v.pending) return drawReady();
     const k = rec(key, meal);
     const g = goal();
     if (!k.endedAt && checkWindow(key, meal)) return drawEnded();
@@ -140,6 +155,7 @@ function mount(key, meal) {
     left.textContent = `${mmss(k.startedAt + settings().windowMinutes * 60000 - now)} left`;
     elapsed.className = 'counter-elapsed';
     undo.disabled = n === 0;
+    undo.hidden = false; endBtn.hidden = v.confirming;
   };
 
   const drawEnded = () => {
@@ -163,6 +179,14 @@ function mount(key, meal) {
   v.drawEnded = drawEnded;
 
   tap.addEventListener('click', (e) => {
+    if (v.pending) {
+      // the window starts now; a fresh count replaces an unfinished one only from here
+      v.pending = false;
+      store.updateDay(key, (d) => { d.meals[meal].kicks = { startedAt: Date.now(), taps: [], endedAt: null, outcome: null }; });
+      tap.textContent = 'felt a movement';
+      draw();
+      return;
+    }
     const k = rec(key, meal);
     if (k.endedAt) return;
     const now = Date.now();
@@ -181,6 +205,7 @@ function mount(key, meal) {
   });
 
   undo.addEventListener('click', () => {
+    if (v.pending) return;
     const k = rec(key, meal);
     if (k.endedAt || !k.taps.length) return;
     store.updateDay(key, (d) => { d.meals[meal].kicks.taps.pop(); });
@@ -188,6 +213,7 @@ function mount(key, meal) {
   });
 
   leaveBtn.addEventListener('click', () => {
+    if (v.pending) { close(); return; }   // nothing started, nothing saved
     if (v.confirming || rec(key, meal).endedAt) return;
     if (checkWindow(key, meal)) return drawEnded();
     store.updateDay(key, (d) => { d.meals[meal].kicks.leftAt = Date.now(); });
@@ -195,16 +221,14 @@ function mount(key, meal) {
   });
 
   endBtn.addEventListener('click', () => {
-    if (v.confirming) return;
+    if (v.confirming || v.pending) return;
     v.confirming = true;
-    leaveBtn.hidden = true;
     const yes = el('button', { class: 'counter-pill', type: 'button', text: 'end now' });
     const no = el('button', { class: 'counter-pill', type: 'button', text: 'keep counting' });
     const box = el('div', { class: 'counter-confirm', role: 'group', 'aria-label': 'end early' },
       el('p', { text: 'end this count now?' }), el('div', { class: 'counter-confirm-row' }, yes, no));
     foot.replaceChildren(box);
-    endBtn.hidden = true;
-    no.addEventListener('click', () => { v.confirming = false; foot.replaceChildren(); endBtn.hidden = false; leaveBtn.hidden = false; tap.focus(); });
+    no.addEventListener('click', () => { v.confirming = false; foot.replaceChildren(leaveBtn, endBtn); endBtn.hidden = false; tap.focus(); });
     yes.addEventListener('click', () => {
       const endedAt = Date.now();
       const end = (alert) => { finish(key, meal, endedAt, 'ended-early'); close(); if (alert) raiseAlert('A4', { key, meal }); };
@@ -231,7 +255,7 @@ function mount(key, meal) {
   window.addEventListener('popstate', v.onPop);
 
   draw();
-  if (!rec(key, meal).endedAt) tap.focus();
+  if (v.pending || !rec(key, meal).endedAt) tap.focus();
 }
 
 function close() {

@@ -126,11 +126,12 @@ export function onCountEnded({ key, meal, kicks }) {
 
 // ---- A3: the raise control ---------------------------------------------------
 
-/** The red pill that opens the alert by hand (manual §28.9). Never collapsed into a menu. */
-export function raiseButton(ctx = {}) {
-  const b = el('button', { class: 'alert-raise', type: 'button' });
+/** The red control that opens the alert by hand (manual §28.9). Never collapsed into a menu.
+ *  compact: a small red circle with the mark (Today, owner 0.6.1); its name stays for VoiceOver. */
+export function raiseButton(ctx = {}, { compact = false } = {}) {
+  const b = el('button', { class: `alert-raise${compact ? ' alert-raise--round' : ''}`, type: 'button', 'aria-label': compact ? RAISE_LABEL : null });
   b.innerHTML = MARK;
-  b.append(el('span', { text: RAISE_LABEL }));
+  if (!compact) b.append(el('span', { text: RAISE_LABEL }));
   b.addEventListener('click', () => raiseAlert('A3', ctx));
   return b;
 }

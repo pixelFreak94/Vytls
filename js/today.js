@@ -378,33 +378,57 @@ export function openDaySheet(key, { returnTo } = {}) {
   const date = new Date(y, m - 1, d);
   const pos = store.dayPosition(key);
   const { form, veil } = frame({
-    eyebrow: [date.toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase(),
-      pos ? `day ${pos.day} of ${pos.lengthDays}` : null, `${countLogged(nodes)} of 7 logged`].filter(Boolean).join(' · '),
+    eyebrow: [date.toLocaleDateString('en-GB', { weekday: 'short' }).toLowerCase(),
+      pos ? `day ${pos.day}` : null, `${countLogged(nodes)} of 7 logged`].filter(Boolean).join(' · '),
     title: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
     nodeId: returnTo,
   });
   veil.classList.add('sheet-veil--card');
 
   const again = () => openDaySheet(key, { returnTo });
-  const row = (n) => {
-    const kids = [el('span', { class: 'node-text' },
-      el('span', { class: 'item-title', text: TITLES[n.kind] }),
-      el('span', { class: 'label label--legible', text: labelFor(n) })),
-    valueChip(n)];
-    if (!store.canLog() || !canTap(n, key)) return el('div', { class: 'day-card-row' }, ...kids);
-    const b = el('button', { class: 'day-card-row is-tappable', type: 'button' }, ...kids);
-    b.addEventListener('click', () => {
-      // the counter is a full screen of its own: the card closes first
-      if (n.kind === 'kicks' && n.rec?.outcome !== 'ended-early') { closeSheet(); openFor(n, key); }
-      else openFor(n, key, again);
-    });
+  const goal = store.get().settings.kicks.goal;
+  const open = (n) => {
+    // the counter is a full screen of its own: the card closes first
+    if (n.kind === 'kicks' && n.rec?.outcome !== 'ended-early') { closeSheet(); openFor(n, key); }
+    else openFor(n, key, again);
+  };
+
+  // A calm table (owner, 0.6.1): one row per part of the day, three cells that mirror the History
+  // grid, the dish and foods on one quiet line beneath. A cell opens its step when it can.
+  const cell = (n, part) => {
+    let text = '–', cls = '';
+    if (n.kind === 'fasting' || n.kind === 'sugar') {
+      if (n.done) { const above = sugarFlag(n.kind, n.rec.value) === 'above'; text = `${above ? '▲ ' : ''}${n.rec.value}`; cls = above ? 'hg-above' : 'dc-settled'; }
+    } else if (n.kind === 'meal') {
+      if (n.done) { text = hhmm(n.rec.finishedAt); cls = 'dc-settled'; }
+    } else if (n.rec?.startedAt) {
+      const k = n.rec;
+      if (!k.endedAt) { text = `${k.taps.length}/${goal}…`; }
+      else if (k.outcome === 'reached') { text = `${Math.max(1, Math.round((k.endedAt - k.startedAt) / 60000))} min`; cls = 'hg-reached'; }
+      else if (k.outcome === 'window-expired') { text = `${k.taps.length}/${goal}`; cls = 'hg-expired'; }
+      else { text = `${k.taps.length}/${goal}`; cls = 'dc-unfinished'; }
+    }
+    const can = store.canLog() && canTap(n, key);
+    if (can && text === '–') { text = '+'; cls = 'dc-add'; }
+    const label = `${part} ${TITLES[n.kind]}: ${labelFor(n)}`;
+    if (!can) return el('span', { class: `dc-cell ${cls}`, 'aria-label': label, text });
+    const b = el('button', { class: `dc-cell is-tappable ${cls}`, type: 'button', 'aria-label': label, text });
+    b.addEventListener('click', () => open(n));
     return b;
   };
-  const group = (name, items) => el('section', { class: 'day-card-group' },
-    el('h3', { class: 'day-card-head', text: name }), ...items.map(row));
-  form.append(el('div', { class: 'day-card' },
-    group('fasting', [nodes[0]]),
-    ...store.MEALS.map((meal, i) => group(meal, nodes.slice(1 + i * 3, 4 + i * 3)))));
+  const blank = () => el('span', { class: 'dc-cell dc-blank', 'aria-hidden': 'true' });
+  const rows = [el('div', { class: 'dc-row dc-cols', 'aria-hidden': 'true' },
+    el('span'), el('span', { text: 'meal' }), el('span', { text: 'sugar' }), el('span', { text: 'moves' }))];
+  rows.push(el('div', { class: 'dc-row' }, el('h3', { class: 'day-card-head', text: 'fasting' }), blank(), cell(nodes[0], 'fasting'), blank()));
+  store.MEALS.forEach((meal, i) => {
+    const [mealN, kicksN, sugarN] = nodes.slice(1 + i * 3, 4 + i * 3);
+    rows.push(el('div', { class: 'dc-row' }, el('h3', { class: 'day-card-head', text: meal }),
+      cell(mealN, meal), cell(sugarN, meal), cell(kicksN, meal)));
+    const m = mealN.rec;
+    const what = [store.foodName(m.dish), (m.foods ?? []).map(store.foodName).join(', ')].filter(Boolean).join(': ');
+    if (what) rows.push(el('p', { class: 'dc-foods', text: what }));
+  });
+  form.append(el('div', { class: 'day-card' }, ...rows));
 
   form.addEventListener('submit', (e) => e.preventDefault());
   veil.querySelector('.sheet-close')?.focus({ preventScroll: true });
