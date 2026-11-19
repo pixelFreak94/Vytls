@@ -84,3 +84,6 @@
   .counter-tap, .counter-node, .counter-pill { transition: none; }
   .counter-bloom { animation: none; display: none; }
 }
+
+/* leave and end early sit together, top right (0.6.0) */
+.counter-actions { display: flex; gap: var(--counter-gap); }

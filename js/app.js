@@ -6,14 +6,14 @@ import { initAtmosphere, setRoom as setAtmosphereRoom } from './atmosphere.js';
 import { runEntry } from './entry.js';
 import { renderSettings } from './settings.js';
 import { initAudio, thup } from './audio.js';
-import { renderToday as renderLifeline, setViewDay, openDaySheet } from './today.js';
+import { renderToday as renderLifeline, openDaySheet } from './today.js';
 import { renderHistory } from './history.js';
 import { renderReport } from './report.js';
 import { resumeIfRunning, closeExpired } from './kicks.js';
 import { raiseButton } from './alerts.js';
 import { askAccount } from './signin.js';
 
-export const VERSION = '0.5.0';   // keep in step with sw.js (DEV_PLAN §3)
+export const VERSION = '0.6.0';   // keep in step with sw.js (DEV_PLAN §3)
 
 const ROOMS = ['today', 'history', 'report', 'settings'];   // fixed order (manual §28.3)
 const CODES = { today: 'tod', history: 'his', report: 'rep', settings: 'set' };
@@ -71,8 +71,8 @@ function renderRoom(room) {
   else if (room === 'settings') renderSettings($('[data-body="settings"]'));
   else if (room === 'report') renderReport($('[data-body="report"]'));
   else if (room === 'history') renderHistory($('[data-body="history"]'), {
-    // a day opens as a card over History; the card can hand over to Today to fill in gaps (manual §28.10)
-    openDay: (key, opener) => openDaySheet(key, { opener, onOpen: () => { setViewDay(key); go('today'); } }),
+    // a day opens as a card over History, and is filled in right there (manual §28.10)
+    openDay: (key) => openDaySheet(key, { returnTo: () => document.querySelector(`[data-day="${key}"]`) }),
   });
   else $(`[data-body="${room}"]`).replaceChildren(emptyState('Nothing here yet.'));
 }
@@ -291,6 +291,7 @@ function boot() {
     showDock();
     paintReadout();
     if (current === 'today') renderToday();
+    else if (current === 'history') renderRoom('history');   // a day edited on its card shows at once
   });
 
   document.querySelectorAll('#nav [data-go]').forEach((b) =>
@@ -313,7 +314,7 @@ function boot() {
       html.dataset.entered = 'true';
       $('#nav').hidden = false;
       go('today', { boot: true });
-      resumeIfRunning();   // a count left running reopens, or closes if its window passed
+      resumeIfRunning({ launch: true });   // a running count reopens (unless she left it), or closes if its window passed
       typeReadout();
       startClock();
     },

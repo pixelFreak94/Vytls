@@ -97,15 +97,17 @@ icons/                app icons
       fasting: { value, at, fasted8h },
       meals: {
         breakfast | lunch | dinner: {
+          dish: "Chicken biryani",                  // optional name; v2
           foods: ["rice, 1 cup", "chicken"],
           finishedAt,
           sugar: { value, at },
-          kicks: { startedAt, taps: [timestamps], endedAt, outcome }
+          kicks: { startedAt, taps: [timestamps], endedAt, outcome, leftAt }   // leftAt: she left a running count
         }
       }
     }
   },
   foodHistory: ["rice, 1 cup", ...],                // for suggestions, most used first
+  dishes: [{ name, foods }],                         // a dish name brings back its ingredients; most used first
   alerts: [{ at, rule, meal }]                      // record of alerts shown
 }
 ```
@@ -123,7 +125,8 @@ Design: manual §28.6.
 - Ends when the 5th tap lands (outcome `reached`, time taken is saved) or when the window passes (outcome `window-expired`).
 - "End early" asks for confirmation and saves outcome `ended-early`. An early end with fewer than 5 is not counted as a completed session, is shown as incomplete in History, and triggers A4 (§6).
 - Only one session can run at a time.
-- The iPhone back swipe does nothing on the counter. The only way out is "end early" or finishing the session.
+- The iPhone back swipe does nothing on the counter. "Leave" closes the screen; the count keeps its taps and keeps running on its timestamps (A1 still fires on time), and she returns to it from Today. It does not reopen by itself at launch.
+- An unfinished count (`ended-early`) on today can be counted again (a fresh count replaces it) or cleared. Finished counts (`reached`, `window-expired`) are never edited: they feed the alerts.
 
 ## 6. Alerts (safety-critical)
 
@@ -152,7 +155,7 @@ Design: manual §28.10, state colours §28.8.
 
 - A 30-row grid for the current month, one row per day, seven cells: fasting, then sugar and movements for each meal. Arrows switch to earlier months.
 - Sugar cells show the number; amber when above target. Movement cells show minutes to reach 5; red for `window-expired`; grey for missing or incomplete.
-- Tapping a day opens that day's detail with foods listed; empty entries can be filled in, logged ones are locked (DECISIONS 32).
+- Tapping a day opens that day's card over History. Its steps open right there and return to the card; empty entries can be filled in, logged ones on past days are locked (DECISIONS 32).
 - A "foods before high readings" list: ingredients ranked by how often they appear in meals followed by an above-target reading, with the count shown beside how often each was eaten overall.
 
 ## 8. Report and backup

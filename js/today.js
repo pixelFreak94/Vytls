@@ -3,7 +3,7 @@
 // so a re-render never closes one that is open. Thresholds are read from settings on every render.
 
 import * as store from './store.js';
-import { openCounter, resumeIfRunning } from './kicks.js';
+import { openCounter, resumeIfRunning, clearUnfinished } from './kicks.js';
 
 const HOUR = 3600000;
 const TEST_AFTER = 2 * HOUR;               // sugar test: meal finished + 2 hours (DEV_PLAN §2)
@@ -89,15 +89,17 @@ function valueChip(n) {
 function labelFor(n) {
   if (n.kind === 'fasting') return n.done ? hhmm(n.rec.at) : 'not logged';
   if (n.kind === 'meal') {
-    const foods = n.rec.foods?.length ? ` · ${n.rec.foods.map(store.foodName).join(', ')}` : '';
-    return (n.done ? `finished ${hhmm(n.rec.finishedAt)}` : 'not logged') + foods;
+    const dish = store.foodName(n.rec.dish);
+    const foods = n.rec.foods?.length ? n.rec.foods.map(store.foodName).join(', ') : '';
+    const what = dish && foods ? `${dish}: ${foods}` : dish || foods;
+    return (n.done ? `finished ${hhmm(n.rec.finishedAt)}` : 'not logged') + (what ? ` · ${what}` : '');
   }
   if (n.kind === 'kicks') {
     const k = n.rec;
-    if (k?.startedAt && !k.endedAt) return `counting · ${k.taps.length} of ${store.get().settings.kicks.goal}`;
+    if (k?.startedAt && !k.endedAt) return `${k.leftAt ? 'still counting' : 'counting'} · ${k.taps.length} of ${store.get().settings.kicks.goal}`;
     if (!n.done) return 'not logged';
     if (k.outcome === 'window-expired') return 'window passed';
-    if (k.outcome === 'ended-early') return 'ended early';
+    if (k.outcome === 'ended-early') return 'unfinished · tap to count again';
     return `${k.taps.length} in ${Math.max(1, Math.round((k.endedAt - k.startedAt) / 60000))} min`;
   }
   if (n.done) return hhmm(n.rec.at);
@@ -169,8 +171,7 @@ function nodeRow(n, state) {
     valueChip(n),
   ];
   const locked = isPast() && n.done;      // past entries are kept as logged
-  // movements: counted live, so only today, and only until the count has ended
-  const tappable = n.kind === 'kicks' ? !isPast() && !n.done : !locked;
+  const tappable = canTap(n, shownKey());
   const hit = tappable
     ? el('button', { class: 'node-hit', type: 'button', 'data-node': n.id }, ...inner)
     : el('div', { class: 'node-hit', 'data-node': n.id }, ...inner);
@@ -184,8 +185,16 @@ function nodeRow(n, state) {
     ...(n.kind === 'kicks' && n.rec?.outcome === 'ended-early' ? { 'data-flag': 'incomplete' } : {}),
     ...(flag ? { 'data-flag': flag } : {}),
   }, dot, hit);
-  if (tappable) hit.addEventListener('click', () => openFor(n));
+  if (tappable) hit.addEventListener('click', () => openFor(n, shownKey()));
   return li;
+}
+
+/** Whether a step can be opened. Past entries are kept once logged (DECISIONS 32). Movements are
+ *  counted live, so only today: an open step, a running count, or an unfinished one (counted again). */
+function canTap(n, key) {
+  const past = key < store.todayKey();
+  if (n.kind === 'kicks') return !past && (!n.done || n.rec?.outcome === 'ended-early');
+  return !(past && n.done);
 }
 
 // ---- render ------------------------------------------------------------
@@ -300,22 +309,29 @@ export function fadeOut(node) {
 
 function closeSheet(returnTo) {
   if (!openSheetEl) return;
+  const { back } = openSheetEl;
   openSheetEl.cleanup();
   fadeOut(openSheetEl.veil);
   openSheetEl = null;
+  if (back) { back(); return; }   // a step opened from History's day card returns to the card
+  if (typeof returnTo === 'function') returnTo = returnTo();
   const target = returnTo instanceof Element ? returnTo : returnTo && document.querySelector(`[data-node="${returnTo}"]`);
   target?.focus?.({ preventScroll: true });
 }
 
-function openFor(n) {
+/** Open a step's sheet (or the counter). back: reopen whatever the step was opened from. */
+function openFor(n, key, back) {
   if (!store.canLog()) return;
-  if (n.kind === 'kicks') { if (!openCounter(shownKey(), n.meal)) resumeIfRunning(); }
-  else if (n.kind === 'meal') openMealSheet(n);
-  else openReadingSheet(n);
+  if (n.kind === 'kicks') {
+    if (n.rec?.outcome === 'ended-early') openUnfinishedSheet(n, key, back);
+    else if (!openCounter(key, n.meal)) resumeIfRunning();
+  } else if (n.kind === 'meal') openMealSheet(n, key, back);
+  else openReadingSheet(n, key, back);
 }
 
 /** The shared frame: veil, dialog, head with a close button. Returns the parts to fill. */
-function frame({ eyebrow, title, nodeId }) {
+function frame({ eyebrow, title, nodeId, back }) {
+  if (openSheetEl) openSheetEl.back = null;   // replacing a sheet never reopens the one before
   closeSheet();
   const titleId = 'sheet-title';
   const close = el('button', { class: 'btn btn-ghost sheet-close', type: 'button', text: 'close' });
@@ -345,16 +361,16 @@ function frame({ eyebrow, title, nodeId }) {
     vv?.removeEventListener('resize', fit);
     vv?.removeEventListener('scroll', fit);
   };
-  openSheetEl = { veil, cleanup };
+  openSheetEl = { veil, cleanup, back };
 
   close.addEventListener('click', () => closeSheet(nodeId));
   veil.addEventListener('click', (e) => { if (e.target === veil) closeSheet(nodeId); });
   return { form, sheet, veil };
 }
 
-/** One day as a read-only card over History (manual §28.10). Nothing is edited here: onOpen hands
- *  the day to Today, where the usual rules apply (past entries locked once logged). */
-export function openDaySheet(key, { opener, onOpen } = {}) {
+/** One day as a card over History (manual §28.10). Its steps open right here, with Today's rules
+ *  (past entries locked once logged); saving or closing a step comes back to the card. */
+export function openDaySheet(key, { returnTo } = {}) {
   const today = store.todayKey();
   const past = key < today;
   const nodes = buildNodes(store.getDay(key), Date.now(), past);
@@ -365,28 +381,31 @@ export function openDaySheet(key, { opener, onOpen } = {}) {
     eyebrow: [date.toLocaleDateString('en-GB', { weekday: 'long' }).toLowerCase(),
       pos ? `day ${pos.day} of ${pos.lengthDays}` : null, `${countLogged(nodes)} of 7 logged`].filter(Boolean).join(' · '),
     title: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
-    nodeId: opener,
+    nodeId: returnTo,
   });
   veil.classList.add('sheet-veil--card');
 
-  const row = (n) => el('div', { class: 'day-card-row' },
-    el('span', { class: 'node-text' },
+  const again = () => openDaySheet(key, { returnTo });
+  const row = (n) => {
+    const kids = [el('span', { class: 'node-text' },
       el('span', { class: 'item-title', text: TITLES[n.kind] }),
       el('span', { class: 'label label--legible', text: labelFor(n) })),
-    valueChip(n));
+    valueChip(n)];
+    if (!store.canLog() || !canTap(n, key)) return el('div', { class: 'day-card-row' }, ...kids);
+    const b = el('button', { class: 'day-card-row is-tappable', type: 'button' }, ...kids);
+    b.addEventListener('click', () => {
+      // the counter is a full screen of its own: the card closes first
+      if (n.kind === 'kicks' && n.rec?.outcome !== 'ended-early') { closeSheet(); openFor(n, key); }
+      else openFor(n, key, again);
+    });
+    return b;
+  };
   const group = (name, items) => el('section', { class: 'day-card-group' },
     el('h3', { class: 'day-card-head', text: name }), ...items.map(row));
   form.append(el('div', { class: 'day-card' },
     group('fasting', [nodes[0]]),
     ...store.MEALS.map((meal, i) => group(meal, nodes.slice(1 + i * 3, 4 + i * 3)))));
 
-  // movements are counted live, so a past day can only gain readings and meals
-  const fillable = past ? nodes.some((n) => n.kind !== 'kicks' && !n.done) : true;
-  if (onOpen && fillable && store.canLog()) {
-    const open = el('button', { class: 'btn btn-filled', type: 'button', text: past ? 'fill in this day' : 'open today' });
-    open.addEventListener('click', () => { closeSheet(); onOpen(); });
-    form.append(el('div', { class: 'sheet-actions' }, open));
-  }
   form.addEventListener('submit', (e) => e.preventDefault());
   veil.querySelector('.sheet-close')?.focus({ preventScroll: true });
 }
@@ -402,15 +421,15 @@ function timeField(ts) {
   return { wrap, input, error };
 }
 
-function openReadingSheet(n) {
+function openReadingSheet(n, key, back) {
   const isFasting = n.kind === 'fasting';
-  const key = shownKey();
   const rec = n.rec;
   const editing = n.done;
   const { form } = frame({
     eyebrow: isFasting ? 'fasting' : `after ${n.meal}${n.testAt ? ` · test at ${hhmm(n.testAt)}` : ''}`,
     title: 'blood sugar',
     nodeId: n.id,
+    back,
   });
 
   // the one large field
@@ -541,17 +560,77 @@ function foodsField(key, meal) {
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addFood(input.value); } });
   add.addEventListener('click', () => { addFood(input.value); input.focus(); });
   paint();
-  return wrap;
+  return { wrap, add: addFood };
 }
 
-function openMealSheet(n) {
-  const key = shownKey();
+/** An unfinished count (ended early) on today: count it again, or clear it. Finished counts stay as logged. */
+function openUnfinishedSheet(n, key, back) {
+  const goal = store.get().settings.kicks.goal;
+  const { form } = frame({ eyebrow: `${n.meal} · movements`, title: 'unfinished count', nodeId: n.id, back });
+  form.append(el('p', { class: 'body', text: `${n.rec.taps?.length ?? 0} of ${goal} counted, then ended early. Counting again starts a fresh count and replaces this one.` }));
+  const again = el('button', { class: 'btn btn-filled', type: 'button', text: 'count again' });
+  const clear = el('button', { class: 'btn btn-ghost', type: 'button', text: 'clear' });
+  form.append(el('div', { class: 'sheet-actions' }, clear, again));
+  form.addEventListener('submit', (e) => e.preventDefault());
+  again.addEventListener('click', () => {
+    if (openSheetEl) openSheetEl.back = null;   // the counter takes the screen; no card under it
+    closeSheet();
+    if (!openCounter(key, n.meal, { again: true })) resumeIfRunning();
+  });
+  clear.addEventListener('click', () => { clearUnfinished(key, n.meal); closeSheet(n.id); });
+  again.focus();
+}
+
+/** The dish name for one meal. A name she has used before brings back its ingredients. */
+function dishField(key, meal, onPick) {
+  const input = el('input', {
+    class: 'field-input', id: 'sheet-dish', type: 'text', enterkeyhint: 'done',
+    placeholder: 'Chicken biryani', autocomplete: 'off', autocapitalize: 'sentences', autocorrect: 'on', spellcheck: 'true',
+  });
+  input.value = store.foodName(store.getDay(key).meals[meal].dish);
+  const sugg = el('div', { class: 'food-suggest', role: 'group', 'aria-label': 'saved dishes' });
+  const wrap = el('div', { class: 'field foods' },
+    el('label', { class: 'field-label', for: 'sheet-dish', text: 'dish' }),
+    el('div', { class: 'field-row food-row' }, input), sugg);
+
+  const commit = () => {
+    const name = store.foodName(input.value);
+    input.value = name;
+    if (name === store.foodName(store.getDay(key).meals[meal].dish)) return;
+    store.updateDay(key, (d) => { d.meals[meal].dish = name; });
+    const saved = store.findDish(name);
+    if (saved) onPick(saved);
+    paint();
+  };
+  const paint = () => {
+    const q = input.value.trim().toLowerCase();
+    const picks = store.get().dishes
+      .filter((x) => x.name.toLowerCase() !== q && (!q || x.name.toLowerCase().includes(q))).slice(0, 5);
+    sugg.hidden = picks.length === 0;
+    sugg.replaceChildren(...picks.map((x) => {
+      const b = el('button', { class: 'food-chip', type: 'button', text: x.name });
+      b.addEventListener('click', () => { input.value = x.name; commit(); });
+      return b;
+    }));
+  };
+  input.addEventListener('input', paint);
+  input.addEventListener('change', commit);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(); input.blur(); } });
+  paint();
+  return { wrap, commit };
+}
+
+function openMealSheet(n, key, back) {
   const editing = n.done;
-  const { form } = frame({ eyebrow: n.meal, title: 'meal', nodeId: n.id });
+  const { form } = frame({ eyebrow: n.meal, title: 'meal', nodeId: n.id, back });
 
   const time = timeField(n.rec.finishedAt);
-  form.append(time.wrap);
-  form.append(foodsField(key, n.meal));
+  const foods = foodsField(key, n.meal);
+  // a saved dish brings back its ingredients; ones already in the meal stay once
+  const dish = dishField(key, n.meal, (saved) => {
+    for (const f of saved.foods) foods.add(f);
+  });
+  form.append(time.wrap, dish.wrap, foods.wrap);
 
   const save = el('button', { class: 'btn btn-filled', type: 'submit', text: editing ? 'save' : 'meal finished' });
   const clear = editing ? el('button', { class: 'btn btn-ghost', type: 'button', text: 'clear' }) : null;
@@ -560,8 +639,12 @@ function openMealSheet(n) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!time.input.value) { time.error('Pick a time.'); return; }
+    dish.commit();
     const at = stampFor(key, time.input.value);
     store.updateDay(key, (d) => { d.meals[n.meal].finishedAt = at; });
+    // remember the dish with this meal's ingredients, so typing its name brings them back
+    const m = store.getDay(key).meals[n.meal];
+    if (m.dish && m.foods.length) store.noteDish(m.dish, m.foods);
     closeSheet(n.id);
   });
   clear?.addEventListener('click', () => {
