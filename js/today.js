@@ -240,8 +240,8 @@ export function renderToday(body) {
     snacks.filter((x) => x.rec.at <= testAt).forEach(step);
     step(sugarN);
     snacks.filter((x) => x.rec.at > testAt).forEach(step);
-    // once the meal is finished, a snack can be added after it (owner, 0.7.0)
-    if (mealN.done && store.canLog()) {
+    // a snack can be added in any meal's part of the day, whether or not the meal was logged (owner, 0.7.2)
+    if (store.canLog()) {
       const add = el('button', { class: 'snack-add', type: 'button', 'data-node': `${meal}-snack-add`, text: '+ add snack' });
       add.addEventListener('click', () => openSnackSheet({ id: `${meal}-snack-add`, kind: 'snack', meal, done: false, rec: null }, shownKey()));
       rows.push({ li: el('li', { class: 'node-add reveal-item' }, add), nodeId: null, hasDot: false });
