@@ -46,27 +46,3 @@
 .rp-sheet .rp-foot { margin-top: var(--sp-5); font-family: var(--font-mono); color: var(--t-primary); }
 .rp-empty { color: var(--t-primary); }
 
-/* the print copy lives on body, hidden on screen */
-#print-view { display: none; }
-
-@media print {
-  @page { size: A4 landscape; margin: var(--rp-print-margin); }
-  body > *:not(#print-view),
-  #world, #readout, #live-chip, #rooms, #nav, .raise-dock, .counter, .alert { display: none !important; }
-  html, body { background: var(--rp-print-paper) !important; color: var(--rp-print-ink); height: auto !important; overflow: visible !important; }
-  #print-view { display: block !important; position: static; background: var(--rp-print-paper); color: var(--rp-print-ink); font-family: var(--font-body); }
-  #print-view .rp-sheet { font-size: var(--rp-print-fs); line-height: 1.3; color: var(--rp-print-ink); }
-  #print-view .rp-sheet h2 { font-size: var(--rp-print-fs-title); color: var(--rp-print-ink); }
-  #print-view .rp-sheet h3 { font-size: calc(var(--rp-print-fs) * 1.5); color: var(--rp-print-ink); }
-  #print-view table { width: 100%; font-size: var(--rp-print-fs); page-break-inside: auto; }
-  #print-view thead { display: table-header-group; }
-  #print-view tr { page-break-inside: avoid; }
-  #print-view th, #print-view td {
-    border: 0.25pt solid var(--rp-print-rule); padding: var(--rp-print-pad-y) var(--rp-print-pad-x);
-    color: var(--rp-print-ink); font-size: var(--rp-print-fs); white-space: normal;
-  }
-  #print-view th { font-size: var(--rp-print-fs-head); font-weight: 700; }
-  #print-view .rp-meta, #print-view .rp-foot { color: var(--rp-print-ink); }
-  #print-view .rp-foot { border-top: 0.25pt solid var(--rp-print-rule-soft); padding-top: var(--rp-print-pad-y); }
-  #print-view .rp-summary { page-break-inside: avoid; }
-}

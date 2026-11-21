@@ -41,7 +41,7 @@ One line per decision. When a decision changes, replace its line; do not keep th
 | 35 | 2026-11-16 | Counter hierarchy: the count leads ("of 5" smaller and greyed), the tap surface second, the title and times small and quiet | Owner's call: one focal point |
 | 36 | 2026-11-16 | Past days in History stay locked once logged, overriding DEV_PLAN §7's "all editable" | Follows DECISIONS 32 |
 | 37 | 2026-11-16 | The raise control (A3) also sits on the counter's finished screen | More cautious than the manual's minimum |
-| 38 | 2026-11-16 | Doctor report exports as PDF through the iPhone print sheet (no PDF library), with period and six include filters, all on by default | Owner's request; keeps the no-packages rule |
+| 38 | 2026-11-21 | Doctor report is a real PDF made on the phone in plain JavaScript (`js/pdf.js`, built-in Helvetica, no library) and handed to the share sheet; period and six include filters, all on by default | iPhone ignores the print command in a Home Screen app, so the print-sheet route did nothing; keeps the no-packages rule |
 | 39 | 2026-11-16 | Restore keeps the replaced data under `vytls.before-restore` and fills in any missing fields | A wrong file must never lose her readings |
 | 40 | 2026-11-16 | Motion amplified about 2.5x (press, room change, reveal, hop, toggle, bloom); the nav pour has 8 rising bubbles; the tap surface pulses | Owner's call |
 | 41 | 2026-11-16 | Today's header is the date ("16th of Nov/26", the day number large, light weight, heading ink); small text sits grouped, in heading ink | Owner's call |
