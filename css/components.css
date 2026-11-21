@@ -353,6 +353,14 @@ html[data-ambient="off"] .nav-pill[aria-current="page"]:not(.is-pouring):not(.is
 
 .node-head { padding: var(--sp-7) 0 var(--sp-2) var(--node-gutter); }
 .node-head.is-lead { padding-top: var(--sp-5); }
+/* snacks: logged after a meal, not one of the 7, so quieter than a step */
+.node[data-kind="snack"] .item-title { color: var(--t-secondary); }
+.node-add { padding-left: var(--node-gutter); }
+.snack-add {
+  min-height: var(--hit-min); padding: 0 var(--sp-3); border: 0; background: transparent;
+  font: inherit; font-size: var(--fs-body-s); color: var(--t-secondary); cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.snack-add:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 .node-head.is-lead::before, .node-head.is-lead::after { display: none; }
 /* tier 1: the part of the day. Tier 2: the step (.item-title). Tier 3: its status (.label). */
 .group-title {
@@ -397,6 +405,7 @@ button.node-hit:active { scale: var(--card-press-scale); transition-duration: va
 button.node-hit:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring); outline-offset: var(--focus-offset); }
 .node[data-state="done"] .node-hit { background: var(--st-settled-tint); }
 .node[data-flag="above"] .node-hit { background: transparent; }
+.node[data-kind="snack"] .node-hit { background: transparent; }   /* a snack is not one of the 7: quieter than a step */
 .node-text { display: grid; gap: 0; min-width: 0; }
 .node-text .item-title, .node-text .label { line-height: var(--node-lh); }
 .lifeline > li.node { padding-block: var(--node-sep); }

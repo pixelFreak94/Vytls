@@ -31,6 +31,8 @@ The Today screen has four cards in time order.
    2. **Movements** — "Start counting" opens the counter (§5).
    3. **Sugar** — the card shows "Test at HH:MM" (meal finished + 2 hours); enter the reading when taken.
 
+   Once a meal is finished, "+ add snack" logs anything eaten after it (time, foods, optional note). A snack sits on the lifeline in time order (before or after the sugar step), is not one of the 7, and does not move the test time. Snacks eaten before the test are listed on that reading's sheet, on the History card, in the report and CSV, and count in "foods before readings above target".
+
 **Day rollover:** the app's day runs from 4 am to 4 am, not midnight to midnight. A late dinner's card stays on Today until 4 am so its 2-hour test and movement count can still be logged there. Entries made between midnight and 4 am belong to the previous day's row; their real clock time is still what is stored and shown.
 
 **Typo guard:** a sugar reading below 40 or above 400 asks "Is this right?" before it is saved.
@@ -79,7 +81,7 @@ icons/                app icons
 
 ```
 {
-  version: 1,
+  version: 3,
   settings: {
     startDate: "YYYY-MM-DD",
     lengthDays: 30,
@@ -102,7 +104,8 @@ icons/                app icons
           foods: ["rice, 1 cup", "chicken"],
           finishedAt,
           sugar: { value, at },
-          kicks: { startedAt, taps: [timestamps], endedAt, outcome, leftAt }   // leftAt: she left a running count
+          kicks: { startedAt, taps: [timestamps], endedAt, outcome, leftAt },  // leftAt: she left a running count
+          snacks: [{ at, foods: [], note }]          // eaten after this meal; v3
         }
       }
     }

@@ -4,7 +4,7 @@
 
 const KEY = 'vytls';
 const CORRUPT_KEY = 'vytls.unreadable';   // a copy of data that would not parse, never deleted by the app
-export const DATA_VERSION = 2;
+export const DATA_VERSION = 3;
 export const MEALS = ['breakfast', 'lunch', 'dinner'];
 
 function defaults() {
@@ -51,6 +51,14 @@ const MIGRATIONS = {
       for (const meal of MEALS) { const m = day?.meals?.[meal]; if (m && m.dish === undefined) m.dish = ''; }
     }
     d.version = 2;
+    return d;
+  },
+  // 3: every meal gets a list of snacks eaten after it ({ at, foods, note? })
+  2: (d) => {
+    for (const day of Object.values(d.days ?? {})) {
+      for (const meal of MEALS) { const m = day?.meals?.[meal]; if (m && !Array.isArray(m.snacks)) m.snacks = []; }
+    }
+    d.version = 3;
     return d;
   },
 };
@@ -170,7 +178,7 @@ export function monthKeys(month) {
 }
 
 function emptyDay() {
-  const meal = () => ({ dish: '', foods: [], finishedAt: null, sugar: null, kicks: null });
+  const meal = () => ({ dish: '', foods: [], finishedAt: null, sugar: null, kicks: null, snacks: [] });
   return { fasting: null, meals: { breakfast: meal(), lunch: meal(), dinner: meal() } };
 }
 
@@ -183,6 +191,15 @@ export function updateDay(key, fn) {
     if (!d.days[key]) d.days[key] = emptyDay();
     fn(d.days[key]);
   });
+}
+
+/** A meal's snacks in time order (eaten after the meal, before the next one). */
+export function snacksOf(m) { return [...(m?.snacks ?? [])].sort((a, b) => a.at - b.at); }
+
+/** The snacks eaten after a meal and before its 2-hour test was taken (all of them if no test yet). */
+export function snacksBeforeTest(m) {
+  const by = m?.sugar?.at ?? Infinity;
+  return snacksOf(m).filter((x) => x.at <= by);
 }
 
 /** The one movement session still running, if any: { key, meal, kicks }. */
@@ -227,7 +244,11 @@ export function renameFood(from, to) {
   return update((d) => {
     d.foodHistory = fix(d.foodHistory);
     for (const dish of d.dishes) dish.foods = fix(dish.foods);
-    for (const day of Object.values(d.days)) for (const meal of MEALS) { const m = day.meals?.[meal]; if (m?.foods) m.foods = fix(m.foods); }
+    for (const day of Object.values(d.days)) for (const meal of MEALS) {
+      const m = day.meals?.[meal];
+      if (m?.foods) m.foods = fix(m.foods);
+      for (const x of m?.snacks ?? []) x.foods = fix(x.foods ?? []);
+    }
   });
 }
 

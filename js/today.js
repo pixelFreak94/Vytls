@@ -64,6 +64,14 @@ function buildNodes(day, now, past) {
 // a count ended early below the goal is incomplete and not counted (DEV_PLAN §5)
 const countLogged = (nodes) => nodes.filter((n) => n.kind !== 'meal' && n.done && n.rec?.outcome !== 'ended-early').length;
 
+/** A meal's snacks as nodes, in time order. Not one of the 7; the ball never rests on one. */
+function snackNodes(m, meal) {
+  return store.snacksOf(m).map((x) => ({ id: `${meal}-snack-${x.at}`, kind: 'snack', meal, done: true, rec: x }));
+}
+
+/** "Milk tea, Cake rusk, 2 small" */
+const snackWhat = (x) => (x.foods ?? []).map(store.foodName).filter(Boolean).join(', ');
+
 // ---- pieces ------------------------------------------------------------
 
 function chip(cls, ...kids) { return el('span', { class: `chip ${cls}` }, ...kids); }
@@ -88,6 +96,7 @@ function valueChip(n) {
 
 function labelFor(n) {
   if (n.kind === 'fasting') return n.done ? hhmm(n.rec.at) : 'not logged';
+  if (n.kind === 'snack') return [hhmm(n.rec.at), snackWhat(n.rec)].filter(Boolean).join(' · ');
   if (n.kind === 'meal') {
     const dish = store.foodName(n.rec.dish);
     const foods = n.rec.foods?.length ? n.rec.foods.map(store.foodName).join(', ') : '';
@@ -107,7 +116,7 @@ function labelFor(n) {
   return 'not logged';
 }
 
-const TITLES = { fasting: 'sugar', meal: 'meal', kicks: 'movements', sugar: 'sugar' };
+const TITLES = { fasting: 'sugar', meal: 'meal', kicks: 'movements', sugar: 'sugar', snack: 'snack' };
 
 // ---- which day is shown ----------------------------------------------------
 // Today by default. Past days can be opened to fill in what was missed; anything already
@@ -223,8 +232,19 @@ export function renderToday(body) {
   rows.push({ li: nodeRow(nodes[0], { docked: dock === nodes[0] }), nodeId: nodes[0].id, hasDot: true });
   store.MEALS.forEach((meal, i) => {
     rows.push(head(meal));
-    for (const n of nodes.slice(1 + i * 3, 4 + i * 3)) {
-      rows.push({ li: nodeRow(n, { docked: dock === n }), nodeId: n.id, hasDot: true });
+    const [mealN, kicksN, sugarN] = nodes.slice(1 + i * 3, 4 + i * 3);
+    const testAt = sugarN.rec?.at ?? Infinity;
+    const snacks = snackNodes(day.meals[meal], meal);
+    const step = (n) => rows.push({ li: nodeRow(n, { docked: dock === n }), nodeId: n.id, hasDot: true });
+    step(mealN); step(kicksN);
+    snacks.filter((x) => x.rec.at <= testAt).forEach(step);
+    step(sugarN);
+    snacks.filter((x) => x.rec.at > testAt).forEach(step);
+    // once the meal is finished, a snack can be added after it (owner, 0.7.0)
+    if (mealN.done && store.canLog()) {
+      const add = el('button', { class: 'snack-add', type: 'button', 'data-node': `${meal}-snack-add`, text: '+ add snack' });
+      add.addEventListener('click', () => openSnackSheet({ id: `${meal}-snack-add`, kind: 'snack', meal, done: false, rec: null }, shownKey()));
+      rows.push({ li: el('li', { class: 'node-add reveal-item' }, add), nodeId: null, hasDot: false });
     }
   });
   const closeDot = el('span', { class: 'node-dot is-mark', 'aria-hidden': 'true' });
@@ -328,6 +348,7 @@ function openFor(n, key, back) {
     if (n.rec?.outcome === 'ended-early') openUnfinishedSheet(n, key, back);
     else if (!openCounter(key, n.meal)) resumeIfRunning();
   } else if (n.kind === 'meal') openMealSheet(n, key, back);
+  else if (n.kind === 'snack') openSnackSheet(n, key, back);
   else openReadingSheet(n, key, back);
 }
 
@@ -430,6 +451,9 @@ export function openDaySheet(key, { returnTo } = {}) {
     const m = mealN.rec;
     const what = [store.foodName(m.dish), (m.foods ?? []).map(store.foodName).join(', ')].filter(Boolean).join(': ');
     if (what) rows.push(el('p', { class: 'dc-foods', text: what }));
+    for (const x of store.snacksOf(m)) {
+      rows.push(el('p', { class: 'dc-foods dc-snack', text: `snack ${hhmm(x.at)} · ${snackWhat(x)}${x.note ? ` (${x.note})` : ''}` }));
+    }
     for (const note of [m.note, sugarN.rec?.note]) if (note) rows.push(el('p', { class: 'dc-foods dc-note', text: note }));
   });
   // the values settle in one after another (owner, 0.6.2)
@@ -487,6 +511,13 @@ function openReadingSheet(n, key, back) {
   const reading = el('div', { class: 'field reading' },
     el('div', { class: 'field-row' }, input, el('span', { class: 'field-unit reading-unit', 'aria-hidden': 'true', text: 'mg/dL' })), note);
   form.append(reading);
+
+  // snacks eaten after the meal and before this test, so the reading is read with them (owner, 0.7.0)
+  if (!isFasting) {
+    for (const x of store.snacksBeforeTest(store.getDay(key).meals[n.meal])) {
+      form.append(el('p', { class: 'field-note sheet-snack', text: `snack at ${hhmm(x.at)} · ${snackWhat(x)}` }));
+    }
+  }
 
   // fasted 8 hours (fasting only)
   let fasted = rec?.fasted8h ?? false;
@@ -558,8 +589,11 @@ function openReadingSheet(n, key, back) {
 }
 
 /** The ingredient list for one meal: add field, suggestions from past foods, the added foods with remove. */
-function foodsField(key, meal) {
-  const current = () => store.getDay(key).meals[meal].foods ?? [];
+function foodsField(key, meal, local = null) {
+  // local: a list held by the sheet until it is saved (a snack); otherwise the meal's own foods
+  const current = () => local ?? store.getDay(key).meals[meal].foods ?? [];
+  const push = (f) => { if (local) local.push(f); else store.updateDay(key, (d) => { d.meals[meal].foods.push(f); }); };
+  const drop = (i) => { if (local) local.splice(i, 1); else store.updateDay(key, (d) => { d.meals[meal].foods.splice(i, 1); }); };
   const input = el('input', {
     class: 'field-input', id: 'sheet-food', type: 'text', enterkeyhint: 'done',
     // the iPhone keyboard capitalises and corrects spelling as she types
@@ -576,7 +610,7 @@ function foodsField(key, meal) {
     const f = store.foodName(raw);
     input.value = '';
     if (f && !current().some((x) => x.toLowerCase() === f.toLowerCase())) {
-      store.updateDay(key, (d) => { d.meals[meal].foods.push(f); });
+      push(f);
       store.noteFood(f);
     }
     paint();
@@ -586,7 +620,7 @@ function foodsField(key, meal) {
     list.replaceChildren(...have.map((f, i) => {
       const rm = el('button', { class: 'food-remove', type: 'button', 'aria-label': `remove ${f}`, text: '×' });
       rm.addEventListener('click', () => {
-        store.updateDay(key, (d) => { d.meals[meal].foods.splice(i, 1); });
+        drop(i);
         paint();
       });
       return el('li', { class: 'food-item' }, el('span', { class: 'food-name', text: store.foodName(f) }), rm);
@@ -606,7 +640,7 @@ function foodsField(key, meal) {
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addFood(input.value); } });
   add.addEventListener('click', () => { addFood(input.value); input.focus(); });
   paint();
-  return { wrap, add: addFood };
+  return { wrap, add: addFood, input };
 }
 
 /** An unfinished count (ended early) on today: count it again, or clear it. Finished counts stay as logged. */
@@ -717,4 +751,42 @@ function openMealSheet(n, key, back) {
     closeSheet(n.id);
   });
   save.focus();
+}
+
+/** A snack after a meal: its time, what was eaten and an optional note. It does not move the
+ *  meal's 2-hour test time; it is shown beside that test's reading instead (owner, 0.7.0). */
+function openSnackSheet(n, key, back) {
+  const editing = n.done;
+  const { form } = frame({ eyebrow: `after ${n.meal}`, title: 'snack', nodeId: n.id, back });
+  const list = [...(n.rec?.foods ?? [])];
+  const time = timeField(n.rec?.at);
+  const foods = foodsField(key, n.meal, list);
+  const memo = noteField(n.rec?.note);
+  const note = el('p', { class: 'field-note', role: 'status', hidden: true });
+  form.append(time.wrap, foods.wrap, note, memo.wrap);
+
+  const save = el('button', { class: 'btn btn-filled', type: 'submit', text: 'save' });
+  const del = editing ? el('button', { class: 'btn btn-ghost', type: 'button', text: 'delete' }) : null;
+  form.append(el('div', { class: 'sheet-actions' }, ...[del, save].filter(Boolean)));
+
+  const without = (snacks) => snacks.filter((x) => !(editing && x.at === n.rec.at));
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (foods.input.value.trim()) foods.add(foods.input.value);   // typed but not yet added
+    if (!time.input.value) { time.error('Pick a time.'); return; }
+    if (!list.length) { note.textContent = 'Add what was eaten.'; note.hidden = false; foods.input.focus(); return; }
+    let at = stampFor(key, time.input.value);
+    const others = without(store.getDay(key).meals[n.meal].snacks ?? []);
+    while (others.some((x) => x.at === at)) at += 1;   // two snacks in one minute keep their own ids
+    store.updateDay(key, (d) => {
+      const m = d.meals[n.meal];
+      m.snacks = [...without(m.snacks ?? []), { at, foods: list, ...(memo.value() ? { note: memo.value() } : {}) }];
+    });
+    closeSheet(`${n.meal}-snack-${at}`);
+  });
+  del?.addEventListener('click', () => {
+    store.updateDay(key, (d) => { d.meals[n.meal].snacks = without(d.meals[n.meal].snacks ?? []); });
+    closeSheet(`${n.meal}-snack-add`);
+  });
+  (editing ? save : foods.input).focus();
 }

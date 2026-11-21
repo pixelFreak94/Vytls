@@ -87,10 +87,12 @@ function foodsBeforeAbove(s) {
   for (const day of Object.values(store.get().days)) {
     for (const meal of store.MEALS) {
       const m = day.meals?.[meal];
-      if (!m || !m.foods?.length) continue;
+      // snacks eaten before the test count as part of what preceded the reading
+      const eaten = [...(m?.foods ?? []), ...store.snacksBeforeTest(m).flatMap((x) => x.foods ?? [])];
+      if (!eaten.length) continue;
       const above = m.sugar && m.sugar.value > s.targets.afterMeal;
       const seen = new Set();
-      for (const f of m.foods) {
+      for (const f of eaten) {
         const k = store.foodName(f).toLowerCase();
         if (!k || seen.has(k)) continue;
         seen.add(k);
