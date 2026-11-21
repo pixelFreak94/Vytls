@@ -2,14 +2,14 @@
 
 Overwritten at every "save progress". Maximum 15 lines.
 
-**Last saved:** 2026-11-19
+**Last saved:** 2026-11-21
 
-**State:** 0.6.2 live on `main`. Since 0.5.0: dish names (data v2), foods editable in Settings, counter with no clock (first tap starts a hidden 60-min window; leave, end early, undo at the bottom), unfinished counts redone or cleared, History day card as a small table that edits in place, trends charts (`js/trends.js`), notes, same as yesterday, small red circle for A3 on Today, cream launch screens (`icons/splash/`). All four alert triggers re-tested.
+**State:** 0.7.0 live on `main`. New: snacks logged under the meal they follow ("+ add snack" once a meal is finished; time required, foods, note). Data v3 (`meals[x].snacks`). Snacks before the test show on the sugar sheet, History card, report, CSV and the above-target foods list. The test time does not move. Alerts untouched.
 
 **Do next:**
-1. Ask the owner for her iPhone results on 0.6.2; fix one concern per pass.
-2. If the launch flicker remains, iOS may need the icon re-added: back up first, since removing the icon deletes her data.
+1. Ask the owner for her iPhone results on 0.7.0 (snack row prominence, "+ add snack" findability); fix one concern per pass.
+2. If the doctor says a snack restarts the 2-hour clock, change `testAt` in `buildNodes` (`js/today.js`) and update DEV_PLAN §2 and DECISIONS 56.
 
-**Open with the owner:** public or private repo; the quiet note.
+**Open with the owner:** public or private repo; the quiet note; the doctor's answer on snacks and test timing.
 
 **Watch out for:** any change to `alerts.js` or the counter's first tap, leave, end early or count-again flow in `kicks.js` needs every trigger re-tested before commit. Each release bumps VERSION in `sw.js` and `js/app.js`; new files go in `sw.js` FILES.

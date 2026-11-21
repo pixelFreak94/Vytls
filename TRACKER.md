@@ -2,7 +2,7 @@
 
 Current state only. When a phase is finished, collapse its tasks into the single phase line. Phases are defined in `DEV_PLAN.md` §12.
 
-**Pick up here:** 0.6.2 is live on `main`. Owner checks it on her iPhone from the Home Screen, including whether the launch flicker is gone.
+**Pick up here:** 0.7.0 (snacks) is live on `main`. Owner checks it on her iPhone from the Home Screen, and asks the doctor whether a snack should restart the 2-hour test clock.
 
 ## Phases
 
@@ -11,7 +11,7 @@ Current state only. When a phase is finished, collapse its tasks into the single
 | 0 | Repo and project files | Done |
 | 1 | Design foundation, app shell, navigation, data layer, Settings basics | Done |
 | 2 | Today screen and sugar logging | Done |
-| 3 | Ingredient list | Done |
+| 3 | Ingredient list | Done; snacks after a meal (0.7.0) |
 | 4 | Movement counter | Done; back-swipe block untested on iPhone |
 | 5 | Alerts | Done; alert rules unchanged; all four triggers re-tested on the clock-free counter (0.6.2) |
 | 6 | History, with the day card | Done; card is a small table that edits in place; trends charts (0.6.2) |
@@ -28,6 +28,7 @@ Current state only. When a phase is finished, collapse its tasks into the single
 
 ## Waiting on the owner
 
+- Doctor: should a snack before the test restart the 2-hour clock? (now it stays tied to the meal)
 - Whether the repo stays public (free) or goes private (GitHub Pro, or a move to another free host before she starts logging)
 
 ## Known issues
