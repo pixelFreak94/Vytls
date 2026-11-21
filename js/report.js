@@ -1,9 +1,10 @@
-// report.js — the Report room: doctor report (PDF via print), CSV, backup and restore, reminder guide
+// report.js — the Report room: doctor report (PDF made on the phone, js/pdf.js), CSV, backup and restore, reminder guide
 // (DEV_PLAN §8, §10; DECISIONS 29, 32-34; manual §28.10, §28.11).
 // renderReport(body) is idempotent. Everything stays on the phone: files are made in memory and handed to
 // the share sheet or downloaded by her; nothing is sent anywhere.
 
 import * as store from './store.js';
+import { reportPdf } from './pdf.js';
 
 const el = (tag, props = {}, ...kids) => {
   const n = document.createElement(tag);
@@ -306,7 +307,13 @@ export function renderReport(body) {
 
   const status = el('p', { class: 'rp-status', role: 'status' });
   const pdfBtn = el('button', { class: 'btn btn-filled rp-btn', type: 'button', text: 'export pdf' });
-  pdfBtn.addEventListener('click', () => printReport());
+  pdfBtn.addEventListener('click', async () => {
+    const [a, b] = range();
+    let bytes;
+    try { bytes = reportPdf(buildSheet(state.on)); } catch { status.textContent = 'pdf could not be made. export csv instead.'; return; }
+    const ok = await deliver(`vytls-report-${a}-${b}.pdf`, bytes, 'application/pdf');
+    status.textContent = ok ? 'pdf ready' : '';
+  });
   const csvBtn = el('button', { class: 'btn btn-ghost rp-btn', type: 'button', text: 'export csv' });
   csvBtn.addEventListener('click', async () => {
     const [a, b] = range();
@@ -318,7 +325,7 @@ export function renderReport(body) {
     el('h2', { class: 'rp-h', text: 'doctor report' }),
     select, dates, toggles,
     el('div', { class: 'rp-row' }, pdfBtn, csvBtn),
-    el('p', { class: 'rp-note', text: 'export pdf opens the print sheet. choose share, then save to files.' }),
+    el('p', { class: 'rp-note', text: 'export pdf opens the share sheet. choose save to files, or send it.' }),
     status, preview));
   paint();
 
@@ -399,15 +406,4 @@ export function renderReport(body) {
   void settings;
 
   body.replaceChildren(root);
-}
-
-// ---- print ------------------------------------------------------------------------
-
-export function printReport() {
-  document.getElementById('print-view')?.remove();
-  const pv = el('div', { id: 'print-view' }, buildSheet(state.on));
-  document.body.append(pv);
-  const done = () => { pv.remove(); window.removeEventListener('afterprint', done); };
-  window.addEventListener('afterprint', done);
-  window.print();
 }
