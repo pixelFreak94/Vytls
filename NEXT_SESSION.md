@@ -4,7 +4,7 @@ Overwritten at every "save progress". Maximum 15 lines.
 
 **Last saved:** 2026-11-21
 
-**State:** 0.7.1 live on `main`. 0.7.0: snacks under the meal they follow (data v3, `meals[x].snacks`; time required; shown beside the sugar test; test time not moved). 0.7.1: "export pdf" builds a real PDF in `js/pdf.js` (built-in Helvetica, no library) and opens the share sheet; `window.print()` did nothing from the Home Screen. Non-Latin text prints as "?".
+**State:** 0.7.2 live on `main`. Snacks (0.7.0, always addable since 0.7.2) sit under each meal's heading (data v3, `meals[x].snacks`; time required; shown beside the sugar test; test time not moved). 0.7.1: "export pdf" builds a real PDF in `js/pdf.js` (built-in Helvetica, no library) and opens the share sheet; `window.print()` did nothing from the Home Screen. Non-Latin text prints as "?".
 
 **Do next:**
 1. Ask the owner for her iPhone results: export pdf → Save to Files; snack row and "+ add snack". Fix one concern per pass.

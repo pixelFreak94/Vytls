@@ -2,7 +2,7 @@
 
 Current state only. When a phase is finished, collapse its tasks into the single phase line. Phases are defined in `DEV_PLAN.md` §12.
 
-**Pick up here:** 0.7.1 is live on `main`: snacks (0.7.0) and export pdf rebuilt as a real file via the share sheet. Owner checks both on her iPhone from the Home Screen, and asks the doctor whether a snack should restart the 2-hour test clock.
+**Pick up here:** 0.7.2 is live on `main`: snacks (0.7.0; "+ add snack" under every meal, logged or not, 0.7.2) and export pdf rebuilt as a real file via the share sheet. Owner checks both on her iPhone from the Home Screen, and asks the doctor whether a snack should restart the 2-hour test clock.
 
 ## Phases
 
