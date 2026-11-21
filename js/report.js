@@ -20,6 +20,7 @@ const el = (tag, props = {}, ...kids) => {
 const MEALS = store.MEALS;
 const DASH = '–';
 const pad = (n) => String(n).padStart(2, '0');
+const hhmmOf = (ts) => { const d = new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 const OUTCOME_LABEL = { reached: 'reached', 'window-expired': 'window passed', 'ended-early': 'incomplete' };
 const RULE_LABEL = {
   A1: 'movement window passed below the goal',
@@ -89,13 +90,14 @@ function dayFacts(key) {
       dish: store.foodName(x?.dish),
       note: [x?.note, x?.sugar?.note].filter(Boolean).join('; '),
       foods: (x?.foods ?? []).map(store.foodName).filter(Boolean),
+      snacks: store.snacksOf(x).map((s) => `snack ${hhmmOf(s.at)}: ${(s.foods ?? []).map(store.foodName).join('; ')}${s.note ? ` (note: ${s.note})` : ''}`),
     };
   }
   return f;
 }
 
 /** A meal's foods as one line; the dish name leads ("Chicken biryani: Rice; Chicken"). */
-const foodText = (m) => [[m.dish, m.foods.join('; ')].filter(Boolean).join(': '), m.note ? `(note: ${m.note})` : ''].filter(Boolean).join(' ');
+const foodText = (m) => [[[m.dish, m.foods.join('; ')].filter(Boolean).join(': '), m.note ? `(note: ${m.note})` : ''].filter(Boolean).join(' '), ...m.snacks].filter(Boolean).join(' · ');
 
 const alertsIn = (keys) => {
   const set = new Set(keys);
